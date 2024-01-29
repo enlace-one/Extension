@@ -1,0 +1,266 @@
+console.log('Executing popup.js');
+
+
+
+
+// Show/Hide 
+function showhide(hideId) {
+    var div = document.getElementById(hideId);
+    div.classList.toggle('hidden'); 
+  }
+
+window.addEventListener("DOMContentLoaded", function() {
+    Array.from(document.getElementsByClassName("hide-trigger")).forEach(element => {
+        element.addEventListener("click", function() {
+            showhide(element.getAttribute("hide-id"))
+        });
+    });
+});
+
+document.addEventListener('DOMContentLoaded', function() {
+    const tabButtons = document.querySelectorAll('.tab-button');
+    const tabContents = document.querySelectorAll('.tab-content');
+
+    tabButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            const tabId = this.dataset.tab;
+
+            // Hide all tab contents
+            tabContents.forEach(content => {
+                content.classList.add('hidden');
+            });
+
+            // Deactivate all tab buttons
+            tabButtons.forEach(button => {
+                button.classList.remove('active');
+            });
+
+            // Show the clicked tab content
+            document.getElementById(tabId).classList.remove('hidden');
+
+            // Activate the clicked tab button
+            this.classList.add('active');
+        });
+    });
+});
+
+
+// Select all elements with the attribute "menu-div-id"
+const elementsWithMenuDivId = document.querySelectorAll('[menu-div-id]');
+
+// Loop through the selected elements
+elementsWithMenuDivId.forEach(element => {
+    // Do something with each element
+    element.addEventListener("click", function() {
+        showhide(element.getAttribute("menu-div-id"))
+        element.classList.toggle("menu-open")
+    });
+});
+
+
+    
+
+chrome.commands.getAll(function(commands) {
+    commands.forEach(function(command) {
+        console.log('Command: ' + command.name);
+        console.log('Shortcut: ' + command.shortcut);
+        const element = document.getElementById(command.name + "-label")
+        if (element) {
+            element.innerHTML = command.shortcut + " copies:"
+        }
+    });
+});
+
+// Hover over help Text
+document.addEventListener('DOMContentLoaded', function () {
+    var tooltips = document.querySelectorAll('[hover-text]');
+
+    tooltips.forEach(function (tooltip) {
+        tooltip.classList.add('hover-text-trigger')
+        var tooltipText = tooltip.getAttribute('hover-text');
+        var tooltipElement = document.createElement('div');
+        tooltipElement.classList.add('tooltiptext');
+        tooltipElement.textContent = tooltipText;
+        tooltip.appendChild(tooltipElement);
+    });
+});
+
+
+
+
+// Lock/Unlock
+const validation_salt = "Validation129"
+const storage_salt = "Enlsal294"
+
+function lock() {
+    chrome.storage.session.set({"en_locked": true});
+    showhide("locked-div");
+    showhide("unlocked-div");
+}
+async function unlock(key) {
+    const hashValidation = await hashString(key + validation_salt)
+    if (hashValidation == await get("hashValidation")) {
+        // Store for unlocking
+        runOnUnlock()
+        const hashKey = await hashString(key + storage_salt)
+        chrome.storage.session.set({"en_locked": hashKey});
+    } else {
+        console.log("Incorrect password")
+    }
+}
+
+async function runOnUnlock() {
+    console.log("Unlocked")
+    // Send the event
+    const event = new Event('EnlaceUnlocked');
+    document.dispatchEvent(event);
+    // Handles the HTML
+    showhide("locked-div");
+    showhide("unlocked-div");
+    document.getElementById("password").value = "";
+}
+
+async function setPassword(key) {
+    // They will not be able to unencrypt already encrypted items
+    console.log("Setting pw")
+    const hashValidation = await hashString(key + validation_salt)
+    store("hashValidation", hashValidation)
+}
+
+async function onStart() {
+    if (! await isLocked()) {
+        runOnUnlock()
+    }
+}
+
+onStart()
+
+
+document.getElementById("password").addEventListener('keydown', async function(event) {
+    if (event.key === 'Enter') {
+        if (document.getElementById('set-reset-pw').checked) {
+            await setPassword(document.getElementById("password").value)
+            await unlock(document.getElementById("password").value)
+            document.getElementById('set-reset-pw').checked = false
+        } else {
+            await unlock(document.getElementById("password").value)
+        }
+    }
+});
+
+document.getElementById("lock-button").addEventListener('click', async function () {
+    lock()
+})
+
+// Store new keys and set value
+document.addEventListener("EnlaceUnlocked", async function() {
+    console.log("triggered unlock stuff ")
+    Array.from(document.getElementsByClassName("store-input-value")).forEach(async element => {
+        try {
+            element.value = await eGet(element.getAttribute("key"))
+        } catch {
+            console.log("No found value stored for " + element.getAttribute("key"))
+        }
+        element.addEventListener("change", function() {
+            console.log("triggered input onchange")
+            eStore(element.getAttribute("key"), element.value)
+        });
+    });
+});
+
+
+// Set Variables
+const variables = {
+    extensionName: "Enlace Assistant"
+  }
+  
+window.addEventListener("DOMContentLoaded", function() {
+for (const v in variables) {
+    Array.from(document.getElementsByClassName(v)).forEach(element => {
+    element.innerHTML = variables[v];
+    });
+}
+});
+
+
+// Examples
+
+// Save default API suggestions
+// chrome.runtime.onInstalled.addListener(({ reason }) => {
+//     if (reason === 'install') {
+//       chrome.storage.local.set({
+//         apiSuggestions: ['tabs', 'storage', 'scripting']
+//       });
+//     }
+//   });
+
+
+// // Only use this function during the initial install phase. After
+// // installation the user may have intentionally unassigned commands.
+// function checkCommandShortcuts() {
+//     chrome.commands.getAll((commands) => {
+//       let missingShortcuts = [];
+  
+//       for (let {name, shortcut} of commands) {
+//         if (shortcut === '') {
+//           missingShortcuts.push(name);
+//         }
+//       }
+  
+//       if (missingShortcuts.length > 0) {
+//         // Update the extension UI to inform the user that one or more
+//         // commands are currently unassigned.
+//       }
+//     });
+//   }
+
+
+// ,
+//     "copy-value-4": {
+//       "suggested_key": {
+//         "default": "Ctrl+Shift+4",
+//         "mac": "Command+Shift+4"
+//       },
+//       "description": "Copies value 4",
+//       "global": true
+//     },
+//     "copy-value-5": {
+//       "suggested_key": {
+//         "default": "Ctrl+Shift+5",
+//         "mac": "Command+Shift+5"
+//       },
+//       "description": "Copies value 5",
+//       "global": true
+//     },
+//     "copy-value-6": {
+//       "suggested_key": {
+//         "default": "Ctrl+Shift+6",
+//         "mac": "Command+Shift+6"
+//       },
+//       "description": "Copies value 6",
+//       "global": true
+//     },
+//     "copy-value-7": {
+//       "suggested_key": {
+//         "default": "Ctrl+Shift+7",
+//         "mac": "Command+Shift+7"
+//       },
+//       "description": "Copies value 7",
+//       "global": true
+//     },
+//     "copy-value-8": {
+//       "suggested_key": {
+//         "default": "Ctrl+Shift+8",
+//         "mac": "Command+Shift+8"
+//       },
+//       "description": "Copies value 8",
+//       "global": true
+//     },
+//     "copy-value-9": {
+//       "suggested_key": {
+//         "default": "Ctrl+Shift+9",
+//         "mac": "Command+Shift+9"
+//       },
+//       "description": "Copies value 9",
+//       "global": true
+//     }

@@ -1,0 +1,127 @@
+<html>
+  <head>
+    <style>
+      .hidden{
+        display : none;
+      }
+      .menu::after {
+          content: '  v';
+          font-size: 8px;
+          font-style: italic;
+      }
+      .menu-open::after {
+          content: '  ^';
+          font-size: 8px;
+      }
+      
+      .tooltiptext {
+        visibility: hidden;
+        opacity: 0;
+        color: white;
+        background-color: grey;
+        text-align: center;
+        border-radius: 6px;
+        padding: 7px 10px;
+        position: fixed;
+        bottom: 0%;
+        left: 50%;
+        transform: translateX(-50%);
+        transition: opacity 0.3s, visibility 0.3s;
+        width: 100vw;
+        
+      } 
+
+      .hover-text-trigger {
+          position: relative;
+          display: inline-block;
+
+        }
+
+      .hover-text-trigger:hover .tooltiptext {
+        visibility: visible;
+        opacity: 1;
+        display: block;
+      }
+
+      .tab-content.hidden {
+            display: none;
+        }
+
+    </style>
+  </head>
+  <body style="height:400px; width: 300px">
+    <h1 style="width:200px;" class="extensionName"></h1>
+    <div id="locked-div">
+      <label>Enter Password:</label>
+      <div style="display: inline-block;">
+        <input id="password" type="password" class="" key=""/>
+        <p hover-text="First time? Check the box and make up a password">(i)</p>
+      </div>
+      <div style="display: inline-block;">
+        <input id="set-reset-pw" type="checkbox" value="Set/Reset"/>
+        <label hover-text="You will not be able to access any stored values after reseting the password">Set/Reset Password</label>
+      </div>
+    </div>
+    <div id="unlocked-div" class="hidden">
+
+      <div class="tab-container">
+        <div class="tabs">
+            <button class="tab-button active" data-tab="e-clip">e-Clip</button>
+            <button class="tab-button hidden" data-tab="page-notes">Page Notes</button>
+            <button class="tab-button" data-tab="info">Info</button>
+            <input type="button" value="lock" id="lock-button"/>
+            <!-- Add more tab buttons as needed -->
+        </div>
+        <div class="tab-content hidden" id="page-notes">
+          <h3>Page Notes</h3>
+          <textarea id="page-note-textarea" height="10"></textarea>
+          <input id="page-note-url"/>
+        </div>
+        <div class="tab-content" id="e-clip">
+          <h3>e-Clip</h3>
+          <div id="copy-div">
+            <div>
+              <label id="copy-value-1-label">Copy Value 1</label>
+              <input id="copy-value-1" type="text" class="store-input-value" key="copy-value-1"/>
+            </div>
+            <div>
+              <label id="copy-value-2-label">Copy Value 2</label>
+              <input id="copy-value-2" type="text" class="store-input-value" key="copy-value-2"/>
+            </div>
+            <div>
+              <label id="copy-value-3-label">Copy Value 3</label>
+              <input id="copy-value-3" type="text" class="store-input-value" key="copy-value-3"/>
+            </div>
+          </div>
+        </div>
+        <div class="tab-content hidden" id="info">
+          <h3 class="menu" menu-div-id="how-to-div">FAQ</h3>
+          <div id="how-to-div" class="hidden">
+            <a href="#" class="hide-trigger" hide-id="how-to-window-kbs">Open this window with a keyboard shortcut?</a>
+            <div id="how-to-window-kbs" class="hidden">
+              <p>1. Go to "[browser]://extensions/shortcuts". Example:"edge://extensions/shortcuts"</p>
+              <p>Under <i class="extensionName"></i> -> "Activate the extension", enter the shortcut. Example: Alt+E</p>
+            </div>
+            <br/><br/>
+            <a href="#" class="hide-trigger" hide-id="how-to-change-kbs">Change keyboard shortcut?</a>
+            <div id="how-to-change-kbs" class="hidden">
+              <p>1. Go to "[browser]://extensions/shortcuts". Example:"edge://extensions/shortcuts"</p>
+              <p>Under <i class="extensionName"></i> -> "Activate the extension", enter the shortcut. Example: Alt+E</p>
+            </div>
+            <br/><br/>
+            <a href="#" class="hide-trigger" hide-id="data-retention">How long does the information in e-Clip stay there?</a>
+            <div id="data-retention" class="hidden">
+              <p>Should stay there until the extension is removed or perhaps updated</p>
+            </div>
+          </div>
+        </div>
+        </div>
+        <!-- Add more tab content sections as needed -->
+    </div>
+
+    <script src="crypto-js.min.js"></script>
+    <script src="util.js"></script>
+    <script src="popup.js"></script>
+
+  </body>
+</html>

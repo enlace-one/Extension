@@ -1,0 +1,40 @@
+{
+  "name": "Enlace Assistant",
+  "description": "A collection of helpful tools running locally",
+  "version": "1.0",
+  "manifest_version": 3,
+  "action": {
+    "default_popup": "hello.html",
+    "default_icon": "hello_extensions.png"
+  },
+  "background": {
+    "service_worker": "service_worker.js"
+  },
+  "permissions": ["storage", "offscreen", "clipboardWrite"],
+  "commands": {
+    "copy-value-1": {
+      "suggested_key": {
+        "default": "Ctrl+Shift+1",
+        "mac": "Command+Shift+1"
+      },
+      "description": "Copies value 1",
+      "global": true
+    },
+    "copy-value-2": {
+      "suggested_key": {
+        "default": "Ctrl+Shift+5",
+        "mac": "Command+Shift+5"
+      },
+      "description": "Copies value 2",
+      "global": true
+    },
+    "copy-value-3": {
+      "suggested_key": {
+        "default": "Ctrl+Shift+9",
+        "mac": "Command+Shift+9"
+      },
+      "description": "Copies value 3",
+      "global": true
+    }
+  }
+}
