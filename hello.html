@@ -1,20 +1,70 @@
-<html>
-  <head>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Extension Name</title>
     <style>
-      .hidden{
-        display : none;
-      }
-      .menu::after {
-          content: '  v';
-          font-size: 8px;
-          font-style: italic;
-      }
-      .menu-open::after {
-          content: '  ^';
-          font-size: 8px;
-      }
-      
-      .tooltiptext {
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: #fff;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            margin-top: 0;
+            color: #333;
+            text-align: center;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        input[type="password"],
+        input[type="checkbox"] {
+            margin-bottom: 10px;
+        }
+
+        .tabs {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+
+        .tab-button {
+            border: none;
+            background-color: transparent;
+            padding: 10px;
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            transition: border-color 0.3s ease;
+        }
+
+        .tab-button.active {
+            border-color: #007bff;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .tooltiptext {
         visibility: hidden;
         opacity: 0;
         color: white;
@@ -43,85 +93,99 @@
         display: block;
       }
 
-      .tab-content.hidden {
-            display: none;
+        .hidden {
+          display: none;
         }
-
     </style>
-  </head>
-  <body style="height:400px; width: 300px">
-    <h1 style="width:200px;" class="extensionName"></h1>
+</head>
+<body>
+<div class="container">
+    <h1 style="width:200px; font-family: Matura MT Script Capitals, cursive;" class="extensionName"></h1>
     <div id="locked-div">
-      <label>Enter Password:</label>
-      <div style="display: inline-block;">
-        <input id="password" type="password" class="" key=""/>
-        <p hover-text="First time? Check the box and make up a password">(i)</p>
-      </div>
-      <div style="display: inline-block;">
-        <input id="set-reset-pw" type="checkbox" value="Set/Reset"/>
-        <label hover-text="You will not be able to access any stored values after reseting the password">Set/Reset Password</label>
-      </div>
+        <label for="password">Enter Password:</label>
+        <div style="display: inline-block;">
+          <input id="password" type="password" class="" key=""/>
+          <p hover-text="First time? Check the box and make up a password">(i)</p>
+        </div>
+        <div style="display: inline-block;">
+          <input id="set-reset-pw" type="checkbox" value="Set/Reset"/>
+          <label hover-text="You will not be able to access any stored values after reseting the password">Set/Reset Password</label>
+        </div>
     </div>
     <div id="unlocked-div" class="hidden">
-
-      <div class="tab-container">
         <div class="tabs">
             <button class="tab-button active" data-tab="e-clip">e-Clip</button>
             <button class="tab-button hidden" data-tab="page-notes">Page Notes</button>
             <button class="tab-button" data-tab="info">Info</button>
-            <input type="button" value="lock" id="lock-button"/>
-            <!-- Add more tab buttons as needed -->
+            <input type="button" value="Lock" id="lock-button"/>
         </div>
-        <div class="tab-content hidden" id="page-notes">
-          <h3>Page Notes</h3>
-          <textarea id="page-note-textarea" height="10"></textarea>
-          <input id="page-note-url"/>
+        <div class="tab-content active" id="e-clip">
+            <h2>e-Clip</h2>
+            <div id="copy-div">
+              <div>
+                <br/>
+                <label id="copy-value-1-label">Copy Value 1</label>
+                <input id="copy-value-1" type="text" class="store-input-value" key="copy-value-1"/>
+              </div>
+              <div>
+                <br/>
+                <label id="copy-value-2-label">Copy Value 2</label>
+                <input id="copy-value-2" type="text" class="store-input-value" key="copy-value-2"/>
+              </div>
+              <div>
+                <br/>
+                <label id="copy-value-3-label">Copy Value 3</label>
+                <input id="copy-value-3" type="text" class="store-input-value" key="copy-value-3"/>
+              </div>
+            </div>
+            <p hover-text="e-Clip provides a few extra clipboards for you to use. Type or paste the values you want to be able
+            to reference in the above boxes and then use the respective keyboard shortcuts to paste them. 
+            You should be able to paste them even while using a different app than your browser! (Works best with Chrome). 
+            See the Info tab to learn about changing keyboard shortcuts, security, etc. ">(i)</p>
         </div>
-        <div class="tab-content" id="e-clip">
-          <h3>e-Clip</h3>
-          <div id="copy-div">
-            <div>
-              <label id="copy-value-1-label">Copy Value 1</label>
-              <input id="copy-value-1" type="text" class="store-input-value" key="copy-value-1"/>
-            </div>
-            <div>
-              <label id="copy-value-2-label">Copy Value 2</label>
-              <input id="copy-value-2" type="text" class="store-input-value" key="copy-value-2"/>
-            </div>
-            <div>
-              <label id="copy-value-3-label">Copy Value 3</label>
-              <input id="copy-value-3" type="text" class="store-input-value" key="copy-value-3"/>
-            </div>
+        <div class="tab-content" id="page-notes">
+            <h2>Page Notes</h2>
+            <textarea id="page-note-textarea" rows="5" cols="30"></textarea>
+            <input id="page-note-url" type="text" placeholder="Page URL"/>
+        </div>
+        
+        <div class="tab-content" id="info">
+          <h2>FAQ</h2> 
+          <div id="how-to-div">
+              <a href="#" class="hide-trigger" hide-id="how-to-window-kbs" hide-class="faq">How do I open this window with a keyboard shortcut?</a>
+              <div id="how-to-window-kbs" class="faq hidden">
+                <p>1. Go to "[browser]://extensions/shortcuts". Example:"edge://extensions/shortcuts"</p>
+                <p>Under <i class="extensionName"></i> -> "Activate the extension", enter the shortcut. Example: Alt+E</p>
+              </div>
+              <br/><br/>
+              <a href="#" class="hide-trigger" hide-id="how-to-change-kbs" hide-class="faq">How can I change the keyboard shortcuts?</a>
+              <div id="how-to-change-kbs" class="faq hidden">
+                <p>1. Go to "[browser]://extensions/shortcuts". Example:"edge://extensions/shortcuts"</p>
+                <p>Under <i class="extensionName"></i> -> "Activate the extension", enter the shortcut. Example: Alt+E</p>
+              </div>
+              <br/><br/>
+              <a href="#" class="hide-trigger" hide-id="data-retention" hide-class="faq">How long does the information in e-Clip stay there?</a>
+              <div id="data-retention" class=" faq hidden">
+                <p>Should stay there until the extension is removed or perhaps updated</p>
+              </div>
+              <br/><br/>
+              <a href="#" class="hide-trigger" hide-id="security-faq" hide-class="faq">How secure is the info in e-Clip?</a>
+              <div id="security-faq" class="faq hidden">
+                <p>The information is stored locally in Chrome. When this was written, it is encrypted using AES256 encryption using a key generated via the salted password you enter. Without the password, it is irrecoverable. It is always encrypted when stored.</p>
+              </div>
+              <br/><br/>
+              <a href="#" class="hide-trigger" hide-id="contrib-faq" hide-class="faq">Have more questions? Want to contribute?</a>
+              <div id="contrib-faq" class="faq hidden">
+                <p>Please contact enlace.aman@gmail.com</p>
+              </div>
           </div>
         </div>
-        <div class="tab-content hidden" id="info">
-          <h3 class="menu" menu-div-id="how-to-div">FAQ</h3>
-          <div id="how-to-div" class="hidden">
-            <a href="#" class="hide-trigger" hide-id="how-to-window-kbs">Open this window with a keyboard shortcut?</a>
-            <div id="how-to-window-kbs" class="hidden">
-              <p>1. Go to "[browser]://extensions/shortcuts". Example:"edge://extensions/shortcuts"</p>
-              <p>Under <i class="extensionName"></i> -> "Activate the extension", enter the shortcut. Example: Alt+E</p>
-            </div>
-            <br/><br/>
-            <a href="#" class="hide-trigger" hide-id="how-to-change-kbs">Change keyboard shortcut?</a>
-            <div id="how-to-change-kbs" class="hidden">
-              <p>1. Go to "[browser]://extensions/shortcuts". Example:"edge://extensions/shortcuts"</p>
-              <p>Under <i class="extensionName"></i> -> "Activate the extension", enter the shortcut. Example: Alt+E</p>
-            </div>
-            <br/><br/>
-            <a href="#" class="hide-trigger" hide-id="data-retention">How long does the information in e-Clip stay there?</a>
-            <div id="data-retention" class="hidden">
-              <p>Should stay there until the extension is removed or perhaps updated</p>
-            </div>
-          </div>
-        </div>
-        </div>
-        <!-- Add more tab content sections as needed -->
     </div>
+</div>
 
-    <script src="crypto-js.min.js"></script>
-    <script src="util.js"></script>
-    <script src="popup.js"></script>
+<script src="crypto-js.min.js"></script>
+<script src="util.js"></script>
+<script src="popup.js"></script>
 
-  </body>
+</body>
 </html>

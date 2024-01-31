@@ -3,6 +3,7 @@
   "description": "A collection of helpful tools running locally",
   "version": "1.0",
   "manifest_version": 3,
+  "icons": {"1": "hello_extensions.png"},
   "action": {
     "default_popup": "hello.html",
     "default_icon": "hello_extensions.png"
