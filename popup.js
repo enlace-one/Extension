@@ -1,13 +1,5 @@
 console.log('Executing popup.js');
 
-// Select PW box
-document.addEventListener("DOMContentLoaded", function() {
-    // Select the input box by its ID
-    const inputBox = document.getElementById("password");
-
-    // Focus on the input box
-    inputBox.focus();
-});
 
 // Show/Hide 
 function showhide(hideId) {
@@ -166,6 +158,12 @@ async function setPassword(key) {
 async function onStart() {
     if (! await isLocked()) {
         runOnUnlock()
+        const inputBox = document.getElementById("search");
+        inputBox.focus();
+
+    } else {
+        const inputBox = document.getElementById("password");
+        inputBox.focus();
     }
 }
 
@@ -188,7 +186,7 @@ document.getElementById("lock-button").addEventListener('click', async function 
     lock()
 })
 
-// Store new keys and set value
+// Store new keys and set value. Select "Search" input box.
 document.addEventListener("EnlaceUnlocked", async function() {
     console.log("triggered unlock stuff ")
     Array.from(document.getElementsByClassName("store-input-value")).forEach(async element => {
@@ -225,7 +223,13 @@ for (const v in variables) {
 //////////////
 // SNIPPETS //
 //////////////
-const data = {};
+
+let data = {};
+get("snippet-data").then((value) => {
+    data = value || {};
+  });
+
+
   let searchTimeout;
   let highlightedIndex = -1;
 
@@ -240,7 +244,7 @@ const data = {};
     }
   });
   document.getElementById('search').addEventListener('input', handleSearchInput);
-  document.getElementById('result').addEventListener('keydown', handleResultKeyDown);
+  document.getElementById('search').addEventListener('keydown', handleResultKeyDown);
 
   function storeKeyValue() {
     const keyInput = document.getElementById('key');
@@ -248,10 +252,23 @@ const data = {};
     const key = keyInput.value.trim();
     const value = valueInput.value.trim();
     if (key && value) {
-      data[key] = value;
-      keyInput.value = '';
-      valueInput.value = '';
+        if (key.length > 30) {
+            showNotification("Key is too long")
+            return ""
+        } else if (value.length > 1000) {
+            showNotification("Value is too long")
+            return ""
+        } else {
+            data[key] = value;
+            store("snippet-data", data)
+            keyInput.value = '';
+            valueInput.value = '';
+            showNotification("Stored value for '" + key +"'")
+        }
+    } else {
+      showNotification("Error: Enter Key and value first")
     }
+    
   }
 
   function handleSearchInput() {
@@ -261,51 +278,71 @@ const data = {};
 
   function searchKeyValue() {
     const searchKey = document.getElementById('search').value.trim();
-    const resultDiv = document.getElementById('result');
-    resultDiv.innerHTML = '';
+    const resultTable = document.getElementById('result');
+    resultTable.innerHTML = '';
     if (searchKey) {
       const matches = Object.keys(data).filter(key => key.startsWith(searchKey));
       if (matches.length > 0) {
         highlightedIndex = 0;
-        const resultList = document.createElement('ul');
+        const tableBody = document.createElement('tbody');
         matches.forEach((match, index) => {
-          const listItem = document.createElement('li');
-          listItem.textContent = `${match}: ${data[match]}`;
+          const row = tableBody.insertRow();
+          row.style="border-radius: 5px;"
+          const keyCell = row.insertCell();
+          const valueCell = row.insertCell();
+          const deleteCell = row.insertCell();
+          keyCell.textContent = truncateText(match, 20) + ":";
+          keyCell.classList.add("bold")
+          keyCell.id = match
+          valueCell.textContent = truncateText(data[match], 50);
+          valueCell.style="width: 60vw;"
+          valueCell.classList.add("truncate")
+          deleteCell.textContent = "X"
+          //deleteCell.attributes.add("key_id", match)
+          deleteCell.addEventListener("click", function () {
+             delete data[match];
+             store("snippet-data", data)
+             row.remove()
+             showNotification("Deleted" + match)
+          })
           if (index === highlightedIndex) {
-            listItem.classList.add('highlighted');
+            row.classList.add('highlighted');
           }
-          resultList.appendChild(listItem);
         });
-        resultDiv.appendChild(resultList);
+        resultTable.appendChild(tableBody);
+        
       } else {
-        resultDiv.textContent = `No matches found for '${searchKey}'.`;
+        resultTable.textContent = `No matches found for '${searchKey}'.`;
       }
     }
   }
 
   function handleResultKeyDown(event) {
     if (event.key === "ArrowDown" || event.key === "ArrowUp") {
-      const matches = document.querySelectorAll('#result ul li');
-      if (matches.length > 0) {
+      const rows = document.querySelectorAll('#result tbody tr');
+      if (rows.length > 0) {
         if (event.key === "ArrowDown") {
-          highlightedIndex = (highlightedIndex + 1) % matches.length;
+          highlightedIndex = (highlightedIndex + 1) % rows.length;
         } else if (event.key === "ArrowUp") {
-          highlightedIndex = (highlightedIndex - 1 + matches.length) % matches.length;
+          highlightedIndex = (highlightedIndex - 1 + rows.length) % rows.length;
         }
-        matches.forEach((match, index) => {
+        rows.forEach((row, index) => {
           if (index === highlightedIndex) {
-            match.classList.add('highlighted');
+            row.classList.add('highlighted');
           } else {
-            match.classList.remove('highlighted');
+            row.classList.remove('highlighted');
           }
         });
       }
     } else if (event.key === "Enter" && highlightedIndex !== -1) {
-      const selectedValue = document.querySelectorAll('#result ul li')[highlightedIndex].textContent.split(': ')[1];
-      if (selectedValue) {
-        navigator.clipboard.writeText(selectedValue)
-        //document.getElementById('value').value = selectedValue.trim();
-      }
+      const selectedKey = document.querySelectorAll('#result tbody tr')[highlightedIndex].cells[0].id;
+      //const selectedValue = document.querySelectorAll('#result tbody tr')[highlightedIndex].cells[1].textContent;
+        //   document.getElementById('key').value = selectedKey.trim();
+        //   document.getElementById('value').value = selectedValue.trim();
+        navigator.clipboard.writeText(data[selectedKey]);
+        //navigator.clipboard.writeText(selectedValue);
+        showNotification("Coped value for '" + selectedKey +"'")
+        document.getElementById("search").value = ""
     }
   }
 

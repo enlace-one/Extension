@@ -106,3 +106,24 @@ function generateRandomAlphaNumeric(length) {
     }
     return result;
 }
+
+
+function showNotification(message) {
+    const notification = document.createElement('div');
+    notification.classList.add('tooltiptext');
+    notification.style = "visibility: visible; opacity: 1; display: block;";
+    notification.textContent = message;
+    document.body.appendChild(notification);
+    
+    setTimeout(function() {
+      document.body.removeChild(notification);
+    }, 1000);
+  }
+
+
+  function truncateText(text, maxLength) {
+    if (text.length > maxLength) {
+      return text.substring(0, maxLength) + '...';
+    }
+    return text;
+  }

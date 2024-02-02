@@ -107,7 +107,19 @@
 
       .highlighted {
         background-color: lightblue;
+        border-radius: 5px;
       }
+
+      .bold {
+        font-weight: bold;
+      }
+
+      .truncate {
+        white-space: nowrap; /* Prevent text from wrapping */
+        overflow: hidden; /* Hide any overflowing text */
+        text-overflow: ellipsis; /* Display ellipsis (...) for truncated text */
+      }
+
     </style>
   </head>
 
@@ -223,7 +235,8 @@
             <label for="search">Search:</label>
             <input type="text" id="search">
           </div>
-          <div id="result"></div>
+          <div id="result" style="min-height:10vh"></div>
+          <small>Press "Enter" to copy the highlighted result. Arrow keys to move</small>
           <br>
           <h3>Add New</h3>
           <table>
@@ -236,7 +249,7 @@
               <td><input type="text" id="value"></td>
             </tr>
           </table>
-          <p>Press "Enter" to Save</p>
+          <small>Press "Enter" to Save</small>
           
         </div>
         <div class="tab-content" id="page-notes">
@@ -322,6 +335,17 @@
                 password, it is irrecoverable. It is always encrypted when
                 stored.
               </p>
+            </div>
+            <br /><br />
+            <a
+              href="#"
+              class="hide-trigger"
+              hide-id="snip-enc-faq"
+              hide-class="faq"
+              >Is <i class="snippetsName"></i> encrypted?</a
+            >
+            <div id="snip-enc-faq" class="faq hidden">
+              <p>Not currently. It is stored in plaintext</p>
             </div>
             <br /><br />
             <a
