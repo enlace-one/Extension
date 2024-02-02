@@ -32,12 +32,12 @@ async function store(key, value) {
     console.log(key, value)
     const data = {};
     data[key] = value;
-    chrome.storage.local.set(data).then(() => {
+    chrome.storage.sync.set(data).then(() => {
         console.log("Value is set for " + key);
     });
 }
 async function get(key) {
-    return chrome.storage.local.get([key]).then((result) => {
+    return chrome.storage.sync.get([key]).then((result) => {
             return result[key]
     });
 }
@@ -127,3 +127,8 @@ function showNotification(message) {
     }
     return text;
   }
+
+
+  function escapeRegExp(string) {
+    return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); // $& means the whole matched string
+}

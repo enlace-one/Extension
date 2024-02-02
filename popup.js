@@ -1,71 +1,5 @@
 console.log('Executing popup.js');
 
-
-// Show/Hide 
-function showhide(hideId) {
-    var div = document.getElementById(hideId);
-    div.classList.toggle('hidden'); 
-  }
-
-window.addEventListener("DOMContentLoaded", function() {
-    Array.from(document.getElementsByClassName("hide-trigger")).forEach(element => {
-        element.addEventListener("click", function() {
-            
-            Array.from(document.getElementsByClassName(element.getAttribute("hide-class"))).forEach(element => {
-                element.classList.add("hidden")
-            });
-
-            showhide(element.getAttribute("hide-id"))
-        });
-    });
-});
-
-// JavaScript code to handle tab switching
-document.addEventListener("DOMContentLoaded", function () {
-    // Get all tab buttons
-    const tabButtons = document.querySelectorAll(".tab-button");
-
-    // Add click event listener to each tab button
-    tabButtons.forEach(function (button) {
-        button.addEventListener("click", function () {
-            // Remove 'active' class from all tab buttons
-            tabButtons.forEach(function (btn) {
-                btn.classList.remove("active");
-            });
-
-            // Add 'active' class to the clicked tab button
-            button.classList.add("active");
-
-            // Get the ID of the tab to show
-            const tabId = button.getAttribute("data-tab");
-
-            // Hide all tab contents
-            const tabContents = document.querySelectorAll(".tab-content");
-            tabContents.forEach(function (content) {
-                content.classList.remove("active");
-            });
-
-            // Show the tab content with the corresponding ID
-            const tabContentToShow = document.getElementById(tabId);
-            tabContentToShow.classList.add("active");
-        });
-    });
-});
-
-
-// // Select all elements with the attribute "menu-div-id"
-// const elementsWithMenuDivId = document.querySelectorAll('[menu-div-id]');
-
-// // Loop through the selected elements
-// elementsWithMenuDivId.forEach(element => {
-//     // Do something with each element
-//     element.addEventListener("click", function() {
-//         showhide(element.getAttribute("menu-div-id"))
-//         element.classList.toggle("menu-open")
-//     });
-// });
-
-
 chrome.commands.getAll(function(commands) {
     commands.forEach(function(command) {
         console.log('Command: ' + command.name);
@@ -77,114 +11,16 @@ chrome.commands.getAll(function(commands) {
     });
 });
 
-// Hover over help Text
-document.addEventListener('DOMContentLoaded', function () {
-    var tooltips = document.querySelectorAll('[hover-text]');
-
-    tooltips.forEach(function (tooltip) {
-        tooltip.classList.add('hover-text-trigger')
-        var tooltipText = tooltip.getAttribute('hover-text');
-        var tooltipElement = document.createElement('div');
-        tooltipElement.classList.add('tooltiptext');
-        tooltipElement.textContent = tooltipText;
-        tooltip.appendChild(tooltipElement);
-    });
-});
-
-
-
-
-// Lock/Unlock
-const validation_salt = "Validation129"
-const storage_salt = "Enlsal294"
-
-async function getValidationSalt() {
-    var salt = await get("enlace-vs")
-    if (salt === undefined) {
-        console.log("Generating Validation Salt")
-        salt = generateRandomAlphaNumeric(10)
-        store("enlace-vs", salt)
-    }
-    return salt
-}
-
-async function getStorageSalt() {
-    var salt = await get("enlace-ss")
-    if (salt === undefined) {
-        console.log("Generating Storage Salt")
-        salt = generateRandomAlphaNumeric(10)
-        store("enlace-ss", salt)
-    }
-    return salt
-}
-
-function lock() {
-    chrome.storage.session.set({"en_locked": true});
-    showhide("locked-div");
-    showhide("unlocked-div");
-}
-
-
-async function unlock(key) {
-    const hashValidation = await hashString(key + await getValidationSalt())
-    if (hashValidation == await get("hashValidation")) {
-        // Store for unlocking
-        const hashKey = await hashString(key + await getStorageSalt())
-        chrome.storage.session.set({"en_locked": hashKey});
-        runOnUnlock()
-    } else {
-        console.log("Incorrect password")
-    }
-}
-
-async function runOnUnlock() {
-    console.log("Unlocked")
-    // Send the event
-    const event = new Event('EnlaceUnlocked');
-    document.dispatchEvent(event);
-    // Handles the HTML
-    showhide("locked-div");
-    showhide("unlocked-div");
-    document.getElementById("password").value = "";
-}
-
-async function setPassword(key) {
-    // They will not be able to unencrypt already encrypted items
-    console.log("Setting pw")
-    const hashValidation = await hashString(key + await getValidationSalt())
-    store("hashValidation", hashValidation)
-}
-
-async function onStart() {
+async function onStartSpecific() {
     if (! await isLocked()) {
-        runOnUnlock()
         const inputBox = document.getElementById("search");
         inputBox.focus();
-
-    } else {
-        const inputBox = document.getElementById("password");
-        inputBox.focus();
     }
 }
 
-onStart()
+onStartSpecific()
 
-// Enter password on "Enter"
-document.getElementById("password").addEventListener('keydown', async function(event) {
-    if (event.key === 'Enter') {
-        if (document.getElementById('set-reset-pw').checked) {
-            await setPassword(document.getElementById("password").value)
-            await unlock(document.getElementById("password").value)
-            document.getElementById('set-reset-pw').checked = false
-        } else {
-            await unlock(document.getElementById("password").value)
-        }
-    }
-});
 
-document.getElementById("lock-button").addEventListener('click', async function () {
-    lock()
-})
 
 // Store new keys and set value. Select "Search" input box.
 document.addEventListener("EnlaceUnlocked", async function() {
@@ -200,22 +36,6 @@ document.addEventListener("EnlaceUnlocked", async function() {
             eStore(element.getAttribute("key"), element.value)
         });
     });
-});
-
-
-// Set Variables
-const variables = {
-    extensionName: "Enlace Assistant",
-    clipboardName: "Clipboard",
-    snippetsName: "Snippets"
-  }
-  
-window.addEventListener("DOMContentLoaded", function() {
-for (const v in variables) {
-    Array.from(document.getElementsByClassName(v)).forEach(element => {
-    element.innerHTML = variables[v];
-    });
-}
 });
 
 
@@ -346,6 +166,49 @@ get("snippet-data").then((value) => {
     }
   }
 
+  //////////////////////////////
+  // Handle Bottom Button Bar //
+  //////////////////////////////
+  
+
+
+// In your popup script (popup.js):
+
+// document.getElementById('openSidePanel').addEventListener('click', function() {
+//     // Query for the currently active tab
+//     chrome.tabs.query({ active: true, currentWindow: true }, function(tabs) {
+//         // Extract the tabId of the active tab
+//         const tabId = tabs[0].id;
+//         console.log(tabId)
+
+//         // Send a message to your content/background script with the tabId
+//         chrome.runtime.sendMessage({ action: 'openSidePanel', tabId: tabId });
+//     });
+// });
+
+
+  
+// var query = { active: true, currentWindow: true };
+
+// function callback(tabs) {
+//   var currentTab = tabs[0]; // there will be only one in this array
+//   return currentTab; // also has properties like currentTab.id
+// }
+
+// tab = chrome.tabs.query(query, callback);
+
+// console.log(tab)
+
+//   const tabId = tab.id;
+//   const button = document.getElementById('openSidePanel');
+//   button.addEventListener('click', async () => {
+//     await chrome.sidePanel.open({ tabId });
+//     await chrome.sidePanel.setOptions({
+//       tabId,
+//       path: 'sidepanel.html',
+//       enabled: true
+//     });
+//   });
 
 // Examples
 

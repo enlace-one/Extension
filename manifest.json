@@ -8,10 +8,16 @@
     "default_popup": "hello.html",
     "default_icon": "hello_extensions.png"
   },
+  "side_panel": {
+    "default_path": "sidepanel.html"
+  },
   "background": {
     "service_worker": "service_worker.js"
   },
-  "permissions": ["storage", "offscreen", "clipboardWrite", "clipboardRead"],
+  "permissions": ["storage", "offscreen", "clipboardWrite", "clipboardRead", "sidePanel"],
+  "host_permissions": [
+    "<all_urls>"
+  ],
   "commands": {
     "copy-value-1": {
       "suggested_key": {
@@ -44,6 +50,13 @@
     "copy-value-5": {
       "description": "Copies value 5",
       "global": true
+    },
+    "open-side-panel": {
+      "suggested_key": {
+        "default": "Alt+S",
+        "mac": "Alt+S"
+      },
+      "description": "Opens the side panel"
     }
   }
 }

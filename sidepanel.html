@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>My Sidepanel</title>
+    <link rel="stylesheet" href="default.css">
+  </head>
+  <body>
+    <div class="container">
+      <div id="locked-div">
+        <label for="password">Enter Password:</label>
+        <div style="display: inline-block">
+          <input id="password" type="password" class="" key="" />
+          <p hover-text="First time? Check the box and make up a password">
+            (i)
+          </p>
+        </div>
+        <div style="display: inline-block">
+          <input id="set-reset-pw" type="checkbox" value="Set/Reset" />
+          <label
+            hover-text="You will not be able to access any stored values after reseting the password"
+            >Set/Reset Password</label
+          >
+        </div>
+      </div>
+      <div id="unlocked-div" class="hidden">
+        <div class="tabs">
+          <button
+            class="tab-button active pageNotesName"
+            data-tab="page-notes-tab"
+          >
+            Page Notes
+          </button>
+          <input type="button" value="Lock" id="lock-button" />
+        </div>
+        <div class="tab-content active" id="page-notes-tab">
+            <label>URL Pattern</label>
+            <br/>
+            <textarea id="url-pattern" rows="3" cols="30"></textarea>
+            <br/>
+            <br/>
+            <label>Page Notes</label>
+            <br/>
+            <textarea id="page-notes-textarea" rows="15" cols="30"></textarea>
+            <br/>
+
+            <small>Press "Enter" to save</small>
+          </div>
+        </div>
+      </div>
+
+    <script src="crypto-js.min.js"></script>
+    <script src="util.js"></script>
+    <script src="standard.js"></script>
+    <script src="sidepanel.js"></script>
+  </body>
+</html>
