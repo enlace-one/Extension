@@ -71,28 +71,59 @@ var crypt = {
 };
  
 
-async function eStore(key, value) {
-    if (isLocked()) {
+async function encrypt(value) {
+    if (! await isLocked()) {
         var secret = await chrome.storage.session.get(["en_locked"]).then((value) => value.en_locked)
         crypt.secret = secret
         var cipherText = await crypt.encrypt(value);
-        store(key, cipherText)
-        return true
+        return cipherText
     } else {
         console.log("Error storing, app locked")
     }
 }
 
-
-async function eGet(key) {
-    if (isLocked()) {
-        var cipherText = await get(key)
+async function decrypt(cipherText) {
+    if (! await isLocked()) {
         var secret = await chrome.storage.session.get(["en_locked"]).then((value) => value.en_locked)
         crypt.secret = secret
         var decipher = await crypt.decrypt(cipherText);
         return decipher
     } else {
         console.log("Error getting, app locked")
+    }
+}
+
+async function eStore(key, value) {
+    var cipherText = await encrypt(value);
+    store(key, cipherText)
+    return true
+}
+
+
+async function eGet(key) {
+    var cipherText = await get(key)
+    var decipher = await decrypt(cipherText);
+    return decipher
+}
+
+
+async function getSetting(setting_name) {
+    defaults = {"encrypt-page-notes": false}
+    settings = await get("enlace-settings")
+    if (settings) {
+        if (setting_name in settings) {
+            return settings[setting_name]
+        } else if (setting_name in defaults) {
+            return defaults[setting_name]
+        } else {
+            console.log("missing setting" + setting_name)
+        }
+    } else {
+        if (setting_name in defaults) {
+            return defaults[setting_name]
+        } else {
+            console.log("missing setting" + setting_name)
+        }
     }
 }
 

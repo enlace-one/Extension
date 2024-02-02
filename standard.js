@@ -55,6 +55,7 @@ async function unlock(key) {
         chrome.storage.session.set({"en_locked": hashKey});
         runOnUnlock()
     } else {
+        showNotification("Incorrect password")
         console.log("Incorrect password")
     }
 }

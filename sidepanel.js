@@ -24,6 +24,8 @@ document.getElementById('url-pattern').addEventListener('keydown', function(even
 });
 
 
+
+
 function storeKeyValue() {
     const key = document.getElementById("url-pattern").value
     const value = document.getElementById("page-notes-textarea").value
