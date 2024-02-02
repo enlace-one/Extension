@@ -30,6 +30,7 @@ async function handleMessages(message) {
   if (message.target !== 'offscreen-doc') {
     return;
   }
+  
 
   // Dispatch the message to an appropriate handler.
   switch (message.type) {

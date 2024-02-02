@@ -61,27 +61,25 @@ document.addEventListener("DOMContentLoaded", function () {
 });
 
 
-// Select all elements with the attribute "menu-div-id"
-const elementsWithMenuDivId = document.querySelectorAll('[menu-div-id]');
+// // Select all elements with the attribute "menu-div-id"
+// const elementsWithMenuDivId = document.querySelectorAll('[menu-div-id]');
 
-// Loop through the selected elements
-elementsWithMenuDivId.forEach(element => {
-    // Do something with each element
-    element.addEventListener("click", function() {
-        showhide(element.getAttribute("menu-div-id"))
-        element.classList.toggle("menu-open")
-    });
-});
+// // Loop through the selected elements
+// elementsWithMenuDivId.forEach(element => {
+//     // Do something with each element
+//     element.addEventListener("click", function() {
+//         showhide(element.getAttribute("menu-div-id"))
+//         element.classList.toggle("menu-open")
+//     });
+// });
 
-
-    
 
 chrome.commands.getAll(function(commands) {
     commands.forEach(function(command) {
         console.log('Command: ' + command.name);
         console.log('Shortcut: ' + command.shortcut);
         const element = document.getElementById(command.name + "-label")
-        if (element) {
+        if (element && command.shortcut) {
             element.innerHTML = command.shortcut + " copies:"
         }
     });
@@ -108,18 +106,40 @@ document.addEventListener('DOMContentLoaded', function () {
 const validation_salt = "Validation129"
 const storage_salt = "Enlsal294"
 
+async function getValidationSalt() {
+    var salt = await get("enlace-vs")
+    if (salt === undefined) {
+        console.log("Generating Validation Salt")
+        salt = generateRandomAlphaNumeric(10)
+        store("enlace-vs", salt)
+    }
+    return salt
+}
+
+async function getStorageSalt() {
+    var salt = await get("enlace-ss")
+    if (salt === undefined) {
+        console.log("Generating Storage Salt")
+        salt = generateRandomAlphaNumeric(10)
+        store("enlace-ss", salt)
+    }
+    return salt
+}
+
 function lock() {
     chrome.storage.session.set({"en_locked": true});
     showhide("locked-div");
     showhide("unlocked-div");
 }
+
+
 async function unlock(key) {
-    const hashValidation = await hashString(key + validation_salt)
+    const hashValidation = await hashString(key + await getValidationSalt())
     if (hashValidation == await get("hashValidation")) {
         // Store for unlocking
-        runOnUnlock()
-        const hashKey = await hashString(key + storage_salt)
+        const hashKey = await hashString(key + await getStorageSalt())
         chrome.storage.session.set({"en_locked": hashKey});
+        runOnUnlock()
     } else {
         console.log("Incorrect password")
     }
@@ -139,7 +159,7 @@ async function runOnUnlock() {
 async function setPassword(key) {
     // They will not be able to unencrypt already encrypted items
     console.log("Setting pw")
-    const hashValidation = await hashString(key + validation_salt)
+    const hashValidation = await hashString(key + await getValidationSalt())
     store("hashValidation", hashValidation)
 }
 
@@ -151,7 +171,7 @@ async function onStart() {
 
 onStart()
 
-
+// Enter password on "Enter"
 document.getElementById("password").addEventListener('keydown', async function(event) {
     if (event.key === 'Enter') {
         if (document.getElementById('set-reset-pw').checked) {
@@ -187,7 +207,9 @@ document.addEventListener("EnlaceUnlocked", async function() {
 
 // Set Variables
 const variables = {
-    extensionName: "Enlace Assistant"
+    extensionName: "Enlace Assistant",
+    clipboardName: "Clipboard",
+    snippetsName: "Snippets"
   }
   
 window.addEventListener("DOMContentLoaded", function() {
@@ -197,6 +219,95 @@ for (const v in variables) {
     });
 }
 });
+
+
+
+//////////////
+// SNIPPETS //
+//////////////
+const data = {};
+  let searchTimeout;
+  let highlightedIndex = -1;
+
+  document.getElementById('key').addEventListener('keydown', function(event) {
+    if (event.key === "Enter") {
+      storeKeyValue();
+    }
+  });
+  document.getElementById('value').addEventListener('keydown', function(event) {
+    if (event.key === "Enter") {
+      storeKeyValue();
+    }
+  });
+  document.getElementById('search').addEventListener('input', handleSearchInput);
+  document.getElementById('result').addEventListener('keydown', handleResultKeyDown);
+
+  function storeKeyValue() {
+    const keyInput = document.getElementById('key');
+    const valueInput = document.getElementById('value');
+    const key = keyInput.value.trim();
+    const value = valueInput.value.trim();
+    if (key && value) {
+      data[key] = value;
+      keyInput.value = '';
+      valueInput.value = '';
+    }
+  }
+
+  function handleSearchInput() {
+    clearTimeout(searchTimeout);
+    searchTimeout = setTimeout(searchKeyValue, 500);
+  }
+
+  function searchKeyValue() {
+    const searchKey = document.getElementById('search').value.trim();
+    const resultDiv = document.getElementById('result');
+    resultDiv.innerHTML = '';
+    if (searchKey) {
+      const matches = Object.keys(data).filter(key => key.startsWith(searchKey));
+      if (matches.length > 0) {
+        highlightedIndex = 0;
+        const resultList = document.createElement('ul');
+        matches.forEach((match, index) => {
+          const listItem = document.createElement('li');
+          listItem.textContent = `${match}: ${data[match]}`;
+          if (index === highlightedIndex) {
+            listItem.classList.add('highlighted');
+          }
+          resultList.appendChild(listItem);
+        });
+        resultDiv.appendChild(resultList);
+      } else {
+        resultDiv.textContent = `No matches found for '${searchKey}'.`;
+      }
+    }
+  }
+
+  function handleResultKeyDown(event) {
+    if (event.key === "ArrowDown" || event.key === "ArrowUp") {
+      const matches = document.querySelectorAll('#result ul li');
+      if (matches.length > 0) {
+        if (event.key === "ArrowDown") {
+          highlightedIndex = (highlightedIndex + 1) % matches.length;
+        } else if (event.key === "ArrowUp") {
+          highlightedIndex = (highlightedIndex - 1 + matches.length) % matches.length;
+        }
+        matches.forEach((match, index) => {
+          if (index === highlightedIndex) {
+            match.classList.add('highlighted');
+          } else {
+            match.classList.remove('highlighted');
+          }
+        });
+      }
+    } else if (event.key === "Enter" && highlightedIndex !== -1) {
+      const selectedValue = document.querySelectorAll('#result ul li')[highlightedIndex].textContent.split(': ')[1];
+      if (selectedValue) {
+        navigator.clipboard.writeText(selectedValue)
+        //document.getElementById('value').value = selectedValue.trim();
+      }
+    }
+  }
 
 
 // Examples

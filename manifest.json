@@ -11,7 +11,7 @@
   "background": {
     "service_worker": "service_worker.js"
   },
-  "permissions": ["storage", "offscreen", "clipboardWrite"],
+  "permissions": ["storage", "offscreen", "clipboardWrite", "clipboardRead"],
   "commands": {
     "copy-value-1": {
       "suggested_key": {
@@ -35,6 +35,14 @@
         "mac": "Command+Shift+9"
       },
       "description": "Copies value 3",
+      "global": true
+    },
+    "copy-value-4": {
+      "description": "Copies value 4",
+      "global": true
+    },
+    "copy-value-5": {
+      "description": "Copies value 5",
       "global": true
     }
   }

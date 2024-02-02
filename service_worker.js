@@ -25,16 +25,10 @@ importScripts('util.js');
 
 chrome.commands.onCommand.addListener(async (command) => {
     console.log(`Command: ${command}`);
-    await addToClipboard(await eGet(command))
-    // if (command == "copy-value-1") {
-    //     await addToClipboard("1");
-    // } else if (command == "copy-value-2") {
-    //     await addToClipboard("2");
-    // } else if (command == "copy-value-3") {
-    //     await addToClipboard("3");
-    // } else if (command == "copy-value-4") {
-    //     await addToClipboard("4");
-    // }
+
+    if (command.startsWith("copy-value")) {
+        await addToClipboard(await eGet(command))
+    }
   });
 
 

@@ -56,7 +56,6 @@ async function get(key) {
 var crypt = {
   // (B1) THE SECRET KEY
   secret : "Default",
-  salt : "defsalt2222",
  
   // (B2) ENCRYPT
   encrypt : clear => {
@@ -95,4 +94,15 @@ async function eGet(key) {
     } else {
         console.log("Error getting, app locked")
     }
+}
+
+
+function generateRandomAlphaNumeric(length) {
+    const charset = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    let result = '';
+    for (let i = 0; i < length; i++) {
+        const randomIndex = Math.floor(Math.random() * charset.length);
+        result += charset.charAt(randomIndex);
+    }
+    return result;
 }

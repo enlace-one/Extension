@@ -1,4 +1,5 @@
 To Do 
-- Randomized salt
++ Randomized salt
 - Copy box
 - Extra copy paste clipboard
+- Dark mode
