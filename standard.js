@@ -115,6 +115,38 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 });
 
+// JavaScript code to handle subtab switching
+document.addEventListener("DOMContentLoaded", function () {
+    // Get all tab buttons
+    const tabButtons = document.querySelectorAll(".subtab-button");
+
+    // Add click event listener to each tab button
+    tabButtons.forEach(function (button) {
+        button.addEventListener("click", function () {
+            // Remove 'active' class from all tab buttons
+            tabButtons.forEach(function (btn) {
+                btn.classList.remove("active");
+            });
+
+            // Add 'active' class to the clicked tab button
+            button.classList.add("active");
+
+            // Get the ID of the tab to show
+            const tabId = button.getAttribute("data-tab");
+
+            // Hide all tab contents
+            const tabContents = document.querySelectorAll(".subtab-content");
+            tabContents.forEach(function (content) {
+                content.classList.remove("active");
+            });
+
+            // Show the tab content with the corresponding ID
+            const tabContentToShow = document.getElementById(tabId);
+            tabContentToShow.classList.add("active");
+        });
+    });
+});
+
 // Hover over help Text
 document.addEventListener('DOMContentLoaded', function () {
     var tooltips = document.querySelectorAll('[hover-text]');

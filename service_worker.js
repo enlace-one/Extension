@@ -68,6 +68,10 @@ chrome.commands.onCommand.addListener(async (command) => {
   });
 
 
+
+  
+
+
 //   "start-stop-clip-combiner": {
 //     "description": "Start/Stop the clipboard combiner"
 //   },

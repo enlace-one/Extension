@@ -4,6 +4,12 @@ To Do
 + Page Notes
 + Settings for encryption, etc
 + Intro Page
+- Regex
+- Javascript
+- HTML
+
+- Python?
+- SQL?
 
 Maybe
 - Comparer 

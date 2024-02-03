@@ -5,6 +5,16 @@
     <title>Options Page</title>
     <link rel="stylesheet" href="default.css">
     <style>
+        /* Overrides default */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background-color: #fff;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
         /* Container for each option */
         .option {
             display: flex;
@@ -54,6 +64,50 @@
             border: 1px solid #ccc;
             border-radius: 5px;
         }
+
+        /* .regexTest {
+            display: inline-block;
+            width: 45%;
+        } */
+
+
+        .failed {
+            outline: 2px solid red;
+            padding: 0.2em;
+            /* Add padding to prevent content from touching the outline */
+        }
+
+        .succeeded {
+            outline: 2px solid green;
+            padding: 0.2em;
+            /* Add padding to prevent content from touching the outline */
+        }
+
+        #regexTable {
+        width: 100%; /* Ensure the table takes up the available width */
+        border-collapse: collapse;
+    }
+
+    #regexTable th {
+        text-align: left;
+        padding: 8px;
+        border-bottom: 1px solid #ddd;
+    }
+
+    #regexTable td {
+        padding: 8px;
+        border-bottom: 1px solid #ddd;
+    }
+
+    textarea {
+        width: 100%; /* Make the textareas take up the available width */
+        box-sizing: border-box; /* Include padding and border in width calculation */
+        resize: vertical; /* Allow vertical resizing */
+    }
+
+    .regexTest td:last-child {
+        width: 1%; /* Allow the "Hide" column to shrink */
+    }
     </style>
 </head>
 
@@ -83,21 +137,280 @@
                 <button class="tab-button settingsName" data-tab="settings-tab">
                     Settings
                 </button>
+                <button class="tab-button regexName" data-tab="regex-tab">
+                    Regex
+                </button>
                 <input type="button" value="Lock" id="lock-button" />
+            </div>
+            <div class="tab-content" id="regex-tab">
+                <div style="display: flex;">
+                    <div style="flex: .4;background-color: lightgray; border-radius: 10px; margin: 10px; height: 400px; overflow: auto;">
+                        <!-- <h3>Advanced Examples</h3> -->
+                        <table>
+                            <caption><h3>Basic</h3></caption>
+                            <tr>
+                                <th>Item</th>
+                                <th>Description</th>
+                                <th>Example</th>
+                            </tr>
+                            <tr>
+                                <td>.</td>
+                                <td><i>Any single character</i></td>
+                                <td>. <i>matches</i> 'g', '5', '_'</td>
+                            </tr>
+                            <tr>
+                                <td>\d</td>
+                                <td><i>Any number [0-9]</i></td>
+                                <td>\d <i>matches</i> '0', '4', '8'</td>
+                            </tr>
+                            <tr>
+                                <td>\D</td>
+                                <td><i>NOT any number [0-9]</i></td>
+                                <td>\D <i>matches</i> ':', '_', 'h'</td>
+                            </tr>
+                            <tr>
+                                <td>\s</td>
+                                <td><i>Whitespace</i></td>
+                                <td>\s <i>matches</i> ' ', newlines</td>
+                            </tr>
+                            <tr>
+                                <td>\S</td>
+                                <td><i>NOT whitespace</i></td>
+                                <td>\S <i>matches</i> ':', '0', 'h'</td>
+                            </tr>
+                            <tr>
+                                <td>\w</td>
+                                <td><i>ASCII letter, digit or underscore</i></td>
+                                <td><i>Newline</i></td>
+                            </tr>
+                            <tr>
+                                <td>\W</td>
+                                <td><i>NOT ASCII, digit, underscore</i></td>
+                                <td>\W <i>matches</i> '*', '-', '+', '=', ')'</td>
+                            </tr>
+                        </table>
+                        <table>
+                            <caption><h3>Qualifers</h3></caption>
+                            <tr>
+                                <th>Item</th>
+                                <th>Description</th>
+                                <th>Example</th>
+                            </tr>
+                            <tr>
+                                <td>*</td>
+                                <td><i>Zero or more times</i></td>
+                                <td>f* <i>matches</i> '', 'f', 'ffff'</td>
+                            </tr>
+                            <tr>
+                                <td>?</td>
+                                <td><i>Once or None</i></td>
+                                <td>f? <i>matches</i> '', 'f'</td>
+                            </tr>
+                            <tr>
+                                <td>?</td>
+                                <td><i>Once or None</i></td>
+                                <td>f? <i>matches</i> '', 'f'</td>
+                            </tr>
+                            <tr>
+                                <td>+</td>
+                                <td><i>One or more times</i></td>
+                                <td>f+ <i>matches</i> 'f', 'ffff'</td>
+                            </tr>
+                            <tr>
+                                <td>{3}</td>
+                                <td><i>3 times</i></td>
+                                <td>f{3} <i>matches</i> 'fff'</td>
+                            </tr>
+                            <tr>
+                                <td>{2, 4}</td>
+                                <td><i>2, 3, or 4 times</i></td>
+                                <td>f{2, 4} <i>matches</i> 'ff', 'fff', 'ffff'</td>
+                            </tr>
+                            <tr>
+                                <td>{2,}</td>
+                                <td><i>2, or more times</i></td>
+                                <td>f{2,} <i>matches</i> 'ff', 'fffff'</td>
+                            </tr>
+                        </table>
+                        <table>
+                            <caption><h3>Other</h3></caption>
+                            <tr>
+                                <th>Item</th>
+                                <th>Description</th>
+                                <th>Example</th>
+                            </tr>
+                            <tr>
+                                <td>$</td>
+                                <td><i>End of line</i></td>
+                                <td>f$ <i>matches</i> 'f', but not 'fb'</td>
+                            </tr>
+                            <tr>
+                                <td>^</td>
+                                <td><i>Start of line</i></td>
+                                <td>^f <i>matches</i> 'fb', but not 'bf'</td>
+                            </tr>
+                            <tr>
+                                <td>\n</td>
+                                <td><i>Newline</i></td>
+                                <td></td>
+                            </tr>
+                            <tr>
+                                <td>\</td>
+                                <td><i>Escape character</i></td>
+                                <td>\. <i>matches</i> '.', not any character</td>
+                            </tr>
+                            <tr>
+                                <td>[]</td>
+                                <td><i>Any character in brackets</i></td>
+                                <td>[ghf] <i>matches</i> 'g', 'h', 'f'</td>
+                            </tr>
+                            <tr>
+                                <td>[a-z]</td>
+                                <td><i>Any character in range</i></td>
+                                <td>[a-c] <i>matches</i> 'a', 'b', 'c'</td>
+                            </tr>
+                            <tr>
+                                <td>[^a-z]</td>
+                                <td><i>Not any character in range</i></td>
+                                <td>[^a-c] <i>matches</i> 'z', not 'a'</td>
+                            </tr>
+                            <tr>
+                                <td>(?=...)</td>
+                                <td><i>Positive lookahead</i></td>
+                                <td></td>
+                            </tr>
+                            <tr>
+                                <td>(?<=...)</td>
+                                <td><i>Positive lookbehind</i></td>
+                                <td></td>
+                            </tr>
+                            <tr>
+                                <td>(?!...)</td>
+                                <td><i>Negative lookahead</i></td>
+                                <td></td>
+                            </tr>
+                            <tr>
+                                <td>(?=...)</td>
+                                <td><i>Negative lookbehind</i></td>
+                                <td></td>
+                            </tr>
+                        </table>
+
+                        <table>
+                            <caption><h3>Advanced Examples</h3></caption>
+                            <tr>
+                                <th>Pattern</th>
+                                <th>Matches</th>
+                                <th>Fails</th>
+                            </tr>
+                            <tr>
+                                <td>^(?:(?!(\w)(\w)\2\1).)+$</td>
+                                <td>effusive</td>
+                                <td>labba</td>
+                            </tr>
+                            <tr>
+                                <td>^"[^"]+$</td>
+                                <td>"effusive" OR "23:."</td>
+                                <td>'effusive'</td>
+                            </tr>
+                            <tr>
+                                <td>(?<!"(?=Tarzan"))Tarzan< /td>
+                                <td>Tarzan</td>
+                                <td>"Tarzan"</td>
+                            </tr>
+                            <tr>
+                                <td>^(?!(xx+)\1+$)</td>
+                                <td><i>Matches prime numbers of 'x'</i></td>
+                                <td><i>Non-prime counts</i></td>
+                            </tr>
+                        </table>
+                    </div>
+                    <div style="flex: 1; text-align: right;">
+                        <div class="subtabs">
+                            <button class="subtab-button regexName active" data-tab="regex-subtab">
+                                Regex Tester
+                            </button>
+                            <button class="subtab-button replacerName" data-tab="replacer-subtab">
+                                Re-placer
+                            </button>
+                        </div>
+                        <div class="subtab-content" id="replacer-subtab">
+                            <h1 class="replacerName">Re-placer</h1>
+                            <table id="replacerTable">
+                                <tr>
+                                    <th>Find</th>
+                                    <th>Replace With</th>
+                                </tr>
+                                <tr>
+                                    <td><textarea id="replacer-find" rows="1"></textarea></td>
+                                    <td><textarea id="replacer-replace-with" rows="1"></textarea></td>
+                                </tr>
+                            </table>
+                            <input type="button" id="runReplacer" value="Replace"/>
+                            
+                            <textarea id="replacer-input" rows="5" placeholder="input"></textarea>
+                            <textarea id="replacer-output" rows="5" placeholder="output"></textarea>
+                        </div>
+                        <div class="subtab-content active" id="regex-subtab">
+                            <h1 class="regexName">Regex Tester</h1>
+                            <textarea id="regexCode" rows="5" placeholder="h.llo"></textarea>
+                            <br />
+                            <small>Press "Enter" to run</small>
+                            <!-- <button id="runButton">Run</button> -->
+                            <table id="regexTable">
+                                <tr>
+                                    <th>To Match</th>
+                                    <th>To Fail</th>
+                                    <th>Hide</th>
+                                </tr>
+                                <tr id="sampleRegexRow" class="regexTest">
+                                    <td><textarea class="regexTest regexMatch" rows="3"
+                                            placeholder="hello"></textarea></td>
+                                    <td><textarea class="regexTest regexFail" rows="3"
+                                            placeholder="hi"></textarea></td>
+                                    <td>X</td>
+                                </tr>
+                            </table>
+                            <button id="addRowButton">Add Row</button>
+                        </div>
+                    </div>
+                </div>
+                <!-- <textarea id="regexCode" rows="5" cols="70" placeholder="h.llo"></textarea>
+                <br/>
+                <small>Press "Enter" to run</small>
+                <button id="runButton">Run</button>
+                <table id="regexTable">
+                    <tr>
+                      <th>To Match</th>
+                      <th>To Fail</th>
+                      <th>Hide</th>
+                    </tr>
+                    <tr id="sampleRegexRow" class="regexTest">
+                      <td><textarea class="regexTest regexMatch" rows="3" cols="25" placeholder="hello"></textarea></td>
+                      <td><textarea class="regexTest regexFail" rows="3" cols="25" placeholder="hi"></textarea></td>
+                      <td>X</td>
+                    </tr>
+                  </table>
+                  <button id="addRowButton">Add Row</button> -->
             </div>
             <div class="tab-content active" id="about-tab">
                 <p>
-                    Welcome to <i class="extensionName"></i>! We aim to offer useful features ran entirely locally with encryption.
-                    You'll notice this extension has three views, each with its own features. This is the options view or extension 
-                    tab view (<i class="open-extension-tab"></i>). If you press the <i class="extensionName"></i> icon 
-                    on the upper right, you will see the popup view (<i class="_execute_action"></i>). Finally, if you open the sidebar you will see the 
+                    Welcome to <i class="extensionName"></i>! We aim to offer useful features ran entirely locally with
+                    encryption.
+                    You'll notice this extension has three views, each with its own features. This is the options view
+                    or extension
+                    tab view (<i class="open-extension-tab"></i>). If you press the <i class="extensionName"></i> icon
+                    on the upper right, you will see the popup view (<i class="_execute_action"></i>). Finally, if you
+                    open the sidebar you will see the
                     sidebar view (<i class="open-side-panel"></i>)
                 </p>
 
                 <h3>Set Up</h3>
                 <p>
-                    Keyboard shortcuts are essential. We have taken the privelege of making some default shortcuts available to you,
-                    but we recommend you visit extension shortcut page to add one for the popup view and edit the others if you'd like.
+                    Keyboard shortcuts are essential. We have taken the privelege of making some default shortcuts
+                    available to you,
+                    but we recommend you visit extension shortcut page to add one for the popup view and edit the others
+                    if you'd like.
                     <br>
                     &nbsp;&nbsp;&nbsp;&nbsp;1. Go to "[browser]://extensions/shortcuts".
                     <br>
@@ -107,8 +420,9 @@
                     <br>
                     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Example:"Alt+E"
                     <br><br>
-                    It is nice to be able to run <i class="clipboardName"></i> shortcuts globally (while using an app other than your browser).
-                    For the shortcut to work globally, it has to follow this pattern: Ctrl+Shft+[0-9]. 
+                    It is nice to be able to run <i class="clipboardName"></i> shortcuts globally (while using an app
+                    other than your browser).
+                    For the shortcut to work globally, it has to follow this pattern: Ctrl+Shft+[0-9].
                     <br>
                     &nbsp;&nbsp;&nbsp;&nbsp;Example: Ctrl+Shift+1
                     <br><br>
@@ -128,33 +442,35 @@
 
                 <h3>Sidebar View</h3> (<i class="open-side-panel"></i>)
                 <p>
-                    This is where you go for <i class="pageNotesName"></i>, which allows you to make notes 
+                    This is where you go for <i class="pageNotesName"></i>, which allows you to make notes
                     connected to a url or url pattern (it's regex, for the nerds out there)
                 </p>
 
                 <h3>More Info</h3>
                 <p>
-                    Data storage is set to sync using the browser's built in sync storage method. 
-                    So it may work across your devices. If the information itself is necessary, 
+                    Data storage is set to sync using the browser's built in sync storage method.
+                    So it may work across your devices. If the information itself is necessary,
                     KEEP A COPY SOMEWHERE ELSE. This is designed for convienence, not long-term storage.
                 </p>
                 <p>
                     Data is encrypted with AES256 encryption using a key
                     generated via the salted password you enter. Without the
-                    password, it is irrecoverable. There is currently no way to 
-                    recover your password. If that data is set to be encrypted, then 
+                    password, it is irrecoverable. There is currently no way to
+                    recover your password. If that data is set to be encrypted, then
                     the data will always be encrypted before stored. (See settings)
                 </p>
 
                 <h3>Contact</h3>
-                <p>To contribute, donate, ask a question, provide positive feedback, or offer a request for improvement, please contact enlace.aman@gmail.com.</p>
+                <p>To contribute, donate, ask a question, provide positive feedback, or offer a request for improvement,
+                    please contact enlace.aman@gmail.com.</p>
                 <p>To complain, please visit the local DMV and ask for John.</p>
 
             </div>
             <div class="tab-content" id="settings-tab">
                 <div class="danger-zone" style="border-color: yellow; border-style: dotted;">
                     <h2>Caution</h2>
-                    <small>Be advised that changing these may prevent you from accessing the previously stored values.</small>
+                    <small>Be advised that changing these may prevent you from accessing the previously stored
+                        values.</small>
                     <h3>Encryption</h3>
                     <div class="option">
                         <input id="encrypt-clipboard" type="checkbox" value="encrypt-clipboard">
@@ -177,10 +493,10 @@
                     <h2>Danger Zone</h2>
                     <small>These delete your data</small>
                     <br>
-                    <input type="button" id="reset-settings" value="Reset Settings"/>
-                    <input type="button" id="reset-clipboard" value="Reset Clipboard"/>
-                    <input type="button" id="reset-snippets" value="Reset Snippets"/>
-                    <input type="button" id="reset-page-notes" value="Reset Page Notes"/>
+                    <input type="button" id="reset-settings" value="Reset Settings" />
+                    <input type="button" id="reset-clipboard" value="Reset Clipboard" />
+                    <input type="button" id="reset-snippets" value="Reset Snippets" />
+                    <input type="button" id="reset-page-notes" value="Reset Page Notes" />
                 </div>
                 <br>
                 <div class="danger-zone" style="border-color: red; border-style: dotted;">
@@ -211,7 +527,7 @@
                         <input id="max-value-char-page-notes" type="number">
                     </div>
                 </div>
-                <input class="m-3" type="submit" value="Submit" id="save_settings"/>
+                <input class="m-3" type="submit" value="Submit" id="save_settings" />
             </div>
         </div>
 

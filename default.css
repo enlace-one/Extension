@@ -57,6 +57,33 @@ body {
     display: block;
   }
 
+  .subtabs {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 10px;
+  }
+
+  .subtab-button {
+    border: none;
+    background-color: transparent;
+    padding: 10px;
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    transition: border-color 0.3s ease;
+  }
+
+  .subtab-button.active {
+    border-color: #007bff;
+  }
+
+  .subtab-content {
+    display: none;
+  }
+
+  .subtab-content.active {
+    display: block;
+  }
+
   .tooltiptext {
     visibility: hidden;
     opacity: 0;
