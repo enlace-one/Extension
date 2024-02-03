@@ -84,30 +84,47 @@
         }
 
         #regexTable {
-        width: 100%; /* Ensure the table takes up the available width */
-        border-collapse: collapse;
-    }
+            width: 100%;
+            /* Ensure the table takes up the available width */
+            border-collapse: collapse;
+        }
 
-    #regexTable th {
-        text-align: left;
-        padding: 8px;
-        border-bottom: 1px solid #ddd;
-    }
+        #regexTable th {
+            text-align: left;
+            padding: 8px;
+            border-bottom: 1px solid #ddd;
+        }
 
-    #regexTable td {
-        padding: 8px;
-        border-bottom: 1px solid #ddd;
-    }
+        #regexTable td {
+            padding: 8px;
+            border-bottom: 1px solid #ddd;
+        }
 
-    textarea {
-        width: 100%; /* Make the textareas take up the available width */
-        box-sizing: border-box; /* Include padding and border in width calculation */
-        resize: vertical; /* Allow vertical resizing */
-    }
+        textarea {
+            width: 100%;
+            /* Make the textareas take up the available width */
+            box-sizing: border-box;
+            /* Include padding and border in width calculation */
+            resize: vertical;
+            /* Allow vertical resizing */
+        }
 
-    .regexTest td:last-child {
-        width: 1%; /* Allow the "Hide" column to shrink */
-    }
+        .regexTest td:last-child {
+            width: 1%;
+            /* Allow the "Hide" column to shrink */
+        }
+
+        #html-editor,
+        #html-viewer {
+            width: 45%;
+            height: 300px;
+            border: 1px solid #ccc;
+            padding: 10px;
+            box-sizing: border-box;
+            float: left;
+            margin-right: 5%;
+            overflow-y: auto;
+        }
     </style>
 </head>
 
@@ -140,14 +157,34 @@
                 <button class="tab-button regexName" data-tab="regex-tab">
                     Regex
                 </button>
+                <button class="tab-button htmlName" data-tab="html-tab">
+                    Html
+                </button>
                 <input type="button" value="Lock" id="lock-button" />
+            </div>
+            <div class="tab-content" id="html-tab">
+                <textarea id="html-editor" contenteditable="true">
+&lt;style&gt; 
+    .myClass { 
+        background-color: grey; 
+    } 
+&lt;/style&gt; 
+&lt;p class=&quot;myClass&quot;&gt;
+    Hello &lt;b&gt;world!&lt;/b&gt;
+&lt;p&gt;
+                </textarea>
+                <div id="html-viewer"></div>
+                <small>As you type on the left, it will render html on the right. Javascript will not work</small>
             </div>
             <div class="tab-content" id="regex-tab">
                 <div style="display: flex;">
-                    <div style="flex: .4;background-color: lightgray; border-radius: 10px; margin: 10px; height: 400px; overflow: auto;">
+                    <div
+                        style="flex: .4;background-color: lightgray; border-radius: 10px; margin: 10px; height: 400px; overflow: auto;">
                         <!-- <h3>Advanced Examples</h3> -->
                         <table>
-                            <caption><h3>Basic</h3></caption>
+                            <caption>
+                                <h3>Basic</h3>
+                            </caption>
                             <tr>
                                 <th>Item</th>
                                 <th>Description</th>
@@ -190,7 +227,9 @@
                             </tr>
                         </table>
                         <table>
-                            <caption><h3>Qualifers</h3></caption>
+                            <caption>
+                                <h3>Qualifers</h3>
+                            </caption>
                             <tr>
                                 <th>Item</th>
                                 <th>Description</th>
@@ -233,7 +272,9 @@
                             </tr>
                         </table>
                         <table>
-                            <caption><h3>Other</h3></caption>
+                            <caption>
+                                <h3>Other</h3>
+                            </caption>
                             <tr>
                                 <th>Item</th>
                                 <th>Description</th>
@@ -280,7 +321,7 @@
                                 <td></td>
                             </tr>
                             <tr>
-                                <td>(?<=...)</td>
+                                <td>(?<=...)< /td>
                                 <td><i>Positive lookbehind</i></td>
                                 <td></td>
                             </tr>
@@ -297,7 +338,9 @@
                         </table>
 
                         <table>
-                            <caption><h3>Advanced Examples</h3></caption>
+                            <caption>
+                                <h3>Advanced Examples</h3>
+                            </caption>
                             <tr>
                                 <th>Pattern</th>
                                 <th>Matches</th>
@@ -327,7 +370,7 @@
                     </div>
                     <div style="flex: 1; text-align: right;">
                         <div class="subtabs">
-                            <button class="subtab-button regexName active" data-tab="regex-subtab">
+                            <button class="subtab-button regexTesterName active" data-tab="regex-subtab">
                                 Regex Tester
                             </button>
                             <button class="subtab-button replacerName" data-tab="replacer-subtab">
@@ -346,13 +389,13 @@
                                     <td><textarea id="replacer-replace-with" rows="1"></textarea></td>
                                 </tr>
                             </table>
-                            <input type="button" id="runReplacer" value="Replace"/>
-                            
+                            <input type="button" id="runReplacer" value="Replace" />
+
                             <textarea id="replacer-input" rows="5" placeholder="input"></textarea>
                             <textarea id="replacer-output" rows="5" placeholder="output"></textarea>
                         </div>
                         <div class="subtab-content active" id="regex-subtab">
-                            <h1 class="regexName">Regex Tester</h1>
+                            <h1 class="regexTesterName">Regex Tester</h1>
                             <textarea id="regexCode" rows="5" placeholder="h.llo"></textarea>
                             <br />
                             <small>Press "Enter" to run</small>
@@ -364,10 +407,9 @@
                                     <th>Hide</th>
                                 </tr>
                                 <tr id="sampleRegexRow" class="regexTest">
-                                    <td><textarea class="regexTest regexMatch" rows="3"
-                                            placeholder="hello"></textarea></td>
-                                    <td><textarea class="regexTest regexFail" rows="3"
-                                            placeholder="hi"></textarea></td>
+                                    <td><textarea class="regexTest regexMatch" rows="3" placeholder="hello"></textarea>
+                                    </td>
+                                    <td><textarea class="regexTest regexFail" rows="3" placeholder="hi"></textarea></td>
                                     <td>X</td>
                                 </tr>
                             </table>
@@ -375,23 +417,6 @@
                         </div>
                     </div>
                 </div>
-                <!-- <textarea id="regexCode" rows="5" cols="70" placeholder="h.llo"></textarea>
-                <br/>
-                <small>Press "Enter" to run</small>
-                <button id="runButton">Run</button>
-                <table id="regexTable">
-                    <tr>
-                      <th>To Match</th>
-                      <th>To Fail</th>
-                      <th>Hide</th>
-                    </tr>
-                    <tr id="sampleRegexRow" class="regexTest">
-                      <td><textarea class="regexTest regexMatch" rows="3" cols="25" placeholder="hello"></textarea></td>
-                      <td><textarea class="regexTest regexFail" rows="3" cols="25" placeholder="hi"></textarea></td>
-                      <td>X</td>
-                    </tr>
-                  </table>
-                  <button id="addRowButton">Add Row</button> -->
             </div>
             <div class="tab-content active" id="about-tab">
                 <p>
@@ -487,6 +512,14 @@
                         <label for="encrypt-page-notes">Encrypt <i class="pageNotesName"></i></label>
                         <small>(Default: No)</small>
                     </div>
+                    <div>
+                        <label for="encryption-algorithm"><b>Encryption Algorithm:</b></label>
+                        <select id="encryption-algorithm">
+                            <option value="DES">DES</option>
+                            <option value="AES">AES</option>
+                            <option value="3DES">TripleDES</option>
+                        </select>
+                    </div>
                 </div>
                 <br>
                 <div class="danger-zone" style="border-color: red; border-style: dotted;">
@@ -500,7 +533,7 @@
                 </div>
                 <br>
                 <div class="danger-zone" style="border-color: red; border-style: dotted;">
-                    <h2>Dangerous Settings</h2>
+                    <h2>These too are dangerous settings</h2>
                     <small>Be advised that changing these may cause performance or memory issues and I'd advise against
                         it. But hey, we are all adults here.</small>
                     <div class="danger-option">
@@ -536,5 +569,4 @@
         <script src="standard.js"></script>
         <script src="options.js"></script>
 </body>
-
 </html>

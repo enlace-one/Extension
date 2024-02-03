@@ -4,9 +4,10 @@ To Do
 + Page Notes
 + Settings for encryption, etc
 + Intro Page
-- Regex
++ Regex
++ HTML
 - Javascript
-- HTML
+- Clean up unused code
 
 - Python?
 - SQL?

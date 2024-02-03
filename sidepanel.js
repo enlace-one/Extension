@@ -1,15 +1,6 @@
-
-// chrome.tabs.query({ active: true, currentWindow: true }, ([tab]) => {
-//     document.getElementById("url-pattern").value = tab.url
-//     document.getElementById("url-pattern").classList.append("ran")
-// });
-
-// chrome.tabs.onUpdated.addListener(async (tabId, info, tab) => {
-//     if (!tab.url) return;
-//     chrome.tabs.query({ active: true, currentWindow: true }, ([tab]) => {
-//         document.getElementById("url-pattern").value = tab.url
-//     });
-// });
+////////////////
+// Page notes //
+////////////////
 
 document.getElementById('page-notes-textarea').addEventListener('keydown', function(event) {
     if (event.key === "Enter") {

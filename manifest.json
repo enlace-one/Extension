@@ -5,7 +5,7 @@
   "manifest_version": 3,
   "icons": {"1": "ea_128.png"},
   "action": {
-    "default_popup": "hello.html",
+    "default_popup": "popup.html",
     "default_icon": "ea_128.png"
   },
   "side_panel": {

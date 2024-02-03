@@ -1,6 +1,5 @@
 console.log("util.js")
 
-// Util 
 async function isLocked() {
     return await chrome.storage.session.get(["en_locked"]).then(async (result) => {
         if ("en_locked" in result) {
@@ -42,40 +41,63 @@ async function get(key) {
     });
 }
 
-// Test
-// const test_store = store("test", "123")
-// get("test").then((value) => {
-//     if (value == "123") {
-//         console.log("Storage Test Success " + value)
-//     } else {
-//         console.log("Storage Test Failure " + value)
-//     }
-// })
-
-
 var crypt = {
-  // (B1) THE SECRET KEY
-  secret : "Default",
- 
-  // (B2) ENCRYPT
-  encrypt : clear => {
-    var cipher = CryptoJS.AES.encrypt(clear, crypt.secret);
-    return cipher.toString();
-  },
- 
-  // (B3) DECRYPT
-  decrypt : cipher => {
-    var decipher = CryptoJS.AES.decrypt(cipher, crypt.secret);
-    return decipher.toString(CryptoJS.enc.Utf8);
-  }
-};
- 
+    // (A1) THE SECRET KEY
+    secret: "Default",
+  
+    // (A2) ENCRYPT USING AES
+    encryptAES: clear => {
+      var cipher = CryptoJS.AES.encrypt(clear, crypt.secret);
+      return cipher.toString();
+    },
+  
+    // (A3) DECRYPT USING AES
+    decryptAES: cipher => {
+      var decipher = CryptoJS.AES.decrypt(cipher, crypt.secret);
+      return decipher.toString(CryptoJS.enc.Utf8);
+    },
+  
+    // (B2) ENCRYPT USING DES
+    encryptDES: clear => {
+      var cipher = CryptoJS.DES.encrypt(clear, crypt.secret);
+      return cipher.toString();
+    },
+  
+    // (B3) DECRYPT USING DES
+    decryptDES: cipher => {
+      var decipher = CryptoJS.DES.decrypt(cipher, crypt.secret);
+      return decipher.toString(CryptoJS.enc.Utf8);
+    },
+  
+    // (C2) ENCRYPT USING TripleDES
+    encryptTripleDES: clear => {
+      var cipher = CryptoJS.TripleDES.encrypt(clear, crypt.secret);
+      return cipher.toString();
+    },
+  
+    // (C3) DECRYPT USING TripleDES
+    decryptTripleDES: cipher => {
+      var decipher = CryptoJS.TripleDES.decrypt(cipher, crypt.secret);
+      return decipher.toString(CryptoJS.enc.Utf8);
+    }
+  };
 
 async function encrypt(value) {
     if (! await isLocked()) {
         var secret = await chrome.storage.session.get(["en_locked"]).then((value) => value.en_locked)
         crypt.secret = secret
-        var cipherText = await crypt.encrypt(value);
+        switch (await getSetting("encryption-algorithm")) {
+            case "3DES":
+              var cipherText = await crypt.encryptTripleDES(value)
+              break;
+            case "DES":
+              var cipherText = await crypt.encryptDES(value);
+              break;
+            default:
+                console.log("Default encryption used")
+                var cipherText = await crypt.encryptAES(value);
+                break;
+          }
         return cipherText
     } else {
         console.log("Error storing, app locked")
@@ -86,7 +108,18 @@ async function decrypt(cipherText) {
     if (! await isLocked()) {
         var secret = await chrome.storage.session.get(["en_locked"]).then((value) => value.en_locked)
         crypt.secret = secret
-        var decipher = await crypt.decrypt(cipherText);
+        //var decipher = await crypt.decrypt(cipherText);
+        switch (await getSetting("encryption-algorithm")) {
+            case "3DES":
+                var decipher = await crypt.decryptTripleDES(cipherText);
+              break;
+            case "DES":
+                var decipher = await crypt.decryptDES(cipherText);
+              break;
+            default:
+                var decipher = await crypt.decryptAES(cipherText);
+                break;
+        }
         return decipher
     } else {
         console.log("Error getting, app locked")
@@ -110,12 +143,12 @@ default_settings = {
     "encrypt-page-notes": false,
     "encrypt-clipboard": true,
     "encrypt-snippets": false,
-    "max-char-clipboard": 100,
+    "max-char-clipboard": 1000,
     "max-key-char-snippets": 50,
     "max-value-char-snippets": 1000,
     "max-key-char-page-notes": 200,
     "max-value-char-page-notes": 3000,
-    "clipboard-combiner-seperator": " "
+    "encryption-algorithm": "AES"
 }
 
 async function getSetting(setting_name) {
@@ -138,15 +171,16 @@ async function getSetting(setting_name) {
 }
 
 async function storeSetting(setting_name, value) {
+    console.log(`Setting ${setting_name} as ${value}`)
     settings = await get("enlace-settings")
     if (settings) {
         if (setting_name in settings) {
             if (settings[setting_name] != value) {
-                settings[setting_name] == value
+                settings[setting_name] = value
             }
         } else if (setting_name in default_settings) {
             if (default_settings[setting_name] != value) {
-                settings[setting_name] == value
+                settings[setting_name] = value
             }
         } else {
             console.log("Error setting" + setting_name)
@@ -155,13 +189,13 @@ async function storeSetting(setting_name, value) {
         settings = {}
         if (setting_name in default_settings) {
             if (default_settings[setting_name] != value) {
-                settings[setting_name] == value
+                settings[setting_name] = value
             }
         } else {
             console.log("missing setting" + setting_name)
         }
     }
-    set("enlace-settings", settings)
+    store("enlace-settings", settings)
 }
 
 

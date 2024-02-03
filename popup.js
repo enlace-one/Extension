@@ -1,11 +1,9 @@
 console.log('Executing popup.js');
 
-async function onStartSpecific() {
-    if (! await isLocked()) {
-        const inputBox = document.getElementById("search");
-        inputBox.focus();
-    }
-}
+///////////////
+// Clipboard //
+///////////////
+
 
 // Add Keyboard Shortcuts
 chrome.commands.getAll(function(commands) {
@@ -50,6 +48,14 @@ document.addEventListener("EnlaceUnlocked", async function() {
 //////////////
 // SNIPPETS //
 //////////////
+
+
+async function onStartSpecific() {
+    if (! await isLocked()) {
+        const inputBox = document.getElementById("search");
+        inputBox.focus();
+    }
+}
 
 let data = {};
 get("snippet-data").then((value) => {
@@ -196,109 +202,3 @@ get("snippet-data").then((value) => {
 document.getElementById('openOptionsPage').addEventListener('click', function() {
     chrome.runtime.openOptionsPage();
 });
-
-
-  
-// var query = { active: true, currentWindow: true };
-
-// function callback(tabs) {
-//   var currentTab = tabs[0]; // there will be only one in this array
-//   return currentTab; // also has properties like currentTab.id
-// }
-
-// tab = chrome.tabs.query(query, callback);
-
-// console.log(tab)
-
-//   const tabId = tab.id;
-//   const button = document.getElementById('openSidePanel');
-//   button.addEventListener('click', async () => {
-//     await chrome.sidePanel.open({ tabId });
-//     await chrome.sidePanel.setOptions({
-//       tabId,
-//       path: 'sidepanel.html',
-//       enabled: true
-//     });
-//   });
-
-// Examples
-
-// Save default API suggestions
-// chrome.runtime.onInstalled.addListener(({ reason }) => {
-//     if (reason === 'install') {
-//       chrome.storage.local.set({
-//         apiSuggestions: ['tabs', 'storage', 'scripting']
-//       });
-//     }
-//   });
-
-
-// // Only use this function during the initial install phase. After
-// // installation the user may have intentionally unassigned commands.
-// function checkCommandShortcuts() {
-//     chrome.commands.getAll((commands) => {
-//       let missingShortcuts = [];
-  
-//       for (let {name, shortcut} of commands) {
-//         if (shortcut === '') {
-//           missingShortcuts.push(name);
-//         }
-//       }
-  
-//       if (missingShortcuts.length > 0) {
-//         // Update the extension UI to inform the user that one or more
-//         // commands are currently unassigned.
-//       }
-//     });
-//   }
-
-
-// ,
-//     "copy-value-4": {
-//       "suggested_key": {
-//         "default": "Ctrl+Shift+4",
-//         "mac": "Command+Shift+4"
-//       },
-//       "description": "Copies value 4",
-//       "global": true
-//     },
-//     "copy-value-5": {
-//       "suggested_key": {
-//         "default": "Ctrl+Shift+5",
-//         "mac": "Command+Shift+5"
-//       },
-//       "description": "Copies value 5",
-//       "global": true
-//     },
-//     "copy-value-6": {
-//       "suggested_key": {
-//         "default": "Ctrl+Shift+6",
-//         "mac": "Command+Shift+6"
-//       },
-//       "description": "Copies value 6",
-//       "global": true
-//     },
-//     "copy-value-7": {
-//       "suggested_key": {
-//         "default": "Ctrl+Shift+7",
-//         "mac": "Command+Shift+7"
-//       },
-//       "description": "Copies value 7",
-//       "global": true
-//     },
-//     "copy-value-8": {
-//       "suggested_key": {
-//         "default": "Ctrl+Shift+8",
-//         "mac": "Command+Shift+8"
-//       },
-//       "description": "Copies value 8",
-//       "global": true
-//     },
-//     "copy-value-9": {
-//       "suggested_key": {
-//         "default": "Ctrl+Shift+9",
-//         "mac": "Command+Shift+9"
-//       },
-//       "description": "Copies value 9",
-//       "global": true
-//     }

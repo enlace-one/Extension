@@ -4,24 +4,24 @@
 
 // Default Settings
 for (const key in default_settings) {
-    const value = default_settings[key];
-    // Set the value of the element with key as its ID
-    const element = document.getElementById(key);
-    if (element && element.type === "checkbox") {
-        if (value) {
-            element.checked = true 
-        } else {
-            element.checked = false
+    getSetting(key).then((value)=> {
+        // Set the value of the element with key as its ID
+        const element = document.getElementById(key);
+        if (element && element.type === "checkbox") {
+            if (value) {
+                element.checked = true 
+            } else {
+                element.checked = false
+            }
+        } else if (element) {
+            element.value = value
         }
-    } else if (element) {
-        element.value = value
-    }
+    });
 }
 
 // Save
 document.getElementById("save_settings").addEventListener("click", function() {
     for (let key in default_settings) {
-        const value = default_settings[key];
         // Set the value of the element with key as its ID
         const element = document.getElementById(key);
         if (element && element.type === "checkbox") {
@@ -31,7 +31,7 @@ document.getElementById("save_settings").addEventListener("click", function() {
                 storeSetting(key, false)
             }
         } else if (element) {
-            storeSetting(key, value)
+            storeSetting(key, element.value)
         }
     }
     showNotification("Saved")
@@ -94,22 +94,6 @@ document.getElementById('regexCode').addEventListener("keydown", function(event)
     }
 });
 
-// document.getElementById('runButton').addEventListener('click', () => {
-//     const regexCode = new RegExp(document.getElementById('regexCode').value);
-    
-//     Array.from(document.getElementsByClassName('regexMatch')).forEach(element => {
-//         if (regexCode.test(element.value)) {
-//             console.log("Success! Match matches")
-//             element.classList.add("succeeded")
-//             element.classList.remove("failed")
-//         } else {
-//             console.log("Failure. Match fails")
-//             element.classList.remove("succeeded")
-//             element.classList.add("failed")
-//         }
-//     });
-
-
 // Get all the "X" elements
 const deleteButtons = document.querySelectorAll('.regexTest td:last-child');
 
@@ -154,4 +138,12 @@ document.getElementById("runReplacer").addEventListener("click", function () {
 
     // Display the number of replacements made
     showNotification(`Replaced ${countReplaced} occurrences`)
+})
+
+//////////
+// HTML //
+//////////
+document.getElementById("html-editor").addEventListener("input", function() {
+    const editorContent = document.getElementById('html-editor').value;
+    document.getElementById('html-viewer').innerHTML = editorContent;
 })

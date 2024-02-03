@@ -1,4 +1,4 @@
-
+// If I use optional permissions, consider:
 //chrome.permissions.contains({ permissions: ['topSites'] }).then((result) => { if (result) {
 
 // Set Variables
@@ -8,7 +8,11 @@ const variables = {
     snippetsName: "Snippets",
     pageNotesName: "Page Notes",
     settingsName: "Settings",
-    aboutName: "Getting Started"
+    aboutName: "Getting Started",
+    regexName: "Regex",
+    regexTesterName: "Regex Tester",
+    replacerName: "Re-placer",
+    htmlName: "Html",
   }
   
 window.addEventListener("DOMContentLoaded", function() {
@@ -19,8 +23,10 @@ for (const v in variables) {
 }
 });
 
+/////////////////
+// Lock/Unlock //
+/////////////////
 
-// Lock/Unlock
 const validation_salt = "Validation129"
 const storage_salt = "Enlsal294"
 
@@ -64,26 +70,83 @@ async function unlock(key) {
     }
 }
 
+
+async function onStart() {
+    if (! await isLocked()) {
+        runOnUnlock()
+
+    } else {
+        const inputBox = document.getElementById("password");
+        inputBox.focus();
+    }
+}
+
+onStart()
+
+
+// Enter password on "Enter"
+document.getElementById("password").addEventListener('keydown', async function(event) {
+    if (event.key === 'Enter') {
+        if (document.getElementById('set-reset-pw').checked) {
+            await setPassword(document.getElementById("password").value)
+            await unlock(document.getElementById("password").value)
+            document.getElementById('set-reset-pw').checked = false
+        } else {
+            await unlock(document.getElementById("password").value)
+        }
+    }
+});
+
+// Lock
+document.getElementById("lock-button").addEventListener('click', async function () {
+    lock()
+})
+
+
+async function runOnUnlock() {
+    console.log("Unlocked")
+    // Send the event
+    const event = new Event('EnlaceUnlocked');
+    document.dispatchEvent(event);
+    // Handles the HTML
+    showhide("locked-div");
+    showhide("unlocked-div");
+    document.getElementById("password").value = "";
+}
+
+async function setPassword(key) {
+    // They will not be able to unencrypt already encrypted items
+    console.log("Setting pw")
+    const hashValidation = await hashString(key + await getValidationSalt())
+    store("hashValidation", hashValidation)
+}
+
+///////////////
+// HTML util //
+///////////////
+
 // Show/Hide 
 function showhide(hideId) {
     var div = document.getElementById(hideId);
     div.classList.toggle('hidden'); 
   }
 
-window.addEventListener("DOMContentLoaded", function() {
-    Array.from(document.getElementsByClassName("hide-trigger")).forEach(element => {
-        element.addEventListener("click", function() {
+// Commented out 2/3/24, waiting for sthtf
+// Hide stuff
+// window.addEventListener("DOMContentLoaded", function() {
+//     Array.from(document.getElementsByClassName("hide-trigger")).forEach(element => {
+//         element.addEventListener("click", function() {
             
-            Array.from(document.getElementsByClassName(element.getAttribute("hide-class"))).forEach(element => {
-                element.classList.add("hidden")
-            });
+//             Array.from(document.getElementsByClassName(element.getAttribute("hide-class"))).forEach(element => {
+//                 element.classList.add("hidden")
+//             });
 
-            showhide(element.getAttribute("hide-id"))
-        });
-    });
-});
+//             showhide(element.getAttribute("hide-id"))
+//         });
+//     });
+// });
 
-// JavaScript code to handle tab switching
+// Handle tab switching
 document.addEventListener("DOMContentLoaded", function () {
     // Get all tab buttons
     const tabButtons = document.querySelectorAll(".tab-button");
@@ -115,7 +178,7 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 });
 
-// JavaScript code to handle subtab switching
+// Handle subtab switching
 document.addEventListener("DOMContentLoaded", function () {
     // Get all tab buttons
     const tabButtons = document.querySelectorAll(".subtab-button");
@@ -160,56 +223,6 @@ document.addEventListener('DOMContentLoaded', function () {
         tooltip.appendChild(tooltipElement);
     });
 });
-
-
-async function onStart() {
-    if (! await isLocked()) {
-        runOnUnlock()
-
-    } else {
-        const inputBox = document.getElementById("password");
-        inputBox.focus();
-    }
-}
-
-onStart()
-
-
-// Enter password on "Enter"
-document.getElementById("password").addEventListener('keydown', async function(event) {
-    if (event.key === 'Enter') {
-        if (document.getElementById('set-reset-pw').checked) {
-            await setPassword(document.getElementById("password").value)
-            await unlock(document.getElementById("password").value)
-            document.getElementById('set-reset-pw').checked = false
-        } else {
-            await unlock(document.getElementById("password").value)
-        }
-    }
-});
-
-document.getElementById("lock-button").addEventListener('click', async function () {
-    lock()
-})
-
-
-async function runOnUnlock() {
-    console.log("Unlocked")
-    // Send the event
-    const event = new Event('EnlaceUnlocked');
-    document.dispatchEvent(event);
-    // Handles the HTML
-    showhide("locked-div");
-    showhide("unlocked-div");
-    document.getElementById("password").value = "";
-}
-
-async function setPassword(key) {
-    // They will not be able to unencrypt already encrypted items
-    console.log("Setting pw")
-    const hashValidation = await hashString(key + await getValidationSalt())
-    store("hashValidation", hashValidation)
-}
 
 // Add Keyboard Shortcuts
 chrome.commands.getAll(function(commands) {
