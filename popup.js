@@ -1,5 +1,13 @@
 console.log('Executing popup.js');
 
+async function onStartSpecific() {
+    if (! await isLocked()) {
+        const inputBox = document.getElementById("search");
+        inputBox.focus();
+    }
+}
+
+// Add Keyboard Shortcuts
 chrome.commands.getAll(function(commands) {
     commands.forEach(function(command) {
         console.log('Command: ' + command.name);
@@ -11,29 +19,28 @@ chrome.commands.getAll(function(commands) {
     });
 });
 
-async function onStartSpecific() {
-    if (! await isLocked()) {
-        const inputBox = document.getElementById("search");
-        inputBox.focus();
-    }
-}
-
 onStartSpecific()
-
-
 
 // Store new keys and set value. Select "Search" input box.
 document.addEventListener("EnlaceUnlocked", async function() {
     console.log("triggered unlock stuff ")
     Array.from(document.getElementsByClassName("store-input-value")).forEach(async element => {
         try {
-            element.value = await eGet(element.getAttribute("key"))
+            if (await getSetting("encrypt-clipboard")) {
+                element.value = await eGet(element.getAttribute("key"))
+            } else {
+                element.value = await get(element.getAttribute("key"))
+            }
         } catch {
             console.log("No found value stored for " + element.getAttribute("key"))
         }
-        element.addEventListener("change", function() {
+        element.addEventListener("change", async function() {
             console.log("triggered input onchange")
-            eStore(element.getAttribute("key"), element.value)
+            if (await getSetting("encrypt-clipboard")) {
+                eStore(element.getAttribute("key"), element.value)
+            } else {
+                store(element.getAttribute("key"), element.value)
+            }
         });
     });
 });
@@ -66,20 +73,24 @@ get("snippet-data").then((value) => {
   document.getElementById('search').addEventListener('input', handleSearchInput);
   document.getElementById('search').addEventListener('keydown', handleResultKeyDown);
 
-  function storeKeyValue() {
+  async function storeKeyValue() {
     const keyInput = document.getElementById('key');
     const valueInput = document.getElementById('value');
     const key = keyInput.value.trim();
     const value = valueInput.value.trim();
     if (key && value) {
-        if (key.length > 30) {
+        if (key.length > await getSetting("max-key-char-snippets")) {
             showNotification("Key is too long")
             return ""
-        } else if (value.length > 1000) {
+        } else if (value.length > await getSetting("max-value-char-snippets")) {
             showNotification("Value is too long")
             return ""
         } else {
-            data[key] = value;
+            if (await getSetting("encrypt-snippets")) {
+                data[key] = encrypt(value)
+            } else {
+                data[key] = value;
+            }
             store("snippet-data", data)
             keyInput.value = '';
             valueInput.value = '';
@@ -105,7 +116,7 @@ get("snippet-data").then((value) => {
       if (matches.length > 0) {
         highlightedIndex = 0;
         const tableBody = document.createElement('tbody');
-        matches.forEach((match, index) => {
+        matches.forEach(async (match, index) => {
           const row = tableBody.insertRow();
           row.style="border-radius: 5px;"
           const keyCell = row.insertCell();
@@ -114,7 +125,11 @@ get("snippet-data").then((value) => {
           keyCell.textContent = truncateText(match, 20) + ":";
           keyCell.classList.add("bold")
           keyCell.id = match
-          valueCell.textContent = truncateText(data[match], 50);
+          if (await getSetting("encrypt-snippets")) {
+                valueCell.textContent = truncateText(decrypt(data[match]), 50);
+            } else {
+                valueCell.textContent = truncateText(data[match], 50);
+            }
           valueCell.style="width: 60vw;"
           valueCell.classList.add("truncate")
           deleteCell.textContent = "X"
@@ -137,7 +152,7 @@ get("snippet-data").then((value) => {
     }
   }
 
-  function handleResultKeyDown(event) {
+  async function handleResultKeyDown(event) {
     if (event.key === "ArrowDown" || event.key === "ArrowUp") {
       const rows = document.querySelectorAll('#result tbody tr');
       if (rows.length > 0) {
@@ -159,7 +174,11 @@ get("snippet-data").then((value) => {
       //const selectedValue = document.querySelectorAll('#result tbody tr')[highlightedIndex].cells[1].textContent;
         //   document.getElementById('key').value = selectedKey.trim();
         //   document.getElementById('value').value = selectedValue.trim();
-        navigator.clipboard.writeText(data[selectedKey]);
+        if (await getSetting("encrypt-snippets")) {
+            navigator.clipboard.writeText(decrypt(data[selectedKey]));
+        } else {
+            navigator.clipboard.writeText(data[selectedKey]);
+        }
         //navigator.clipboard.writeText(selectedValue);
         showNotification("Coped value for '" + selectedKey +"'")
         document.getElementById("search").value = ""
@@ -174,17 +193,9 @@ get("snippet-data").then((value) => {
 
 // In your popup script (popup.js):
 
-// document.getElementById('openSidePanel').addEventListener('click', function() {
-//     // Query for the currently active tab
-//     chrome.tabs.query({ active: true, currentWindow: true }, function(tabs) {
-//         // Extract the tabId of the active tab
-//         const tabId = tabs[0].id;
-//         console.log(tabId)
-
-//         // Send a message to your content/background script with the tabId
-//         chrome.runtime.sendMessage({ action: 'openSidePanel', tabId: tabId });
-//     });
-// });
+document.getElementById('openOptionsPage').addEventListener('click', function() {
+    chrome.runtime.openOptionsPage();
+});
 
 
   

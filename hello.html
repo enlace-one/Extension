@@ -4,123 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Extension Name</title>
-    <style>
-      body {
-        font-family: Arial, sans-serif;
-        background-color: #f0f0f0;
-        margin: 0;
-        padding: 20px;
-      }
-
-      .container {
-        max-width: 600px;
-        margin: 0 auto;
-        background-color: #fff;
-        border-radius: 10px;
-        padding: 20px;
-        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-      }
-
-      h1 {
-        margin-top: 0;
-        color: #333;
-        text-align: center;
-      }
-
-      label {
-        display: block;
-        margin-bottom: 5px;
-      }
-
-      input[type="password"],
-      input[type="checkbox"] {
-        margin-bottom: 10px;
-      }
-
-      .tabs {
-        display: flex;
-        justify-content: space-between;
-        margin-bottom: 10px;
-      }
-
-      .tab-button {
-        border: none;
-        background-color: transparent;
-        padding: 10px;
-        cursor: pointer;
-        border-bottom: 2px solid transparent;
-        transition: border-color 0.3s ease;
-      }
-
-      .tab-button.active {
-        border-color: #007bff;
-      }
-
-      .tab-content {
-        display: none;
-      }
-
-      .tab-content.active {
-        display: block;
-      }
-
-      .tooltiptext {
-        visibility: hidden;
-        opacity: 0;
-        color: white;
-        background-color: grey;
-        text-align: center;
-        border-radius: 6px;
-        padding: 7px 10px;
-        position: fixed;
-        bottom: 0%;
-        left: 50%;
-        transform: translateX(-50%);
-        transition: opacity 0.3s, visibility 0.3s;
-        width: 100vw;
-      }
-
-      .hover-text-trigger {
-        position: relative;
-        display: inline-block;
-      }
-
-      .hover-text-trigger:hover .tooltiptext {
-        visibility: visible;
-        opacity: 1;
-        display: block;
-      }
-
-      .hidden {
-        display: none;
-      }
-
-      table {
-        width: 100%;
-        border-collapse: collapse;
-      }
-      th, td {
-        padding: 8px;
-        text-align: left;
-        border-bottom: 1px solid #ddd;
-      }
-
-      .highlighted {
-        background-color: lightblue;
-        border-radius: 5px;
-      }
-
-      .bold {
-        font-weight: bold;
-      }
-
-      .truncate {
-        white-space: nowrap; /* Prevent text from wrapping */
-        overflow: hidden; /* Hide any overflowing text */
-        text-overflow: ellipsis; /* Display ellipsis (...) for truncated text */
-      }
-
-    </style>
+    <link rel="stylesheet" href="default.css">
   </head>
 
   <body>
@@ -156,10 +40,6 @@
           <button class="tab-button clipboardName" data-tab="e-clip">
             e-Clip
           </button>
-          <button class="tab-button hidden" data-tab="page-notes">
-            Page Notes
-          </button>
-          <button class="tab-button" data-tab="info">Info</button>
           <input type="button" value="Lock" id="lock-button" />
         </div>
         <div class="tab-content" id="e-clip">
@@ -252,117 +132,10 @@
           <small>Press "Enter" to Save</small>
           
         </div>
-        <div class="tab-content" id="page-notes">
-          <h2>Page Notes</h2>
-          <textarea id="page-note-textarea" rows="5" cols="30"></textarea>
-          <input id="page-note-url" type="text" placeholder="Page URL" />
+        <div id="bottom-button-bar">
+          <!-- <input type="button" id="openSidePanel" value="Open Side Pannel"/> -->
+          <input class="m-3" type="button" id="openOptionsPage" value="Open Extension Tab"/>
         </div>
-
-        <div class="tab-content" id="info">
-          <h2>FAQ</h2>
-          <div id="how-to-div">
-            <a
-              href="#"
-              class="hide-trigger"
-              hide-id="how-to-window-kbs"
-              hide-class="faq"
-              >How do I open this window with a keyboard shortcut?</a
-            >
-            <div id="how-to-window-kbs" class="faq hidden">
-              <p>
-                1. Go to "[browser]://extensions/shortcuts".
-                Example:"edge://extensions/shortcuts"
-              </p>
-              <p>
-                Under <i class="extensionName"></i> -> "Activate the extension",
-                enter the shortcut. Example: Alt+E
-              </p>
-            </div>
-            <br /><br />
-            <a
-              href="#"
-              class="hide-trigger"
-              hide-id="how-to-change-kbs"
-              hide-class="faq"
-              >How can I change the keyboard shortcuts?</a
-            >
-            <div id="how-to-change-kbs" class="faq hidden">
-              <p>
-                1. Go to "[browser]://extensions/shortcuts".
-                Example:"edge://extensions/shortcuts"
-              </p>
-              <p>
-                Under <i class="extensionName"></i> -> "Activate the extension",
-                enter the shortcut. Example: Alt+E
-              </p>
-              <p>
-                For the shortcut to work globally (when you aren't using the
-                browser), it has to be ctrl+shft+[0-9] like ctrl+shft+1
-              </p>
-              <p>
-                Some combinations have had issues working, so if you encounter
-                that try a different one.
-              </p>
-            </div>
-            <br /><br />
-            <a
-              href="#"
-              class="hide-trigger"
-              hide-id="data-retention"
-              hide-class="faq"
-              >How long does the information in
-              <i class="clipboardName"></i> stay there?</a
-            >
-            <div id="data-retention" class="faq hidden">
-              <p>
-                Should stay there until the extension is removed or perhaps
-                updated
-              </p>
-            </div>
-            <br /><br />
-            <a
-              href="#"
-              class="hide-trigger"
-              hide-id="security-faq"
-              hide-class="faq"
-              >How secure is the info in <i class="clipboardName"></i>?</a
-            >
-            <div id="security-faq" class="faq hidden">
-              <p>
-                The information is stored locally in Chrome. When this was
-                written, it is encrypted using AES256 encryption using a key
-                generated via the salted password you enter. Without the
-                password, it is irrecoverable. It is always encrypted when
-                stored.
-              </p>
-            </div>
-            <br /><br />
-            <a
-              href="#"
-              class="hide-trigger"
-              hide-id="snip-enc-faq"
-              hide-class="faq"
-              >Is <i class="snippetsName"></i> encrypted?</a
-            >
-            <div id="snip-enc-faq" class="faq hidden">
-              <p>Not currently. It is stored in plaintext</p>
-            </div>
-            <br /><br />
-            <a
-              href="#"
-              class="hide-trigger"
-              hide-id="contrib-faq"
-              hide-class="faq"
-              >Have more questions? Want to contribute?</a
-            >
-            <div id="contrib-faq" class="faq hidden">
-              <p>Please contact enlace.aman@gmail.com</p>
-            </div>
-          </div>
-        </div>
-        <!-- <div id="bottom-button-bar">
-          <input type="button" id="openSidePanel" value="Open Side Pannel"/>
-        </div> -->
       </div>
     </div>
 

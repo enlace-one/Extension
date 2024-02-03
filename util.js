@@ -106,25 +106,62 @@ async function eGet(key) {
     return decipher
 }
 
+default_settings = {
+    "encrypt-page-notes": false,
+    "encrypt-clipboard": true,
+    "encrypt-snippets": false,
+    "max-char-clipboard": 100,
+    "max-key-char-snippets": 50,
+    "max-value-char-snippets": 1000,
+    "max-key-char-page-notes": 200,
+    "max-value-char-page-notes": 3000,
+    "clipboard-combiner-seperator": " "
+}
 
 async function getSetting(setting_name) {
-    defaults = {"encrypt-page-notes": false}
     settings = await get("enlace-settings")
     if (settings) {
         if (setting_name in settings) {
             return settings[setting_name]
-        } else if (setting_name in defaults) {
-            return defaults[setting_name]
+        } else if (setting_name in default_settings) {
+            return default_settings[setting_name]
         } else {
             console.log("missing setting" + setting_name)
         }
     } else {
-        if (setting_name in defaults) {
-            return defaults[setting_name]
+        if (setting_name in default_settings) {
+            return default_settings[setting_name]
         } else {
             console.log("missing setting" + setting_name)
         }
     }
+}
+
+async function storeSetting(setting_name, value) {
+    settings = await get("enlace-settings")
+    if (settings) {
+        if (setting_name in settings) {
+            if (settings[setting_name] != value) {
+                settings[setting_name] == value
+            }
+        } else if (setting_name in default_settings) {
+            if (default_settings[setting_name] != value) {
+                settings[setting_name] == value
+            }
+        } else {
+            console.log("Error setting" + setting_name)
+        }
+    } else {
+        settings = {}
+        if (setting_name in default_settings) {
+            if (default_settings[setting_name] != value) {
+                settings[setting_name] == value
+            }
+        } else {
+            console.log("missing setting" + setting_name)
+        }
+    }
+    set("enlace-settings", settings)
 }
 
 
@@ -163,3 +200,4 @@ function showNotification(message) {
   function escapeRegExp(string) {
     return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); // $& means the whole matched string
 }
+

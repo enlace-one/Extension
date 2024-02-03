@@ -112,3 +112,6 @@ body {
     overflow: hidden; /* Hide any overflowing text */
     text-overflow: ellipsis; /* Display ellipsis (...) for truncated text */
   }
+ .m-3 {
+    margin: 8px;
+ }

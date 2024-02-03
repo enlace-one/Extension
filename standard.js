@@ -1,16 +1,20 @@
 
+//chrome.permissions.contains({ permissions: ['topSites'] }).then((result) => { if (result) {
+
 // Set Variables
 const variables = {
     extensionName: "Enlace Assistant",
     clipboardName: "Clipboard",
     snippetsName: "Snippets",
-    pageNotesName: "Page Notes"
+    pageNotesName: "Page Notes",
+    settingsName: "Settings",
+    aboutName: "Getting Started"
   }
   
 window.addEventListener("DOMContentLoaded", function() {
 for (const v in variables) {
     Array.from(document.getElementsByClassName(v)).forEach(element => {
-    element.innerHTML = variables[v];
+        element.innerHTML = variables[v];
     });
 }
 });
@@ -174,3 +178,16 @@ async function setPassword(key) {
     const hashValidation = await hashString(key + await getValidationSalt())
     store("hashValidation", hashValidation)
 }
+
+// Add Keyboard Shortcuts
+chrome.commands.getAll(function(commands) {
+    commands.forEach(function(command) {
+        console.log('Command: ' + command.name);
+        console.log('Shortcut: ' + command.shortcut);
+        Array.from(document.getElementsByClassName(command.name)).forEach(element => {
+            if (element && command.shortcut) {
+                element.innerHTML = command.shortcut
+            }
+        });
+    });
+});

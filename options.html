@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Options Page</title>
+    <link rel="stylesheet" href="default.css">
+    <style>
+        /* Container for each option */
+        .option {
+            display: flex;
+            align-items: center;
+            margin-bottom: 5px;
+        }
+
+        /* Styling for checkbox */
+        .option input[type="checkbox"] {
+            margin-right: 5px;
+        }
+
+        /* Styling for labels */
+        .option label {
+            font-weight: bold;
+        }
+
+        /* Small text below options */
+        .option small {
+            margin-left: 5px;
+            color: gray;
+        }
+
+        /* Danger Zone section */
+        .danger-zone {
+            border: 2px dotted;
+            padding: 10px;
+            margin-top: 20px;
+        }
+
+        /* Subsection for each danger option */
+        .danger-option {
+            margin-bottom: 10px;
+        }
+
+        /* Styling for danger zone labels */
+        .danger-option label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        /* Styling for danger zone inputs */
+        .danger-option input[type="number"] {
+            width: 100px;
+            padding: 5px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1 style="width: 200px; font-family: Matura MT Script Capitals, cursive" class="extensionName"></h1>
+        <div id="locked-div">
+            <label for="password">Enter Password:</label>
+            <div style="display: inline-block">
+                <input id="password" type="password" class="" key="" />
+                <p hover-text="First time? Check the box and make up a password">
+                    (i)
+                </p>
+            </div>
+            <div style="display: inline-block">
+                <input id="set-reset-pw" type="checkbox" value="Set/Reset" />
+                <label
+                    hover-text="You will not be able to access any stored values after reseting the password">Set/Reset
+                    Password</label>
+            </div>
+        </div>
+        <div id="unlocked-div" class="hidden">
+            <div class="tabs">
+                <button class="tab-button active aboutName" data-tab="about-tab">
+                    Getting Started
+                </button>
+                <button class="tab-button settingsName" data-tab="settings-tab">
+                    Settings
+                </button>
+                <input type="button" value="Lock" id="lock-button" />
+            </div>
+            <div class="tab-content active" id="about-tab">
+                <p>
+                    Welcome to <i class="extensionName"></i>! We aim to offer useful features ran entirely locally with encryption.
+                    You'll notice this extension has three views, each with its own features. This is the options view or extension 
+                    tab view (<i class="open-extension-tab"></i>). If you press the <i class="extensionName"></i> icon 
+                    on the upper right, you will see the popup view (<i class="_execute_action"></i>). Finally, if you open the sidebar you will see the 
+                    sidebar view (<i class="open-side-panel"></i>)
+                </p>
+
+                <h3>Set Up</h3>
+                <p>
+                    Keyboard shortcuts are essential. We have taken the privelege of making some default shortcuts available to you,
+                    but we recommend you visit extension shortcut page to add one for the popup view and edit the others if you'd like.
+                    <br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;1. Go to "[browser]://extensions/shortcuts".
+                    <br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Example:"edge://extensions/shortcuts"
+                    <br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;2. Set the "Activate the extension" shortcut
+                    <br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Example:"Alt+E"
+                    <br><br>
+                    It is nice to be able to run <i class="clipboardName"></i> shortcuts globally (while using an app other than your browser).
+                    For the shortcut to work globally, it has to follow this pattern: Ctrl+Shft+[0-9]. 
+                    <br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;Example: Ctrl+Shift+1
+                    <br><br>
+                    Some combinations have had issues working, so if you encounter
+                    that, just try a different one.
+                </p>
+
+                <h3>Options View</h3> (<i class="open-extension-tab"></i>)
+                <p>
+                    This is where you go for information and setting changes
+                </p>
+
+                <h3>Popup View</h3> (<i class="_execute_action"></i>)
+                <p>
+                    This is where you go for the apps related to your clipboard
+                </p>
+
+                <h3>Sidebar View</h3> (<i class="open-side-panel"></i>)
+                <p>
+                    This is where you go for <i class="pageNotesName"></i>, which allows you to make notes 
+                    connected to a url or url pattern (it's regex, for the nerds out there)
+                </p>
+
+                <h3>More Info</h3>
+                <p>
+                    Data storage is set to sync using the browser's built in sync storage method. 
+                    So it may work across your devices. If the information itself is necessary, 
+                    KEEP A COPY SOMEWHERE ELSE. This is designed for convienence, not long-term storage.
+                </p>
+                <p>
+                    Data is encrypted with AES256 encryption using a key
+                    generated via the salted password you enter. Without the
+                    password, it is irrecoverable. There is currently no way to 
+                    recover your password. If that data is set to be encrypted, then 
+                    the data will always be encrypted before stored. (See settings)
+                </p>
+
+                <h3>Contact</h3>
+                <p>To contribute, donate, ask a question, provide positive feedback, or offer a request for improvement, please contact enlace.aman@gmail.com.</p>
+                <p>To complain, please visit the local DMV and ask for John.</p>
+
+            </div>
+            <div class="tab-content" id="settings-tab">
+                <div class="danger-zone" style="border-color: yellow; border-style: dotted;">
+                    <h2>Caution</h2>
+                    <small>Be advised that changing these may prevent you from accessing the previously stored values.</small>
+                    <h3>Encryption</h3>
+                    <div class="option">
+                        <input id="encrypt-clipboard" type="checkbox" value="encrypt-clipboard">
+                        <label for="encrypt-clipboard">Encrypt <i class="clipboardName"></i></label>
+                        <small>(Default: Yes)</small>
+                    </div>
+                    <div class="option">
+                        <input id="encrypt-snippets" type="checkbox" value="encrypt-snippets">
+                        <label for="encrypt-snippets">Encrypt <i class="snippetsName"></i></label>
+                        <small>(Default: No)</small>
+                    </div>
+                    <div class="option">
+                        <input id="encrypt-page-notes" type="checkbox" value="encrypt-page-notes">
+                        <label for="encrypt-page-notes">Encrypt <i class="pageNotesName"></i></label>
+                        <small>(Default: No)</small>
+                    </div>
+                </div>
+                <br>
+                <div class="danger-zone" style="border-color: red; border-style: dotted;">
+                    <h2>Danger Zone</h2>
+                    <small>These delete your data</small>
+                    <br>
+                    <input type="button" id="reset-settings" value="Reset Settings"/>
+                    <input type="button" id="reset-clipboard" value="Reset Clipboard"/>
+                    <input type="button" id="reset-snippets" value="Reset Snippets"/>
+                    <input type="button" id="reset-page-notes" value="Reset Page Notes"/>
+                </div>
+                <br>
+                <div class="danger-zone" style="border-color: red; border-style: dotted;">
+                    <h2>Dangerous Settings</h2>
+                    <small>Be advised that changing these may cause performance or memory issues and I'd advise against
+                        it. But hey, we are all adults here.</small>
+                    <div class="danger-option">
+                        <label for="max-char-clipboard">Max Characters for <i class="clipboardName"></i></label>
+                        <input id="max-char-clipboard" type="number">
+                    </div>
+                    <div class="danger-option">
+                        <label for="max-key-char-snippets">Max Key Characters for <i class="snippetsName"></i> </label>
+                        <input id="max-key-char-snippets" type="number">
+                    </div>
+                    <div class="danger-option">
+                        <label for="max-value-char-snippets">Max Value Characters for <i
+                                class="snippetsName"></i></label>
+                        <input id="max-value-char-snippets" type="number">
+                    </div>
+                    <div class="danger-option">
+                        <label for="max-key-char-page-notes">Max URL Characters for <i
+                                class="pageNotesName"></i></label>
+                        <input id="max-key-char-page-notes" type="number">
+                    </div>
+                    <div class="danger-option">
+                        <label for="max-value-char-page-notes">Max Notes Characters for <i
+                                class="pageNotesName"></i></label>
+                        <input id="max-value-char-page-notes" type="number">
+                    </div>
+                </div>
+                <input class="m-3" type="submit" value="Submit" id="save_settings"/>
+            </div>
+        </div>
+
+        <script src="crypto-js.min.js"></script>
+        <script src="util.js"></script>
+        <script src="standard.js"></script>
+        <script src="options.js"></script>
+</body>
+
+</html>

@@ -42,6 +42,9 @@ async function handleMessages(message) {
   }
 }
 
+
+
+
 // We use a <textarea> element for two main reasons:
 //  1. preserve the formatting of multiline text,
 //  2. select the node's content using this element's `.select()` method.

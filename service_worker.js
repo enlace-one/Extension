@@ -3,6 +3,19 @@ console.log("service_worker.js")
 importScripts('crypto-js.min.js');
 importScripts('util.js');
 
+// Open options page on install
+chrome.runtime.onInstalled.addListener(function(details) {
+    if (details.reason === 'install') {
+      chrome.tabs.create({ url: 'options.html' });
+    }
+});
+// Options the options page on keyboard shortcut
+chrome.commands.onCommand.addListener(function(command) {
+    if (command === "open-extension-tab") {
+      chrome.runtime.openOptionsPage();
+    }
+  });
+
 // chrome.commands.onCommand.addListener(
 //     copy-value-1:
 //     function() {
@@ -42,8 +55,70 @@ chrome.commands.onCommand.addListener(async (command) => {
           });
     } else if (command.startsWith("copy-value")) {
         await addToClipboard(await eGet(command))
+    } else if (command.startsWith("start-stop-clip-combiner")) {
+        // console.log("clip comb")
+        // if (clipboardCombinerGoing == true) {
+        //     console.log("Stopping")
+        //     stopMonitoringClipboard()
+        //     addToClipboard(clipboardContent.join(await getSetting("clipboard-combiner-seperator")))
+        // } else {
+        //     startMonitoringClipboard()
+        // }
     }
   });
+
+
+//   "start-stop-clip-combiner": {
+//     "description": "Start/Stop the clipboard combiner"
+//   },
+// let clipboardCombinerGoing = false;
+// let clipboardContent = []; // Array to store clipboard content
+
+// function readClipboardToArray() {
+//     if (clipboardCombinerGoing) {
+//         // Function to read clipboard content and store it in the array
+//         clipboardContent.push(getClipboard());
+//         console.log(getClipboard())
+//     }
+// }
+
+// // Start monitoring clipboard changes
+// function startMonitoringClipboard() {
+//     // Initial read
+//     readClipboardToArray();
+
+//     clipboardCombinerGoing = true
+
+//     chrome.clipboard.onClipboardDataChanged.addListener(readClipboardToArray)
+
+//     // Automatically stop monitoring after 120 seconds
+//     setTimeout(stopMonitoringClipboard, 120000);
+// }
+
+// // Stop monitoring clipboard changes
+// function stopMonitoringClipboard() {
+//     // Remove event listener
+//     clipboardCombinerGoing = false
+//     chrome.clipboard.onClipboardDataChanged.re
+
+// }
+
+// function getClipboard() {
+//     var result = null;
+//     var textarea = document.getElementById('ta');
+//     textarea.value = '';
+//     textarea.select();
+
+//     if (document.execCommand('paste')) {
+//         result = textarea.value;
+//     } else {
+//         console.log('failed to get clipboard content');
+//     }
+
+//     textarea.value = '';
+//     return result;
+// }
+
 
 
 
@@ -77,8 +152,7 @@ chrome.commands.onCommand.addListener(async (command) => {
   // replace the offscreen document based implementation with something like this.
   async function addToClipboardV2(value) {
     navigator.clipboard.writeText(value);
-  }
-
+  } 
 
 
 

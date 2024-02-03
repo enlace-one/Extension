@@ -26,18 +26,22 @@ document.getElementById('url-pattern').addEventListener('keydown', function(even
 
 
 
-function storeKeyValue() {
+async function storeKeyValue() {
     const key = document.getElementById("url-pattern").value
     const value = document.getElementById("page-notes-textarea").value
     if (key && value) {
-        if (key.length > 200) {
+        if (key.length > await getSetting("max-key-char-page-notes")) {
             showNotification("Url is too long")
             return ""
-        } else if (value.length > 3000) {
+        } else if (value.length > await getSetting("max-value-char-page-notes")) {
             showNotification("Note is too long")
             return ""
         } else {
-            data[key] = value
+            if (await getSetting("encrypt-page-notes")) {
+                data[key] = encrypt(value)
+            } else {
+                data[key] = value;
+            }
             store("page-note-data", data)
             showNotification("Saved")
         }
@@ -61,14 +65,19 @@ function defaultPattern(url) {
     return escapedString
 }
 
-function checkMatch(url) {
+async function checkMatch(url) {
     // Iterate through the keys of the dictionary
     console.log(data)
     for (const key of Object.keys(data)) {
         const regexPattern = new RegExp(key);
         // Test if the variable matches the regex pattern
         if (regexPattern.test(url)) {
-            return [key, data[key]]; // Return the corresponding value
+            if (await getSetting("encrypt-page-notes")) {
+                return [key, decrypt(data[key])]; // Return the corresponding value
+            } else {
+                return [key, data[key]]; // Return the corresponding value
+            }
+            
         }
     }
     console.log([defaultPattern(url), ""])
@@ -80,8 +89,8 @@ get("page-note-data").then((value) => {
     data = value || {};
   });
 
-function setActiveURL(url) {
-    keyTextArray = checkMatch(url)
+async function setActiveURL(url) {
+    keyTextArray = await checkMatch(url)
     console.log(keyTextArray)
     document.getElementById("url-pattern").value = keyTextArray[0]
     document.getElementById("page-notes-textarea").value = keyTextArray[1]
