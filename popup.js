@@ -261,8 +261,6 @@ function runGenerator() {
     document.getElementById("generator-output").value = password;
 }
 
-runGenerator()
-
 const defaultGeneratorSettings = {
     length: 18,
     includeLowercase: true,
@@ -288,6 +286,7 @@ function setGeneratorValues() {
             }
         });
     }
+    setTimeout(() => runGenerator(), 1000)
 }
 setGeneratorValues();
 
@@ -328,6 +327,122 @@ document.getElementById("generator-copy").addEventListener("click", function () 
     document.getElementById("generator-output").select();
     document.execCommand('copy');
     showNotification("Copied")
+})
+
+//////////////////////////
+// Passphrase generator //
+//////////////////////////
+
+document.getElementById("pp-generator-run").addEventListener("click", runPPGenerator)
+function toTitleCase(str) {
+    return str.replace(/\b\w/g, function (char) {
+        return char.toUpperCase();
+    });
+}
+
+async function runPPGenerator() {
+    const seperator = document.getElementById("pp-generator-seperator").value;
+    const capitalization = document.getElementById("pp-generator-case").value;
+    const count = document.getElementById("pp-generator-count").value;
+
+    let words = await getRandomWords(count)
+    words = words.map(word => {
+        if (capitalization === "upper") {
+            return word.toUpperCase();
+        } else if (capitalization === "lower") {
+            return word.toLowerCase();
+        } else {
+            return toTitleCase(word);
+        }
+    });
+    words = words.join(seperator)
+    
+    document.getElementById("pp-generator-output").value = words;
+}
+
+const defaultPPGeneratorSettings = {
+    count: 3,
+    case: "upper",
+    seperator: "-"
+};
+
+function setPPGeneratorValues() {
+    for (const key in defaultPPGeneratorSettings) {
+        getPPGeneratorSetting(key).then((value) => {
+            const element = document.getElementById(`pp-generator-${key}`);
+            if (element && element.type === "checkbox") {
+                element.checked = value;
+            } else if (element) {
+                element.value = value;
+            }
+        });
+    }
+    setTimeout(() => runPPGenerator(), 1000)
+}
+setPPGeneratorValues();
+
+
+function getRandomWords(count) {
+    return fetch('word-list.txt')
+        .then(response => response.text())
+        .then(data => {
+            // Split the data into an array of words
+            const wordArray = data.split('\n');
+
+            let words = [];
+
+            for (let i = 0; i < count; i++) {
+                // Get a random word from the array
+                const randomIndex = Math.floor(Math.random() * wordArray.length);
+                const randomWord = wordArray[randomIndex];
+                words.push(randomWord.trim()); // trim any leading/trailing spaces
+            }
+            return words;
+        })
+        .catch(error => {
+            console.error('Error fetching word list:', error);
+            return []; // return an empty array in case of error
+        });
+}
+
+document.getElementById("pp-generator-copy").addEventListener("click", function () {
+    document.getElementById("pp-generator-output").select();
+    document.execCommand('copy');
+    showNotification("Copied")
+})
+
+
+// Function to get generator setting
+async function getPPGeneratorSetting(setting_name) {
+    const generatorSettings = await get("pp-generator-settings") || {};
+    return generatorSettings.hasOwnProperty(setting_name) ? generatorSettings[setting_name] : defaultPPGeneratorSettings[setting_name];
+}
+
+
+// Save Generator Settings
+document.getElementById("pp-generator-save-preferences").addEventListener("click", async function() {
+    for (const key in defaultPPGeneratorSettings) {
+        const element = document.getElementById(`pp-generator-${key}`);
+        if (element && element.type === "checkbox") {
+            await storePPGeneratorSetting(key, element.checked);
+        } else if (element) {
+            await storePPGeneratorSetting(key, element.value);
+        }
+    }
+    showNotification("Generator Settings Saved");
+});
+
+// Function to store generator setting
+async function storePPGeneratorSetting(setting_name, value) {
+    const generatorSettings = (await get("pp-generator-settings")) || {};
+    generatorSettings[setting_name] = value;
+    await store("pp-generator-settings", generatorSettings);
+}
+
+document.getElementById("pp-generator-revert-preferences").addEventListener("click", async function () {
+    store("pp-generator-settings", {});
+    setPPGeneratorValues();
+
 })
   
 
