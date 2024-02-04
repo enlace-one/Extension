@@ -191,9 +191,149 @@ get("snippet-data").then((value) => {
     }
   }
 
-  //////////////////////////////
-  // Handle Bottom Button Bar //
-  //////////////////////////////
+////////////////////////
+// Password Generator //
+////////////////////////
+
+
+document.getElementById("generator-run").addEventListener("click", runGenerator)
+
+function runGenerator() {
+    // Get input values
+    const length = parseInt(document.getElementById("generator-length").value);
+    const includeLowercase = document.getElementById("generator-includeLowercase").checked;
+    const includeUppercase = document.getElementById("generator-includeUppercase").checked;
+    const includeNumbers = document.getElementById("generator-includeNumbers").checked;
+    const includeSpecialChars = document.getElementById("generator-includeSpecialChars").checked;
+    const specialChars = document.getElementById("generator-specialChars").value;
+    const minNumbers = parseInt(document.getElementById("generator-minNumbers").value);
+    const minLowercase = parseInt(document.getElementById("generator-minLowercase").value);
+    const minUppercase = parseInt(document.getElementById("generator-minUppercase").value);
+    const minSpecialChars = parseInt(document.getElementById("generator-minSpecialChars").value);
+    const avoidAmbiguousChars = document.getElementById("generator-avoidAmbiguousChars").checked;
+    let lowercaseChar = 'abcdefghijklmnopqrstuvwxyz'
+    let uppercaseChar = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
+    let numericChar = '0123456789'
+
+    if (avoidAmbiguousChars) {
+        uppercaseChar = uppercaseChar.replace("I", "")
+        lowercaseChar = lowercaseChar.replace("l", "")
+        numericChar = numericChar.replace("1", "")
+        uppercaseChar = uppercaseChar.replace("O", "")
+        numericChar = numericChar.replace("0", "")
+    }
+
+    // Define character sets
+    let chars = '';
+    if (includeLowercase) chars += lowercaseChar
+    if (includeUppercase) chars += uppercaseChar;
+    if (includeNumbers) chars += numericChar;
+    if (includeSpecialChars) chars += specialChars;
+
+    // Generate password
+    let password = '';
+    const getRandomChar = () => chars[Math.floor(Math.random() * chars.length)];
+    const getRandomIndex = () => Math.floor(Math.random() * password.length);
+
+    // Ensure minimum requirements
+    for (let i = 0; i < minNumbers; i++) {
+        password += numericChar[Math.floor(Math.random() * numericChar.length)]
+    }
+    for (let i = 0; i < minLowercase; i++) {
+        password += lowercaseChar[Math.floor(Math.random() * lowercaseChar.length)]
+    }
+    for (let i = 0; i < minUppercase; i++) {
+        password += uppercaseChar[Math.floor(Math.random() * uppercaseChar.length)];
+    }
+    for (let i = 0; i < minSpecialChars; i++) {
+        password += specialChars[Math.floor(Math.random() * specialChars.length)]
+    }
+
+    // Generate remaining characters to meet length requirement
+    while (password.length < length) {
+        password += getRandomChar();
+    }
+
+    // Shuffle password
+    password = password.split('').sort(() => Math.random() - 0.5).join('');
+
+    // Display password
+    document.getElementById("generator-output").value = password;
+}
+
+runGenerator()
+
+const defaultGeneratorSettings = {
+    length: 18,
+    includeLowercase: true,
+    includeUppercase: true,
+    includeNumbers: true,
+    includeSpecialChars: true,
+    specialChars: "!$?@#%*",
+    minNumbers: 1,
+    minLowercase: 1,
+    minUppercase: 1,
+    minSpecialChars: 1,
+    avoidAmbiguousChars: true
+};
+
+function setGeneratorValues() {
+    for (const key in defaultGeneratorSettings) {
+        getGeneratorSetting(key).then((value) => {
+            const element = document.getElementById(`generator-${key}`);
+            if (element && element.type === "checkbox") {
+                element.checked = value;
+            } else if (element) {
+                element.value = value;
+            }
+        });
+    }
+}
+setGeneratorValues();
+
+// Save Generator Settings
+document.getElementById("generator-save-preferences").addEventListener("click", async function() {
+    for (const key in defaultGeneratorSettings) {
+        const element = document.getElementById(`generator-${key}`);
+        if (element && element.type === "checkbox") {
+            await storeGeneratorSetting(key, element.checked);
+        } else if (element) {
+            await storeGeneratorSetting(key, element.value);
+        }
+    }
+    showNotification("Generator Settings Saved");
+});
+
+document.getElementById("generator-revert-preferences").addEventListener("click", async function () {
+    store("generator-settings", {});
+    setGeneratorValues();
+
+})
+
+// Function to get generator setting
+async function getGeneratorSetting(setting_name) {
+    const generatorSettings = await get("generator-settings") || {};
+    return generatorSettings.hasOwnProperty(setting_name) ? generatorSettings[setting_name] : defaultGeneratorSettings[setting_name];
+}
+
+// Function to store generator setting
+async function storeGeneratorSetting(setting_name, value) {
+    const generatorSettings = (await get("generator-settings")) || {};
+    generatorSettings[setting_name] = value;
+    await store("generator-settings", generatorSettings);
+}
+
+
+document.getElementById("generator-copy").addEventListener("click", function () {
+    document.getElementById("generator-output").select();
+    document.execCommand('copy');
+    showNotification("Copied")
+})
+  
+
+//////////////////////////////
+// Handle Bottom Button Bar //
+//////////////////////////////
   
 
 

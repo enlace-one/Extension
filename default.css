@@ -6,7 +6,7 @@ body {
   }
 
   .container {
-    max-width: 600px;
+    max-width: 800px;
     margin: 0 auto;
     background-color: #fff;
     border-radius: 10px;
@@ -43,6 +43,14 @@ body {
     cursor: pointer;
     border-bottom: 2px solid transparent;
     transition: border-color 0.3s ease;
+  }
+
+  .undo-tab-button-style {
+    background-color: rgb(240, 240, 240);
+    padding-block: 1px;
+    border-width: 1px;
+    border-style: outset;
+    border-color: buttonborder;
   }
 
   .tab-button.active {
@@ -142,3 +150,23 @@ body {
  .m-3 {
     margin: 8px;
  }
+
+ .w-5 {
+    width: 50px;
+ }
+
+ .option {
+    display: flex;
+    align-items: center;
+    margin-bottom: 5px;
+}
+
+/* Styling for checkbox */
+.option input[type="checkbox"] {
+    margin-right: 5px;
+}
+
+/* Styling for labels */
+.option label {
+    font-weight: bold;
+}

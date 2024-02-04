@@ -6,9 +6,10 @@ To Do
 + Intro Page
 + Regex
 + HTML
++ CSS refeence 
++ Page Notes search
 - Javascript
 - Clean up unused code
-
 - Python?
 - SQL?
 
@@ -18,7 +19,4 @@ Maybe
 - Find&Replace
 - Clipboard combiner - harder than it seems to read from clipboard
 - Extra copy paste clipboard - harder than it seems to read from clipboard
-
-
-To Look at
-https://chromewebstore.google.com/detail/shortkeys-custom-keyboard/logpjaacgmcbpdkdchjiaagddngobkck
+- Custom keyboard shortcuts? Inject javascript? 

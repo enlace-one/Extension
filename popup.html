@@ -1,147 +1,230 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Extension Name</title>
-    <link rel="stylesheet" href="default.css">
-  </head>
 
-  <body>
-    <div class="container">
-      <h1
-        style="width: 200px; font-family: Matura MT Script Capitals, cursive"
-        class="extensionName"
-      ></h1>
-      <div id="locked-div">
-        <label for="password">Enter Password:</label>
-        <div style="display: inline-block">
-          <input id="password" type="password" class="" key="" />
-          <p hover-text="First time? Check the box and make up a password">
-            (i)
-          </p>
-        </div>
-        <div style="display: inline-block">
-          <input id="set-reset-pw" type="checkbox" value="Set/Reset" />
-          <label
-            hover-text="You will not be able to access any stored values after reseting the password"
-            >Set/Reset Password</label
-          >
-        </div>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Extension Name</title>
+  <link rel="stylesheet" href="default.css">
+</head>
+
+<body>
+  <div class="container">
+    <h1 style="width: 200px; font-family: Matura MT Script Capitals, cursive" class="extensionName"></h1>
+    <div id="locked-div">
+      <label for="password">Enter Password:</label>
+      <div style="display: inline-block">
+        <input id="password" type="password" class="" key="" />
+        <p hover-text="First time? Check the box and make up a password">
+          (i)
+        </p>
       </div>
-      <div id="unlocked-div" class="hidden">
-        <div class="tabs">
-          <button
-            class="tab-button active snippetsName"
-            data-tab="snippets-tab"
-          >
-            Snippets
-          </button>
-          <button class="tab-button clipboardName" data-tab="e-clip">
-            e-Clip
-          </button>
-          <input type="button" value="Lock" id="lock-button" />
-        </div>
-        <div class="tab-content" id="e-clip">
-          <h2 class="clipboardName">e-Clip</h2>
-          <div id="copy-div">
-            <div>
-              <br />
-              <label id="copy-value-1-label">Copy Value 1</label>
-              <input
-                id="copy-value-1"
-                type="text"
-                class="store-input-value"
-                key="copy-value-1"
-              />
-            </div>
-            <div>
-              <br />
-              <label id="copy-value-2-label">Copy Value 2</label>
-              <input
-                id="copy-value-2"
-                type="text"
-                class="store-input-value"
-                key="copy-value-2"
-              />
-            </div>
-            <div>
-              <br />
-              <label id="copy-value-3-label">Copy Value 3</label>
-              <input
-                id="copy-value-3"
-                type="text"
-                class="store-input-value"
-                key="copy-value-3"
-              />
-            </div>
-            <div>
-              <br />
-              <label id="copy-value-4-label"
-                >Set me in extensions->Keyboard Shortcuts:</label
-              >
-              <input
-                id="copy-value-4"
-                type="text"
-                class="store-input-value"
-                key="copy-value-4"
-              />
-            </div>
-            <div>
-              <br />
-              <label id="copy-value-5-label"
-                >Set me in extensions->Keyboard Shortcuts:</label
-              >
-              <input
-                id="copy-value-5"
-                type="text"
-                class="store-input-value"
-                key="copy-value-5"
-              />
-            </div>
-          </div>
-          <p
-            hover-text="This provides a few extra clipboards for you to use. Type or paste the values you want to be able
-            to reference in the above boxes and then use the respective keyboard shortcuts to paste them. 
-            You should be able to paste them even while using a different app than your browser! (Works best with Chrome). 
-            See the Info tab to learn about changing keyboard shortcuts, security, etc. "
-          >
-            (i)
-          </p>
-        </div>
-        <div class="tab-content active" id="snippets-tab">
-          <h2 class="snippetsName">Snippets</h2>
-          <div>
-            <label for="search">Search:</label>
-            <input type="text" id="search">
-          </div>
-          <div id="result" style="min-height:10vh"></div>
-          <small>Press "Enter" to copy the highlighted result. Arrow keys to move</small>
-          <br>
-          <h3>Add New</h3>
-          <table>
-            <tr>
-              <th><label for="key">Key:</label></th>
-              <td><input type="text" id="key"></td>
-            </tr>
-            <tr>
-              <th><label for="value">Value:</label></th>
-              <td><input type="text" id="value"></td>
-            </tr>
-          </table>
-          <small>Press "Enter" to Save</small>
-          
-        </div>
-        <div id="bottom-button-bar">
-          <!-- <input type="button" id="openSidePanel" value="Open Side Pannel"/> -->
-          <input class="m-3" type="button" id="openOptionsPage" value="Open Extension Tab"/>
-        </div>
+      <div style="display: inline-block">
+        <input id="set-reset-pw" type="checkbox" value="Set/Reset" />
+        <label hover-text="You will not be able to access any stored values after reseting the password">Set/Reset
+          Password</label>
       </div>
     </div>
+    <div id="unlocked-div" class="hidden">
+      <div class="tabs">
+        <button class="tab-button active snippetsName" data-tab="snippets-tab">
+          Snippets
+        </button>
+        <button class="tab-button clipboardName" data-tab="e-clip">
+          e-Clip
+        </button>
+        <button class="tab-button generatorName" data-tab="generator-tab">
+          Generator
+        </button>
+        <input type="button" value="Lock" id="lock-button" />
+      </div>
+      <div class="tab-content" id="generator-tab">
+        <h2 class="generatorName">Generator</h2>
+        <div style="display: flex; align-items: center;">
+        <input id="generator-output" style="height:30px; font-size: large;">
+        <button id="generator-copy" type="button"><img src="images/copy.svg" alt="Icon" width="24" height="24"></button>
+        <button id="generator-run" type="button"><img src="images/redo.svg" alt="Icon" width="24" height="24"></button>
+      </div>
+      <br />
+        <table>
+          <tr>
+            <td>
+              <!-- <input id="generator-output" style="height:30px; font-size: large;">
+              <button id="generator-copy" type="button"><img src="images/copy.svg" alt="Icon" width="24" height="24"></button>
+              <button id="generator-run" type="button"><img src="images/redo.svg" alt="Icon" width="24" height="24"></button> -->
+            </td>
+          </tr>
+          <tr>
+            <td colspan="2">
+              <label for="generator-length">Length</label>
+            </td>
+            <td>
+              <input class="w-5" id="generator-length" type="number" value="18" />
+            </td>
+          </tr>
+          <tr>
+            <td colspan="2">
+              <label for="generator-chars-lower">Include Lowercase</label>
+            </td>
+            <td>
+              <input type="checkbox" class="generator-chars" id="generator-includeLowercase" value="abcdefghijklmnopqrstuvwxyz"
+                checked />
+            </td>
+          </tr>
+          <tr>
+            <td colspan="2">
+              <label for="generator-chars-upper">Include Uppercase</label>
+            </td>
+            <td>
+              <input type="checkbox" class="generator-chars" id="generator-includeUppercase" value="ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+                checked />
+            </td>
+          </tr>
+          <tr>
+            <td colspan="2">
+              <label for="generator-chars-numbers">Include Numbers</label>
+            </td>
+            <td>
+              <input type="checkbox" class="generator-chars" id="generator-includeNumbers" value="0123456789" checked />
+            </td>
+          </tr>
+          <tr>
+            <td colspan="2">
+              <label for="generator-chars-special">Include Special Characters</label>
+            </td>
+            <td>
+              <input type="checkbox" class="generator-chars" id="generator-includeSpecialChars" checked />
+            </td>
+          </tr>
+          <tr>
+            <td colspan="2">
+              <label for="generator-chars-special-input">Define Special Characters</label>
+            </td>
+            <td>
+              <input class="w-5 generator-chars" id="generator-specialChars" value="!$?@#%*" checked />
+            </td>
+          </tr>
+          <tr>
+            <td colspan="2">
+              <label for="generator-min-num">Minimum numbers</label>
+            </td>
+            <td>
+              <input type="number" class="w-5 generator-chars" id="generator-minNumbers" value="1" />
+            </td>
+          </tr>
+          <tr>
+            <td colspan="2">
+              <label for="generator-min-lower">Minimum lower</label>
+            </td>
+            <td>
+              <input type="number" class="w-5 generator-chars" id="generator-minLowercase" value="1" />
+            </td>
+          </tr>
+          <tr>
+            <td colspan="2">
+              <label for="generator-min-upper">Minimum upper</label>
+            </td>
+            <td>
+              <input type="number" class="w-5 generator-chars" id="generator-minUppercase" value="1" />
+            </td>
+          </tr>
+          <tr>
+            <td colspan="2">
+              <label for="generator-min-special">Minimum special</label>
+            </td>
+            <td>
+              <input type="number" class="w-5 generator-chars" id="generator-minSpecialChars" value="1" />
+            </td>
+          </tr>
+          <tr>
+            <td colspan="2">
+              <label for="generator-avoid-ambiguos">Avoid Ambiguous Characters</label>
+            </td>
+            <td>
+              <input type="checkbox" class="generator-chars" id="generator-avoidAmbiguousChars" checked />
+            </td>
+          </tr>
+          <tr>
+            <td colspan="3">
+              <input id="generator-save-preferences" value="Save Preferences" type="button">
+              <input id="generator-revert-preferences" value="Revert" type="button">
+            </td>
+          </tr>
+        </table>
+        
 
-    <script src="crypto-js.min.js"></script>
-    <script src="util.js"></script>
-    <script src="standard.js"></script>
-    <script src="popup.js"></script>
-  </body>
+
+      </div>
+      <div class="tab-content" id="e-clip">
+        <h2 class="clipboardName">e-Clip</h2>
+        <div id="copy-div">
+          <div>
+            <br />
+            <label id="copy-value-1-label">Copy Value 1</label>
+            <input id="copy-value-1" type="text" class="store-input-value" key="copy-value-1" />
+          </div>
+          <div>
+            <br />
+            <label id="copy-value-2-label">Copy Value 2</label>
+            <input id="copy-value-2" type="text" class="store-input-value" key="copy-value-2" />
+          </div>
+          <div>
+            <br />
+            <label id="copy-value-3-label">Copy Value 3</label>
+            <input id="copy-value-3" type="text" class="store-input-value" key="copy-value-3" />
+          </div>
+          <div>
+            <br />
+            <label id="copy-value-4-label">Set me in extensions->Keyboard Shortcuts:</label>
+            <input id="copy-value-4" type="text" class="store-input-value" key="copy-value-4" />
+          </div>
+          <div>
+            <br />
+            <label id="copy-value-5-label">Set me in extensions->Keyboard Shortcuts:</label>
+            <input id="copy-value-5" type="text" class="store-input-value" key="copy-value-5" />
+          </div>
+        </div>
+        <p hover-text="This provides a few extra clipboards for you to use. Type or paste the values you want to be able
+            to reference in the above boxes and then use the respective keyboard shortcuts to paste them. 
+            You should be able to paste them even while using a different app than your browser! (Works best with Chrome). 
+            See the Info tab to learn about changing keyboard shortcuts, security, etc. ">
+          (i)
+        </p>
+      </div>
+      <div class="tab-content active" id="snippets-tab">
+        <h2 class="snippetsName">Snippets</h2>
+        <div>
+          <label for="search">Search:</label>
+          <input type="text" id="search">
+        </div>
+        <div id="result" style="min-height:10vh"></div>
+        <small>Press "Enter" to copy the highlighted result. Arrow keys to move</small>
+        <br>
+        <h3>Add New</h3>
+        <table>
+          <tr>
+            <th><label for="key">Key:</label></th>
+            <td><input type="text" id="key"></td>
+          </tr>
+          <tr>
+            <th><label for="value">Value:</label></th>
+            <td><input type="text" id="value"></td>
+          </tr>
+        </table>
+        <small>Press "Enter" to Save</small>
+
+      </div>
+      <div id="bottom-button-bar">
+        <!-- <input type="button" id="openSidePanel" value="Open Side Pannel"/> -->
+        <input class="m-3" type="button" id="openOptionsPage" value="Open Extension Tab" />
+      </div>
+    </div>
+  </div>
+
+  <script src="crypto-js.min.js"></script>
+  <script src="util.js"></script>
+  <script src="standard.js"></script>
+  <script src="popup.js"></script>
+</body>
+
 </html>

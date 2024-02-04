@@ -146,6 +146,46 @@ function showhide(hideId) {
 //     });
 // });
 
+window.addEventListener("DOMContentLoaded", function() {
+    Array.from(document.querySelectorAll("[show-hide-class-on-click]")).forEach(element => {
+        element.addEventListener("click", function() {
+            Array.from(document.getElementsByClassName(element.getAttribute("show-hide-class-on-click"))).forEach(element => {
+                element.classList.toggle("hidden")
+                console.log("toggled")
+            });
+        });
+    });
+});
+
+
+
+
+function changeTabs(button) {
+    return function() {
+        const tabButtons = document.querySelectorAll(".tab-button");
+        // Remove 'active' class from all tab buttons
+        tabButtons.forEach(function (btn) {
+            btn.classList.remove("active");
+        });
+
+        // Add 'active' class to the clicked tab button
+        button.classList.add("active");
+
+        // Get the ID of the tab to show
+        const tabId = button.getAttribute("data-tab");
+
+        // Hide all tab contents
+        const tabContents = document.querySelectorAll(".tab-content");
+        tabContents.forEach(function (content) {
+            content.classList.remove("active");
+        });
+
+        // Show the tab content with the corresponding ID
+        const tabContentToShow = document.getElementById(tabId);
+        tabContentToShow.classList.add("active");
+    };
+}
+
 // Handle tab switching
 document.addEventListener("DOMContentLoaded", function () {
     // Get all tab buttons
@@ -153,30 +193,10 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // Add click event listener to each tab button
     tabButtons.forEach(function (button) {
-        button.addEventListener("click", function () {
-            // Remove 'active' class from all tab buttons
-            tabButtons.forEach(function (btn) {
-                btn.classList.remove("active");
-            });
-
-            // Add 'active' class to the clicked tab button
-            button.classList.add("active");
-
-            // Get the ID of the tab to show
-            const tabId = button.getAttribute("data-tab");
-
-            // Hide all tab contents
-            const tabContents = document.querySelectorAll(".tab-content");
-            tabContents.forEach(function (content) {
-                content.classList.remove("active");
-            });
-
-            // Show the tab content with the corresponding ID
-            const tabContentToShow = document.getElementById(tabId);
-            tabContentToShow.classList.add("active");
-        });
+        button.addEventListener("click", changeTabs(button));
     });
 });
+
 
 // Handle subtab switching
 document.addEventListener("DOMContentLoaded", function () {
