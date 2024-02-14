@@ -33,172 +33,194 @@
         <button class="tab-button clipboardName" data-tab="e-clip">
           e-Clip
         </button>
-        <button class="tab-button ppGeneratorName" data-tab="pp-generator-tab">
+        <!-- <button class="tab-button ppGeneratorName" data-tab="pp-generator-tab">
           Generator
-        </button>
-        <button class="tab-button pwGeneratorName" data-tab="pw-generator-tab">
+        </button> -->
+        <button class="tab-button generatorName" data-tab="pw-generator-tab">
           Generator
         </button>
         <input type="button" value="Lock" id="lock-button" />
       </div>
-      <div class="tab-content" id="pp-generator-tab">
-        <h2 class="ppGeneratorName">Generator</h2>
-        
-        <input id="pp-generator-output" style="height:30px; font-size: medium; width: 80vw">
-        <br>
-        <button id="pp-generator-copy" type="button"><img src="images/copy.svg" alt="Icon" style="width: 36vw" height="20"
-            ></button>
-        <button id="pp-generator-run" type="button"><img src="images/redo.svg" alt="Icon" style="width: 36vw" height="20"
-            ></button>
-        
-        <table>
-          <tr>
-            <td colspan="2">
-              <label>Word Count</label>
-            </td>
-            <td>
-              <input class="w-5" id="pp-generator-count" type="number" value="3" />
-            </td>
-          </tr>
-          <tr>
-            <td colspan="2">
-              <label>Capitalization</label>
-            </td>
-            <td>
-              <select class="w-5" id="pp-generator-case" >
-                <option value="upper">UPPERCASE</option>
-                <option value="lower">lowercase</option>
-                <option value="title">Title Case</option>
-              </select>
-            </td>
-          </tr>
-          <tr>
-            <td colspan="2">
-              <label>Seperator</label>
-            </td>
-            <td>
-              <input class="w-5" id="pp-generator-seperator" value="-" />
-            </td>
-          </tr>
-          <tr>
-            <td colspan="3">
-              <input id="pp-generator-save-preferences" value="Save Preferences" type="button">
-              <input id="pp-generator-revert-preferences" value="Revert" type="button">
-            </td>
-          </tr>
-        </table>
-      </div>
       <div class="tab-content" id="pw-generator-tab">
-        <h2 class="pwGeneratorName">Generator</h2>
-        <div style="display: flex; align-items: center;">
-          <input id="generator-output" style="height:30px; font-size: large;">
-          <button id="generator-copy" type="button"><img src="images/copy.svg" alt="Icon" width="24"
-              height="24"></button>
-          <button id="generator-run" type="button"><img src="images/redo.svg" alt="Icon" width="24"
-              height="24"></button>
+        <h2 class="generatorName">Generator</h2>
+        <div class="subtabs">
+          <button class="subtab-button pwGeneratorName" data-tab="password-subtab">
+              Password Generator
+          </button>
+          <button class="subtab-button active ppGeneratorName" data-tab="phrase-subtab">
+              PassPhrase Generator
+          </button>
         </div>
-        <br />
-        <table>
-          <tr>
-            <td colspan="2">
-              <label for="generator-length">Length</label>
-            </td>
-            <td>
-              <input class="w-5" id="generator-length" type="number" value="18" />
-            </td>
-          </tr>
-          <tr>
-            <td colspan="2">
-              <label for="generator-chars-lower">Include Lowercase</label>
-            </td>
-            <td>
-              <input type="checkbox" class="generator-chars" id="generator-includeLowercase"
-                value="abcdefghijklmnopqrstuvwxyz" checked />
-            </td>
-          </tr>
-          <tr>
-            <td colspan="2">
-              <label for="generator-chars-upper">Include Uppercase</label>
-            </td>
-            <td>
-              <input type="checkbox" class="generator-chars" id="generator-includeUppercase"
-                value="ABCDEFGHIJKLMNOPQRSTUVWXYZ" checked />
-            </td>
-          </tr>
-          <tr>
-            <td colspan="2">
-              <label for="generator-chars-numbers">Include Numbers</label>
-            </td>
-            <td>
-              <input type="checkbox" class="generator-chars" id="generator-includeNumbers" value="0123456789" checked />
-            </td>
-          </tr>
-          <tr>
-            <td colspan="2">
-              <label for="generator-chars-special">Include Special Characters</label>
-            </td>
-            <td>
-              <input type="checkbox" class="generator-chars" id="generator-includeSpecialChars" checked />
-            </td>
-          </tr>
-          <tr>
-            <td colspan="2">
-              <label for="generator-chars-special-input">Define Special Characters</label>
-            </td>
-            <td>
-              <input class="w-5 generator-chars" id="generator-specialChars" value="!$?@#%*" checked />
-            </td>
-          </tr>
-          <tr>
-            <td colspan="2">
-              <label for="generator-min-num">Minimum numbers</label>
-            </td>
-            <td>
-              <input type="number" class="w-5 generator-chars" id="generator-minNumbers" value="1" />
-            </td>
-          </tr>
-          <tr>
-            <td colspan="2">
-              <label for="generator-min-lower">Minimum lower</label>
-            </td>
-            <td>
-              <input type="number" class="w-5 generator-chars" id="generator-minLowercase" value="1" />
-            </td>
-          </tr>
-          <tr>
-            <td colspan="2">
-              <label for="generator-min-upper">Minimum upper</label>
-            </td>
-            <td>
-              <input type="number" class="w-5 generator-chars" id="generator-minUppercase" value="1" />
-            </td>
-          </tr>
-          <tr>
-            <td colspan="2">
-              <label for="generator-min-special">Minimum special</label>
-            </td>
-            <td>
-              <input type="number" class="w-5 generator-chars" id="generator-minSpecialChars" value="1" />
-            </td>
-          </tr>
-          <tr>
-            <td colspan="2">
-              <label for="generator-avoid-ambiguos">Avoid Ambiguous Characters</label>
-            </td>
-            <td>
-              <input type="checkbox" class="generator-chars" id="generator-avoidAmbiguousChars" checked />
-            </td>
-          </tr>
-          <tr>
-            <td colspan="3">
-              <input id="generator-save-preferences" value="Save Preferences" type="button">
-              <input id="generator-revert-preferences" value="Revert" type="button">
-            </td>
-          </tr>
-        </table>
-
-
-
+        <div class="subtab-content active" id="phrase-subtab">
+        
+          <input id="pp-generator-output" style="height:30px; font-size: medium; width: 80vw">
+          <br>
+          <button id="pp-generator-copy" type="button"><img src="images/copy.svg" alt="Icon" style="width: 36vw" height="20"
+              ></button>
+          <button id="pp-generator-run" type="button"><img src="images/redo.svg" alt="Icon" style="width: 36vw" height="20"
+              ></button>
+          
+          <table>
+            <tr>
+              <td colspan="2">
+                <label>Word Count</label>
+              </td>
+              <td>
+                <input class="w-5" id="pp-generator-count" type="number" value="3" />
+              </td>
+            </tr>
+            <tr>
+              <td colspan="2">
+                <label>Capitalization</label>
+              </td>
+              <td>
+                <select class="w-5" id="pp-generator-case" >
+                  <option value="upper">UPPERCASE</option>
+                  <option value="lower">lowercase</option>
+                  <option value="title">Title Case</option>
+                </select>
+              </td>
+            </tr>
+            <tr>
+              <td colspan="2">
+                <label>Seperator</label>
+              </td>
+              <td>
+                <input class="w-5" id="pp-generator-seperator" value="-" />
+              </td>
+            </tr>
+            <tr>
+              <td colspan="2">
+                <label>Small words</label>
+              </td>
+              <td>
+                <input type="checkbox" id="pp-generator-smallWords" checked />
+              </td>
+            </tr>
+            <tr>
+              <td colspan="2">
+                <label>Include Number</label>
+              </td>
+              <td>
+                <input type="checkbox" id="pp-generator-number" checked />
+              </td>
+            </tr>
+            <tr>
+              <td colspan="3">
+                <input id="pp-generator-save-preferences" value="Save Preferences" type="button">
+                <input id="pp-generator-revert-preferences" value="Revert" type="button">
+              </td>
+            </tr>
+          </table>
+        </div>
+        <div class="subtab-content" id="password-subtab">      
+          <div style="display: flex; align-items: center;">
+            <input id="generator-output" style="height:30px; font-size: large;">
+            <button id="generator-copy" type="button"><img src="images/copy.svg" alt="Icon" width="24"
+                height="24"></button>
+            <button id="generator-run" type="button"><img src="images/redo.svg" alt="Icon" width="24"
+                height="24"></button>
+          </div>
+          <br />
+          <table>
+            <tr>
+              <td colspan="2">
+                <label for="generator-length">Length</label>
+              </td>
+              <td>
+                <input class="w-5" id="generator-length" type="number" value="18" />
+              </td>
+            </tr>
+            <tr>
+              <td colspan="2">
+                <label for="generator-chars-lower">Include Lowercase</label>
+              </td>
+              <td>
+                <input type="checkbox" class="generator-chars" id="generator-includeLowercase"
+                  value="abcdefghijklmnopqrstuvwxyz" checked />
+              </td>
+            </tr>
+            <tr>
+              <td colspan="2">
+                <label for="generator-chars-upper">Include Uppercase</label>
+              </td>
+              <td>
+                <input type="checkbox" class="generator-chars" id="generator-includeUppercase"
+                  value="ABCDEFGHIJKLMNOPQRSTUVWXYZ" checked />
+              </td>
+            </tr>
+            <tr>
+              <td colspan="2">
+                <label for="generator-chars-numbers">Include Numbers</label>
+              </td>
+              <td>
+                <input type="checkbox" class="generator-chars" id="generator-includeNumbers" value="0123456789" checked />
+              </td>
+            </tr>
+            <tr>
+              <td colspan="2">
+                <label for="generator-chars-special">Include Special Characters</label>
+              </td>
+              <td>
+                <input type="checkbox" class="generator-chars" id="generator-includeSpecialChars" checked />
+              </td>
+            </tr>
+            <tr>
+              <td colspan="2">
+                <label for="generator-chars-special-input">Define Special Characters</label>
+              </td>
+              <td>
+                <input class="w-5 generator-chars" id="generator-specialChars" value="!$?@#%*" checked />
+              </td>
+            </tr>
+            <tr>
+              <td colspan="2">
+                <label for="generator-min-num">Minimum numbers</label>
+              </td>
+              <td>
+                <input type="number" class="w-5 generator-chars" id="generator-minNumbers" value="1" />
+              </td>
+            </tr>
+            <tr>
+              <td colspan="2">
+                <label for="generator-min-lower">Minimum lower</label>
+              </td>
+              <td>
+                <input type="number" class="w-5 generator-chars" id="generator-minLowercase" value="1" />
+              </td>
+            </tr>
+            <tr>
+              <td colspan="2">
+                <label for="generator-min-upper">Minimum upper</label>
+              </td>
+              <td>
+                <input type="number" class="w-5 generator-chars" id="generator-minUppercase" value="1" />
+              </td>
+            </tr>
+            <tr>
+              <td colspan="2">
+                <label for="generator-min-special">Minimum special</label>
+              </td>
+              <td>
+                <input type="number" class="w-5 generator-chars" id="generator-minSpecialChars" value="1" />
+              </td>
+            </tr>
+            <tr>
+              <td colspan="2">
+                <label for="generator-avoid-ambiguos">Avoid Ambiguous Characters</label>
+              </td>
+              <td>
+                <input type="checkbox" class="generator-chars" id="generator-avoidAmbiguousChars" checked />
+              </td>
+            </tr>
+            <tr>
+              <td colspan="3">
+                <input id="generator-save-preferences" value="Save Preferences" type="button">
+                <input id="generator-revert-preferences" value="Revert" type="button">
+              </td>
+            </tr>
+          </table>
+        </div>
       </div>
       <div class="tab-content" id="e-clip">
         <h2 class="clipboardName">e-Clip</h2>

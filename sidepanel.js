@@ -15,8 +15,6 @@ document.getElementById('url-pattern').addEventListener('keydown', function(even
 });
 
 
-
-
 async function storeKeyValue() {
     const key = document.getElementById("url-pattern").value
     const value = document.getElementById("page-notes-textarea").value
@@ -58,7 +56,7 @@ function defaultPattern(url) {
 
 async function checkMatch(url, isPattern=false) {
     // Iterate through the keys of the dictionary
-    console.log(data)
+    // console.log(data)
     for (const key of Object.keys(data)) {
         if (isPattern) {
             if (url == key) {
@@ -97,10 +95,11 @@ async function setActiveURL(url, isPattern=false) {
     document.getElementById("page-notes-textarea").value = keyTextArray[1]
 }
 
-(async () => {
+document.addEventListener("DOMContentLoaded", async function () {
     const [tab] = await chrome.tabs.query({ active: true, lastFocusedWindow: true });
+    console.log(tab.url)
     setActiveURL(tab.url);
-  })();
+  });
   
   chrome.tabs.onActivated.addListener(async (activeInfo) => {
     const tab = await chrome.tabs.get(activeInfo.tabId);
@@ -112,7 +111,7 @@ async function setActiveURL(url, isPattern=false) {
   
   chrome.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
     if (tab.active) {
-      console.log("======= active tab url", tab.url);
+      console.log("======= updated tab url", tab.url);
       setActiveURL(tab.url);
     }
   });

@@ -13,8 +13,9 @@ const variables = {
     regexTesterName: "Regex Tester",
     replacerName: "Re-placer",
     htmlName: "Html",
-    pwGeneratorName: "PW Generator",
-    ppGeneratorName: "Pass Phrases"
+    pwGeneratorName: "Password Generator",
+    ppGeneratorName: "Pass Phrases",
+    generatorName: "Generator",
   }
   
 window.addEventListener("DOMContentLoaded", function() {

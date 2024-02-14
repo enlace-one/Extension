@@ -343,9 +343,20 @@ function toTitleCase(str) {
 async function runPPGenerator() {
     const seperator = document.getElementById("pp-generator-seperator").value;
     const capitalization = document.getElementById("pp-generator-case").value;
-    const count = document.getElementById("pp-generator-count").value;
+    let count = document.getElementById("pp-generator-count").value;
+    const useSmallWords = document.getElementById("pp-generator-smallWords").checked;
+    const useNumbers = document.getElementById("pp-generator-number").checked;
+    
+    let wordlist = 'word-list.txt'
+    if (useSmallWords) {
+        wordlist = 'short-word-list.txt'
+    }
 
-    let words = await getRandomWords(count)
+    if (useNumbers) {
+        count -= 1;
+    }
+
+    let words = await getRandomWords(count, wordlist)
     words = words.map(word => {
         if (capitalization === "upper") {
             return word.toUpperCase();
@@ -356,14 +367,20 @@ async function runPPGenerator() {
         }
     });
     words = words.join(seperator)
+
+    if (useNumbers) {
+        words += seperator + Math.floor(Math.random() * 100).toString();
+    }
     
     document.getElementById("pp-generator-output").value = words;
 }
 
 const defaultPPGeneratorSettings = {
     count: 3,
-    case: "upper",
-    seperator: "-"
+    case: "title",
+    seperator: "-",
+    number: true,
+    smallWords: true,
 };
 
 function setPPGeneratorValues() {
@@ -382,8 +399,8 @@ function setPPGeneratorValues() {
 setPPGeneratorValues();
 
 
-function getRandomWords(count) {
-    return fetch('word-list.txt')
+function getRandomWords(count, wordListFileName = 'word-list.txt') {
+    return fetch(wordListFileName)
         .then(response => response.text())
         .then(data => {
             // Split the data into an array of words

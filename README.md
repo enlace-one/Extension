@@ -13,6 +13,8 @@ To Do
 - Python?
 - SQL?
 
+- Quick-Reference? So you search something like "split" and git "textafter (excel)", "textbefore (excel)", "split (python)", etc. Checkboxes for what languages you have there. 
+
 Maybe
 - Comparer 
 - Dark mode
