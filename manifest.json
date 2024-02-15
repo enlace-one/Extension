@@ -17,8 +17,13 @@
   },
   "permissions": ["scripting", "storage", "offscreen", "clipboardWrite", "clipboardRead", "sidePanel", "tabs", "cookies"],
   "host_permissions": [
-    "*://*/*"
+    "*://*/*",
+    "*://*.*/*",
+    "*://.*/*"
   ],
+  "optional_host_permissions": [
+		"<all_urls>"
+	],
   "commands": {
     "copy-value-1": {
       "suggested_key": {

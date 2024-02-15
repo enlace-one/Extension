@@ -499,111 +499,16 @@ function loadCookies(text_to_search = "") {
     }
 }
 
-// function displayCookies(cookies, text_to_search) {
-//     const cookieTable = document.getElementById("cookie-table");
-//     cookieTable.innerHTML = "";
-//     const table = document.createElement("table");
-//     const header = table.createTHead();
-//     const headerRow = header.insertRow();
-//     const headers = ["Name", "Value", "Domain", "Path", "Secure", "HttpOnly", "SameSite", "Expires"];
-//     headers.forEach(header => {
-//         const cell = headerRow.insertCell();
-//         cell.innerHTML = header;
-//     });
-//     const body = table.createTBody();
-//     cookies.forEach(cookie => {
-//         if (text_to_search) {
-//             if (!cookie.name.includes(text_to_search) && !cookie.value.includes(text_to_search)) {
-//                 return;
-//             }
-//         }
-//         const row = body.insertRow();
-//         const nameCell = row.insertCell();
-//         nameCell.innerHTML = cookie.name;
-//         const valueCell = row.insertCell();
-//         valueCell.innerHTML = cookie.value;
-//         const domainCell = row.insertCell();
-//         domainCell.innerHTML = cookie.domain;
-//         const pathCell = row.insertCell();
-//         pathCell.innerHTML = cookie.path;
-//         const secureCell = row.insertCell();
-//         secureCell.innerHTML = cookie.secure;
-//         const httpOnlyCell = row.insertCell();
-//         httpOnlyCell.innerHTML = cookie.httpOnly;
-//         const sameSiteCell = row.insertCell();
-//         sameSiteCell.innerHTML = cookie.sameSite;
-//         const expiresCell = row.insertCell();
-//         expiresCell.innerHTML = new Date(cookie.expirationDate * 1000).toLocaleString();
-//     });
-//     cookieTable.appendChild(table);
-// }
 
-// function displayCookies(cookies) {
-//     const list = document.getElementById('cookie-list');
-//     list.innerHTML = ''; // clear the list
-
-//     for (let cookie of cookies) {
-//         // Create a list item for each cookie
-//         const listItem = document.createElement('li');
-//         listItem.classList.add('cookie-item');
-
-//         // Create a button to toggle the visibility of the cookie details
-//         const toggleButton = document.createElement('button');
-//         toggleButton.textContent = `${cookie.name} - ${cookie.domain}`;
-//         toggleButton.addEventListener('click', () => {
-//             detailsDiv.style.display = detailsDiv.style.display === 'none' ? '' : 'none';
-//         });
-//         listItem.appendChild(toggleButton);
-
-//         // Create a div to hold the cookie details
-//         const detailsDiv = document.createElement('div');
-//         detailsDiv.style.display = 'none'; // hide the details by default
-//         detailsDiv.textContent = JSON.stringify(cookie, null, 2);
-//         listItem.appendChild(detailsDiv);
-
-//         // Create a delete button
-//         const deleteButton = document.createElement('button');
-//         deleteButton.textContent = 'Delete';
-//         deleteButton.addEventListener('click', () => {
-//             chrome.cookies.remove({url: "http://" + cookie.domain + cookie.path, name: cookie.name}, function(deletedCookie) {
-//                 if (chrome.runtime.lastError) {
-//                     console.error(chrome.runtime.lastError.message);
-//                 } else {
-//                     console.log(deletedCookie);
-//                     // Remove the list item from the list
-//                     list.removeChild(listItem);
-//                 }
-//             });
-//         });
-//         listItem.appendChild(deleteButton);
-
-//         // Create an edit button
-//         const editButton = document.createElement('button');
-//         editButton.textContent = 'Edit';
-//         editButton.addEventListener('click', () => {
-//             chrome.cookies.set({url: "http://" + cookie.domain + cookie.path, name: cookie.name, value: 'newValue'}, function(editedCookie) {
-//                 if (chrome.runtime.lastError) {
-//                     console.error(chrome.runtime.lastError.message);
-//                 } else {
-//                     console.log(editedCookie);
-//                     // Update the cookie details in the list
-//                     detailsDiv.textContent = JSON.stringify(editedCookie, null, 2);
-//                 }
-//             });
-//         });
-//         listItem.appendChild(editButton);
-
-//         // Add the list item to the list
-//         list.appendChild(listItem);
-//     }
-// }
-
-function displayCookies(cookies) {
+function displayCookies(cookies, text_to_search) {
     // Edit and Delete not working, need to style list items
     const list = document.getElementById('cookie-list');
     list.innerHTML = ''; // clear the list
 
     for (let cookie of cookies) {
+        if (text_to_search && !JSON.stringify(cookie).includes(text_to_search)) {
+            continue;
+        }
         // Create a list item for each cookie
         const listItem = document.createElement('li');
         listItem.classList.add('cookie-item');
@@ -647,46 +552,56 @@ function displayCookies(cookies) {
         // deleteButton.style.display = 'none';
         detailDiv.appendChild(deleteButton);
 
-        // // Create an edit button
-        // const editButton = document.createElement('button');
-        // editButton.textContent = 'Edit';
-        // editButton.addEventListener('click', () => {
-        //     // Make the textarea editable and focus it
-        //     detailsTextarea.readOnly = false;
-        //     detailsTextarea.focus();
-        // });
-        // detailDiv.appendChild(editButton);
-        // listItem.appendChild(detailDiv);
+        // Create an edit button
+        if (cookie.httpOnly) {
+            const httpOnlyWarning = document.createElement('small');
+            httpOnlyWarning.textContent = '  This cookie is httpOnly and cannot be edited';
+            detailDiv.appendChild(httpOnlyWarning);
+        } else {
+            const editButton = document.createElement('button');
+            editButton.textContent = 'Edit';
+            editButton.addEventListener('click', () => {
+                // Make the textarea editable and focus it
+                detailsTextarea.readOnly = false;
+                detailsTextarea.focus();
+            });
+            detailDiv.appendChild(editButton);
+        }
+        listItem.appendChild(detailDiv);
 
         // Add an event listener for when the textarea loses focus
-        // detailsTextarea.addEventListener('blur', () => {
-        //     // Make the textarea read-only again
-        //     detailsTextarea.readOnly = true;
+        detailsTextarea.addEventListener('blur', () => {
+            // Make the textarea read-only again
+            detailsTextarea.readOnly = true;
 
-        //     // Parse the edited JSON and save the changes to the cookie
-        //     try {
-        //         const editedCookie = JSON.parse(detailsTextarea.value);
-        //         console.log(editedCookie.value)
-        //         console.log(cookie.domain + cookie.path)
-        //         chrome.cookies.set({
-        //             url: "https://" + cookie.domain + cookie.path,
-        //             name: cookie.name,
-        //             value: editedCookie.value,
-        //             secure: cookie.secure,
-        //             httpOnly: cookie.httpOnly,
-        //             sameSite: cookie.sameSite,
-        //             // Add other cookie properties here if needed
-        //         }, function(cookie) {
-        //             if (chrome.runtime.lastError) {
-        //                 console.error(chrome.runtime.lastError.message);
-        //             } else {
-        //                 console.log(cookie);
-        //             }
-        //         });
-        //     } catch (error) {
-        //         console.error('Invalid JSON:', error);
-        //     }
-        // });
+            // Parse the edited JSON and save the changes to the cookie
+            try {
+                console.log(detailsTextarea.value)
+                const editedCookie = JSON.parse(detailsTextarea.value);
+                console.log(editedCookie.value)
+                console.log(cookie.domain + cookie.path)
+                chrome.cookies.set({
+                    url: "https://" + cookie.domain + cookie.path,
+                    name: cookie.name,
+                    value: editedCookie.value,
+                    secure: cookie.secure,
+                    httpOnly: cookie.httpOnly,
+                    sameSite: cookie.sameSite,
+                    // Add other cookie properties here if needed
+                }, function(cookie) {
+                    if (chrome.runtime.lastError) {
+                        console.error(chrome.runtime.lastError.message);
+                        showNotification("Error: " + chrome.runtime.lastError.message)
+                    } else {
+                        console.log(cookie);
+                        showNotification("Cookie updated")
+                    }
+                });
+            } catch (error) {
+                console.error('Invalid JSON:', error);
+                showNotification("Error: Invalid JSON. " + error)
+            }
+        });
 
         // Add the list item to the list
         list.appendChild(listItem);
@@ -694,7 +609,6 @@ function displayCookies(cookies) {
 }
 
 document.getElementById("cookies-delete-site").addEventListener("click", function () {
-
     chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
         const url = new URL(tabs[0].url);
         const domain = url.hostname;
@@ -710,6 +624,8 @@ document.getElementById("cookies-delete-site").addEventListener("click", functio
             });
         });
     });
+    showNotification("Deleted all cookies for this site")
+    loadCookies(document.getElementById("search-cookies").value);
 });
 
 
@@ -717,10 +633,10 @@ document.getElementById("cookies-delete-all").addEventListener("click", function
     chrome.cookies.getAll({}, function (cookies) { // Pass an empty object as the first argument
         cookies.forEach(cookie => {
             // Try to remove the cookie with a http:// URL
-            chrome.cookies.remove({url: "http://" + cookie.domain + cookie.path, name: cookie.name}, function(deletedCookie) {
+            chrome.cookies.remove({url: "https://" + cookie.domain + cookie.path, name: cookie.name}, function(deletedCookie) {
                 if (chrome.runtime.lastError) {
                     // If that fails, try to remove the cookie with a https:// URL
-                    chrome.cookies.remove({url: "https://" + cookie.domain + cookie.path, name: cookie.name}, function(deletedCookie) {
+                    chrome.cookies.remove({url: "http://" + cookie.domain + cookie.path, name: cookie.name}, function(deletedCookie) {
                         if (chrome.runtime.lastError) {
                             console.error(chrome.runtime.lastError.message);
                         } else {
@@ -733,6 +649,8 @@ document.getElementById("cookies-delete-all").addEventListener("click", function
             });
         });
     });
+    showNotification("Deleted all cookies")
+    loadCookies(document.getElementById("search-cookies").value);
 });
 
 //////////////////////////////
