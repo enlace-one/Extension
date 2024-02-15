@@ -6,6 +6,26 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Extension Name</title>
   <link rel="stylesheet" href="default.css">
+  <style>
+    .cookie-item {
+      margin-bottom: 10px;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      list-style-type: none; /* Add this line */
+      margin-left: 0;
+    }
+
+    .subtle-button {
+      border: none;
+      background-color: transparent;
+      padding: 10px;
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      transition: border-color 0.3s ease;
+    }
+
+  </style>
 </head>
 
 <body>
@@ -33,13 +53,32 @@
         <button class="tab-button clipboardName" data-tab="e-clip">
           e-Clip
         </button>
-        <!-- <button class="tab-button ppGeneratorName" data-tab="pp-generator-tab">
-          Generator
-        </button> -->
+        <button class="tab-button cookiesName" data-tab="cookies-tab">
+          Cookies
+        </button>
         <button class="tab-button generatorName" data-tab="pw-generator-tab">
           Generator
         </button>
         <input type="button" value="Lock" id="lock-button" />
+      </div>
+      <div class="tab-content" id="cookies-tab">
+        <h2 class="cookiesName">cookies</h2>
+        <div>
+          <label for="search-cookies">Search:</label>
+          <input type="text" id="search-cookies">
+          <button id="search-cookies-button">Search</button>
+        </div>
+        <div style=" display: flex; align-items: center;"> 
+          <input type="checkbox" id="filter-by-site-cookies">
+          <label for="filter-by-site-cookies">Filter by Current Site</label>
+        </div>
+        <div id="cookies-result" style="min-height:10vh">
+          <table id="cookie-table"></table>
+          <ul style="margin-left: 0px; padding-left: 0px;" id="cookie-list"></ul>
+        </div>
+        <button id="cookies-delete-site" type="button">Delete The Cookies From Current Site</button>
+        <button id="cookies-delete-all" type="button">Delete All</button>
+
       </div>
       <div class="tab-content" id="pw-generator-tab">
         <h2 class="generatorName">Generator</h2>

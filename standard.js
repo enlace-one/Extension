@@ -16,6 +16,7 @@ const variables = {
     pwGeneratorName: "Password Generator",
     ppGeneratorName: "Pass Phrases",
     generatorName: "Generator",
+    cookiesName: "Cookies",
   }
   
 window.addEventListener("DOMContentLoaded", function() {
