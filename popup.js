@@ -555,7 +555,11 @@ function displayCookies(cookies, text_to_search) {
         // Create an edit button
         if (cookie.httpOnly) {
             const httpOnlyWarning = document.createElement('small');
-            httpOnlyWarning.textContent = '  This cookie is httpOnly and cannot be edited';
+            httpOnlyWarning.textContent = '  This cookie cannot be edited (httpOnly)';
+            detailDiv.appendChild(httpOnlyWarning);
+        } else if (cookie.domain.startsWith('.')) { 
+            const httpOnlyWarning = document.createElement('small');
+            httpOnlyWarning.textContent = "  This cookie cannot be edited (cookie's domain starts with a dot)";
             detailDiv.appendChild(httpOnlyWarning);
         } else {
             const editButton = document.createElement('button');
@@ -625,7 +629,8 @@ document.getElementById("cookies-delete-site").addEventListener("click", functio
         });
     });
     showNotification("Deleted all cookies for this site")
-    loadCookies(document.getElementById("search-cookies").value);
+    // Wait 1 second before reloading the cookies
+    setTimeout(() => loadCookies(document.getElementById("search-cookies").value), 1000);
 });
 
 
@@ -650,7 +655,8 @@ document.getElementById("cookies-delete-all").addEventListener("click", function
         });
     });
     showNotification("Deleted all cookies")
-    loadCookies(document.getElementById("search-cookies").value);
+    // Wait 1 second before reloading the cookies
+    setTimeout(() => loadCookies(document.getElementById("search-cookies").value), 1000);
 });
 
 //////////////////////////////

@@ -15,11 +15,9 @@
   "background": {
     "service_worker": "service_worker.js"
   },
-  "permissions": ["scripting", "storage", "offscreen", "clipboardWrite", "clipboardRead", "sidePanel", "tabs", "cookies"],
+  "permissions": ["scripting", "storage", "offscreen", "clipboardWrite", "sidePanel", "tabs", "cookies"],
   "host_permissions": [
-    "*://*/*",
-    "*://*.*/*",
-    "*://.*/*"
+    "*://*/*"
   ],
   "optional_host_permissions": [
 		"<all_urls>"
