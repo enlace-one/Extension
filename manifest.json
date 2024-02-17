@@ -15,13 +15,10 @@
   "background": {
     "service_worker": "service_worker.js"
   },
-  "permissions": ["scripting", "storage", "offscreen", "clipboardWrite", "sidePanel", "tabs", "cookies"],
+  "permissions": ["storage", "offscreen", "clipboardWrite", "sidePanel", "tabs", "cookies"],
   "host_permissions": [
     "*://*/*"
   ],
-  "optional_host_permissions": [
-		"<all_urls>"
-	],
   "commands": {
     "copy-value-1": {
       "suggested_key": {
