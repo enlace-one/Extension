@@ -482,6 +482,12 @@ document.getElementById("search-cookies-button").addEventListener("click", funct
     loadCookies(document.getElementById("search-cookies").value);
 });
 
+document.getElementById("search-cookies").addEventListener("keydown", function (event) {
+    if (event.key === "Enter") {
+        loadCookies(document.getElementById("search-cookies").value);
+    }
+});
+
 function loadCookies(text_to_search = "") {
     const site_only = document.getElementById("filter-by-site-cookies").checked;
     if (site_only) {
@@ -506,7 +512,7 @@ function displayCookies(cookies, text_to_search) {
     list.innerHTML = ''; // clear the list
 
     for (let cookie of cookies) {
-        if (text_to_search && !JSON.stringify(cookie).includes(text_to_search)) {
+        if (text_to_search && !JSON.stringify(cookie).toLowerCase().includes(text_to_search.toLowerCase())) {
             continue;
         }
         // Create a list item for each cookie
