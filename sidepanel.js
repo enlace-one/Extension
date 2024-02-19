@@ -88,6 +88,45 @@ get("page-note-data").then((value) => {
     data = value || {};
   });
 
+// Updated get page not data
+async function get(key) {
+    return chrome.storage.sync.get([key]).then((result) => {
+            return result[key]
+    });
+}
+
+
+// Get Page Note Data 
+async function getPageNoteData(key) {
+    return get("page-note-data-" + key)
+}
+
+// Set Page Note Data
+async function storePageNoteData(key, value) {
+    store("page-note-data-" + key, value)
+}
+
+// Search Page Note Data
+async function searchPageNoteData(searchKey, isPattern=true) {
+    const regexPattern = new RegExp(searchKey);
+    results = await chrome.storage.sync.get()
+    for (result in results) {
+        if (result.startsWith("page-note-data-")) {
+            if (isPattern) {
+                 if (regexPattern.test(result.substring(15))) {
+                    return result, results[result]
+                }
+            } else {
+                if (searchKey == result.substring(15)) {
+                    return result, results[result]
+                }
+            }
+            
+        }
+    }
+}
+
+
 async function setActiveURL(url, isPattern=false) {
     keyTextArray = await checkMatch(url, isPattern=isPattern)
     console.log(keyTextArray)

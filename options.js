@@ -1,3 +1,25 @@
+///////////
+// STATS //
+///////////
+document.addEventListener("DOMContentLoaded", function () {
+    chrome.storage.sync.get(function(result) {
+        var numItems = Object.keys(result).length;
+        console.log("Number of items stored (of 512): " + numItems);
+        document.getElementById("total-storage-count").innerText = numItems
+
+        var bytes = JSON.stringify(result).length * 2; // Multiply by 2 to account for UTF-16 encoding
+        document.getElementById("total-storage-space").innerText = bytes
+        console.log("Size of data in bytes (of 102400): " + bytes);
+
+        var pageNoteBytes = JSON.stringify(result["page-note-data"]).length * 2; // Multiply by 2 to account for UTF-16 encoding
+        document.getElementById("page-notes-space").innerText = pageNoteBytes
+        //console.log("Size of data in bytes (of 102400): " + bytes);
+
+        var snippetsBytes = JSON.stringify(result["snippet-data"]).length * 2; // Multiply by 2 to account for UTF-16 encoding
+        document.getElementById("snippets-space").innerText = snippetsBytes
+    });
+});
+
 //////////////
 // SETTINGS //
 //////////////
