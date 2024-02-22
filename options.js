@@ -11,8 +11,8 @@ document.addEventListener("DOMContentLoaded", function () {
         document.getElementById("total-storage-space").innerText = bytes
         console.log("Size of data in bytes (of 102400): " + bytes);
 
-        var pageNoteBytes = JSON.stringify(result["page-note-data"]).length * 2; // Multiply by 2 to account for UTF-16 encoding
-        document.getElementById("page-notes-space").innerText = pageNoteBytes
+        // var pageNoteBytes = JSON.stringify(result["page-note-data"]).length * 2; // Multiply by 2 to account for UTF-16 encoding
+        // document.getElementById("page-notes-space").innerText = pageNoteBytes
         //console.log("Size of data in bytes (of 102400): " + bytes);
 
         var snippetsBytes = JSON.stringify(result["snippet-data"]).length * 2; // Multiply by 2 to account for UTF-16 encoding
@@ -67,8 +67,16 @@ document.getElementById("reset-snippets").addEventListener("click", function (){
     store("snippet-data", {})
 })
 
+async function deleteAllPageNotes() {
+    results = await chrome.storage.sync.get()
+    for (result in results) {
+        if (result.startsWith("page-note-data-")) {
+            chrome.storage.sync.remove(result)
+        }
+}}
+
 document.getElementById("reset-page-notes").addEventListener("click", function (){
-    store("page-note-data", {})
+   deleteAllPageNotes()
 })
 
 document.getElementById("reset-clipboard").addEventListener("click", function (){

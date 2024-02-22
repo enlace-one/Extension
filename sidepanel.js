@@ -86,13 +86,7 @@ document.addEventListener("DOMContentLoaded", async function () {
     convertPageNotes(data);
 });
 
-async function deleteAllPageNotes() {
-    results = await chrome.storage.sync.get()
-    for (result in results) {
-        if (result.startsWith("page-note-data-")) {
-            chrome.storage.sync.remove(result)
-        }
-}}
+
 
 // Get Page Note Data 
 async function getPageNoteData(key) {
