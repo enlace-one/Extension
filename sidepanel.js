@@ -27,11 +27,13 @@ async function storeKeyValue() {
             return ""
         } else {
             if (await getSetting("encrypt-page-notes")) {
-                data[key] = encrypt(value)
+                // data[key] = encrypt(value)
+                storePageNoteData(key, encrypt(value))
             } else {
-                data[key] = value;
+                // data[key] = value;
+                storePageNoteData(key, value)
             }
-            store("page-note-data", data)
+            // store("page-note-data", data)
             showNotification("Saved")
         }
     } else {
@@ -55,32 +57,14 @@ function defaultPattern(url) {
 }
 
 async function checkMatch(url, isPattern=false) {
-    // Iterate through the keys of the dictionary
-    // console.log(data)
-    for (const key of Object.keys(data)) {
-        if (isPattern) {
-            if (url == key) {
-                if (await getSetting("encrypt-page-notes")) {
-                    return [key, decrypt(data[key])]; // Return the corresponding value
-                } else {
-                    return [key, data[key]]; // Return the corresponding value
-                }
-            }
-        } else {
-            const regexPattern = new RegExp(key);
-            // Test if the variable matches the regex pattern
-            if (regexPattern.test(url)) {
-                if (await getSetting("encrypt-page-notes")) {
-                    return [key, decrypt(data[key])]; // Return the corresponding value
-                } else {
-                    return [key, data[key]]; // Return the corresponding value
-                }
-                
-            }
-        }
+    const result = await searchPageNoteData(url, isPattern=isPattern)
+    const key = result[0]
+    const value = result[1]
+    if (await getSetting("encrypt-page-notes")) {
+        return [key, decrypt(value)]; // Return the corresponding value
+    } else {
+        return [key, value]; // Return the corresponding value
     }
-    console.log([defaultPattern(url), ""])
-    return [defaultPattern(url), ""]; // Return null if no match is found
 }
 
 let data = {};
@@ -88,13 +72,27 @@ get("page-note-data").then((value) => {
     data = value || {};
   });
 
-// Updated get page not data
-async function get(key) {
-    return chrome.storage.sync.get([key]).then((result) => {
-            return result[key]
-    });
-}
 
+document.addEventListener("DOMContentLoaded", async function () {
+    // Convert old page notes to new storage method
+    async function convertPageNotes(data) {
+        for (const key in data) {
+            if (! await get(key)) {
+                console.log("Converting page note " + key + " to new storage method")
+                storePageNoteData(key, data[key]);
+            }
+        }
+    }
+    convertPageNotes(data);
+});
+
+async function deleteAllPageNotes() {
+    results = await chrome.storage.sync.get()
+    for (result in results) {
+        if (result.startsWith("page-note-data-")) {
+            chrome.storage.sync.remove(result)
+        }
+}}
 
 // Get Page Note Data 
 async function getPageNoteData(key) {
@@ -106,24 +104,32 @@ async function storePageNoteData(key, value) {
     store("page-note-data-" + key, value)
 }
 
+// Remove Page Not Data
+async function removePageNoteData(key) {
+    chrome.storage.sync.remove("page-note-data-" + key)
+}
+
 // Search Page Note Data
 async function searchPageNoteData(searchKey, isPattern=true) {
-    const regexPattern = new RegExp(searchKey);
     results = await chrome.storage.sync.get()
     for (result in results) {
         if (result.startsWith("page-note-data-")) {
-            if (isPattern) {
-                 if (regexPattern.test(result.substring(15))) {
-                    return result, results[result]
+            if (! isPattern) {
+                 // If the searchKey is a pattern just like the 
+                 // stored key, then it would just be an ==.
+                 const regexPattern = new RegExp(result.substring(15));
+                 if (regexPattern.test(searchKey)) {
+                    return [result.substring(15), results[result]]
                 }
             } else {
                 if (searchKey == result.substring(15)) {
-                    return result, results[result]
+                    return [result.substring(15), results[result]]
                 }
             }
             
         }
     }
+    return [defaultPattern(searchKey), ""]
 }
 
 
@@ -168,12 +174,23 @@ searchBox.addEventListener("keyup", async function () {
     const searchKey = searchBox.value
     let matches = []
     if (! await getSetting("encrypt-page-notes")) {
-        matches = Object.entries(data).filter(([key, value]) => {
-            // Check if the key or the value includes the searchKey
-            return key.includes(searchKey) || (value !== null && value.toString().includes(searchKey));
-        }).map(([key]) => key); // Extract the keys from the filtered array
+        results = await chrome.storage.sync.get()
+        for (result in results) {
+            if (result.startsWith("page-note-data-")) {
+                if (result.includes(searchKey) | results[result].includes(searchKey)) {
+                    matches.push(result.substring(15))
+                }  
+            }
+        }
     } else {
-       matches = Object.keys(data).filter(key => key.includes(searchKey));
+        results = await chrome.storage.sync.get()
+        for (result in results) {
+            if (result.startsWith("page-note-data-")) {
+                if (result.includes(searchKey)) {
+                    matches.push(result)
+                }  
+            }
+        }
     }
     resultTable.innerHTML = ""
     if (matches.length > 0) {
@@ -198,17 +215,17 @@ searchBox.addEventListener("keyup", async function () {
           })
           keyCell.id = match
           if (await getSetting("encrypt-page-notes")) {
-                valueCell.textContent = truncateText(decrypt(data[match]), 50);
+                valueCell.textContent = truncateText(decrypt(await getPageNoteData(match)), 10);
             } else {
-                valueCell.textContent = truncateText(data[match], 50);
+                valueCell.textContent = truncateText(await getPageNoteData(match), 10);
             }
           valueCell.style="width: 60vw;"
           valueCell.classList.add("truncate")
           deleteCell.textContent = "X"
           //deleteCell.attributes.add("key_id", match)
           deleteCell.addEventListener("click", function () {
-             delete data[match];
-             store("page-note-data", data)
+             removePageNoteData(match);
+             //  store("page-note-data", data)
              row.remove()
              showNotification("Deleted" + match)
           })
