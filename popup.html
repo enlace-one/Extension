@@ -25,6 +25,19 @@
       transition: border-color 0.3s ease;
     }
 
+    .button-danger {
+      background-color: white; /* Red */
+      color: darkred;
+      border-color: red;
+      transition: background-color 0.3s ease;
+    }
+
+      .button-danger:hover {
+        color: white;
+        border-color: darkred;
+        background-color: #d32f2f; /* Darker red on hover */
+      }
+
   </style>
 </head>
 
@@ -63,22 +76,22 @@
       </div>
       <div class="tab-content" id="cookies-tab">
         <h2 class="cookiesName">cookies</h2>
-        <div>
+        <button class= "button-danger" id="cookies-delete-all" type="button">Delete All Cookies</button>
+        <button class= "button-danger" id="cookies-delete-site" type="button">Delete From Current Site</button>
+        <br>
+        <div style="padding-top:20px">
           <label for="search-cookies">Search:</label>
           <input type="text" id="search-cookies">
           <button id="search-cookies-button">Search</button>
         </div>
         <div style=" display: flex; align-items: center;"> 
-          <input type="checkbox" id="filter-by-site-cookies">
+          <input type="checkbox" id="filter-by-site-cookies" checked>
           <label for="filter-by-site-cookies">Filter by Current Site</label>
         </div>
         <div id="cookies-result" style="min-height:10vh">
           <table id="cookie-table"></table>
           <ul style="margin-left: 0px; padding-left: 0px;" id="cookie-list"></ul>
         </div>
-        <button id="cookies-delete-site" type="button">Delete The Cookies From Current Site</button>
-        <button id="cookies-delete-all" type="button">Delete All</button>
-
       </div>
       <div class="tab-content" id="pw-generator-tab">
         <h2 class="generatorName">Generator</h2>
