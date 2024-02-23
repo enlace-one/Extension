@@ -99,13 +99,15 @@
         #html-editor,
         #html-viewer {
             width: 45%;
-            height: 300px;
+            height: 80vh;
             border: 1px solid #ccc;
             padding: 10px;
             box-sizing: border-box;
             float: left;
             margin-right: 5%;
-            overflow-y: auto;
+            /* overflow-y: auto; */
+            resize: both;
+            overflow: auto;
         }
     </style>
 </head>
@@ -388,19 +390,21 @@
                           </table>     
                           <a href="https://www.w3schools.com/cssref/css_selectors.php">Source</a>                     
                     </div>
-                    <div style="flex: 1; text-align: right;">
+                    <div style="flex: 1; text-align: right; width: 100%">
                         
                         <textarea id="html-editor" contenteditable="true">
-        &lt;style&gt; 
-            .myClass { 
-                background-color: grey; 
-            } 
-        &lt;/style&gt; 
-        &lt;p class=&quot;myClass&quot;&gt;
-            Hello &lt;b&gt;world!&lt;/b&gt;
-        &lt;p&gt;
+&lt;style&gt; 
+    .myClass { 
+        background-color: grey; 
+    } 
+&lt;/style&gt; 
+&lt;p class=&quot;myClass&quot;&gt;
+    Hello &lt;b&gt;world!&lt;/b&gt;
+&lt;p&gt;
                         </textarea>
-                        <div id="html-viewer"></div>
+                        <iframe id="html-viewer">
+
+                        </iframe>
                     </div>
                 </div>
                 <button show-hide-class-on-click="css-selectors">Show/Hide CSS reference</button>

@@ -175,5 +175,10 @@ document.getElementById("runReplacer").addEventListener("click", function () {
 //////////
 document.getElementById("html-editor").addEventListener("input", function() {
     const editorContent = document.getElementById('html-editor').value;
-    document.getElementById('html-viewer').innerHTML = editorContent;
+    const iframe = document.getElementById('html-viewer');
+    const doc = iframe.contentWindow.document;
+    doc.open();
+    doc.write(editorContent);
+    doc.close();
+    //ocument.getElementById('html-viewer').innerHTML = editorContent;
 })
