@@ -233,3 +233,267 @@ searchBox.addEventListener("keyup", async function () {
         resultTable.textContent = `No matches found for '${searchKey}'.`;
       }
 });
+
+///////////////////
+// Site Settings //
+///////////////////
+
+async function refreshSiteSettings() {
+    const [tab] = await chrome.tabs.query({ active: true, lastFocusedWindow: true });
+    const url = new URL(tab.url);
+    const parts = url.hostname.split(".");
+    const domain = "https://*." + parts[parts.length - 2] + "." + parts[parts.length - 1] + "/";
+    const cookies = await chrome.contentSettings.cookies.get({primaryUrl: domain});
+    if (cookies.setting === "block") {
+        document.getElementById("settings-toggle-cookies").checked = true;
+    } else {
+        document.getElementById("settings-toggle-cookies").checked = false;
+    }
+
+    const javascript = await chrome.contentSettings.javascript.get({primaryUrl: domain});
+    if (javascript.setting === "block") {
+        document.getElementById("settings-toggle-javascript").checked = true;
+    } else {
+        document.getElementById("settings-toggle-javascript").checked = false;
+    }
+
+    const popups = await chrome.contentSettings.popups.get({primaryUrl: domain});
+    if (popups.setting === "block") {
+        document.getElementById("settings-toggle-popups").checked = true;
+    }
+    else {
+        document.getElementById("settings-toggle-popups").checked = false;
+    }
+
+    const camera = await chrome.contentSettings.camera.get({primaryUrl: domain});
+    if (camera.setting === "block") {
+        document.getElementById("settings-toggle-camera").checked = true;
+    }
+    else {
+        document.getElementById("settings-toggle-camera").checked = false;
+    }
+
+    const microphone = await chrome.contentSettings.microphone.get({primaryUrl: domain});
+    if (microphone.setting === "block") {
+        document.getElementById("settings-toggle-microphone").checked = true;
+    } else {
+        document.getElementById("settings-toggle-microphone").checked = false;
+    }
+
+    const automaticDownloads = await chrome.contentSettings.automaticDownloads.get({primaryUrl: domain});
+    if (automaticDownloads.setting === "block") {
+        document.getElementById("settings-toggle-automatic-downloads").checked = true;
+    }
+    else {
+        document.getElementById("settings-toggle-automatic-downloads").checked = false;
+    }
+
+    const location = await chrome.contentSettings.location.get({primaryUrl: domain});
+    if (location.setting === "block") {
+        document.getElementById("settings-toggle-location").checked = true;
+    } else {
+        document.getElementById("settings-toggle-location").checked = false;
+    }
+
+    document.getElementById("settings-current-site").innerText = domain;
+
+    const notifications = await chrome.contentSettings.notifications.get({primaryUrl: domain});
+    if (notifications.setting === "block") {
+        document.getElementById("settings-toggle-notifications").checked = true;
+    } else {
+        document.getElementById("settings-toggle-notifications").checked = false;
+    }
+
+}
+
+// Refresh Site Settings Triggers
+document.addEventListener("DOMContentLoaded", async function () {
+    refreshSiteSettings()
+});
+
+chrome.tabs.onActivated.addListener(async (activeInfo) => {
+    refreshSiteSettings()
+  });
+  
+  chrome.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
+    refreshSiteSettings()
+  });
+
+
+// Cookies 
+document.getElementById("settings-toggle-cookies").addEventListener("click", function () {
+    const blockCookies = document.getElementById("settings-toggle-cookies").checked;
+    chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
+        const url = new URL(tabs[0].url);
+        const parts = url.hostname.split(".");
+        const domain = "https://*." + parts[parts.length - 2] + "." + parts[parts.length - 1] + "/*";
+        console.log(domain, blockCookies)
+        if (blockCookies) {
+            chrome.contentSettings.cookies.set({
+                primaryPattern: domain,
+                setting: 'block'
+            });
+        } else {
+            chrome.contentSettings.cookies.set({
+                primaryPattern: domain,
+                setting: 'allow'
+            });
+        }
+    });
+});
+
+// Javascript
+document.getElementById("settings-toggle-javascript").addEventListener("click", function () {
+    const blockJavascript = document.getElementById("settings-toggle-javascript").checked;
+    chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
+        const url = new URL(tabs[0].url);
+        const parts = url.hostname.split(".");
+        const domain = "https://*." + parts[parts.length - 2] + "." + parts[parts.length - 1] + "/*";
+        console.log(domain, blockJavascript)
+        if (blockJavascript) {
+            chrome.contentSettings.javascript.set({
+                primaryPattern: domain,
+                setting: 'block'
+            });
+        } else {
+            chrome.contentSettings.javascript.set({
+                primaryPattern: domain,
+                setting: 'allow'
+            });
+        }
+    })
+});
+
+// Pop-ups and redirects
+document.getElementById("settings-toggle-popups").addEventListener("click", function () {
+    const blockPopups = document.getElementById("settings-toggle-popups").checked;
+    chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
+        const url = new URL(tabs[0].url);
+        const parts = url.hostname.split(".");
+        const domain = "https://*." + parts[parts.length - 2] + "." + parts[parts.length - 1] + "/*";
+        console.log(domain, blockPopups)
+        if (blockPopups) {
+            chrome.contentSettings.popups.set({
+                primaryPattern: domain,
+                setting: 'block'
+            });
+        } else {
+            chrome.contentSettings.popups.set({
+                primaryPattern: domain,
+                setting: 'allow'
+            });
+        }
+    })
+});
+
+// Camera
+document.getElementById("settings-toggle-camera").addEventListener("click", function () {
+    const blockCamera = document.getElementById("settings-toggle-camera").checked;
+    chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
+        const url = new URL(tabs[0].url);
+        const parts = url.hostname.split(".");
+        const domain = "https://*." + parts[parts.length - 2] + "." + parts[parts.length - 1] + "/*";
+        console.log(domain, blockCamera)
+        if (blockCamera) {
+            chrome.contentSettings.camera.set({
+                primaryPattern: domain,
+                setting: 'block'
+            });
+        } else {
+            chrome.contentSettings.camera.set({
+                primaryPattern: domain,
+                setting: 'allow'
+            });
+        }
+    })
+});
+
+// Microphone
+document.getElementById("settings-toggle-microphone").addEventListener("click", function () {
+    const blockMicrophone = document.getElementById("settings-toggle-microphone").checked;
+    chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
+        const url = new URL(tabs[0].url);
+        const parts = url.hostname.split(".");
+        const domain = "https://*." + parts[parts.length - 2] + "." + parts[parts.length - 1] + "/*";
+        console.log(domain, blockMicrophone)
+        if (blockMicrophone) {
+            chrome.contentSettings.microphone.set({
+                primaryPattern: domain,
+                setting: 'block'
+            });
+        } else {
+            chrome.contentSettings.microphone.set({
+                primaryPattern: domain,
+                setting: 'allow'
+            });
+        }
+    })
+});
+
+
+//Automatic downloads
+document.getElementById("settings-toggle-automatic-downloads").addEventListener("click", function () {
+    const blockAutomaticDownloads = document.getElementById("settings-toggle-automatic-downloads").checked;
+    chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
+        const url = new URL(tabs[0].url);
+        const parts = url.hostname.split(".");
+        const domain = "https://*." + parts[parts.length - 2] + "." + parts[parts.length - 1] + "/*";
+        console.log(domain, blockAutomaticDownloads)
+        if (blockAutomaticDownloads) {
+            chrome.contentSettings.automaticDownloads.set({
+                primaryPattern: domain,
+                setting: 'block'
+            });
+        } else {
+            chrome.contentSettings.automaticDownloads.set({
+                primaryPattern: domain,
+                setting: 'allow'
+            });
+        }
+    })
+});
+
+
+// Location
+document.getElementById("settings-toggle-location").addEventListener("click", function () {
+    const blockLocation = document.getElementById("settings-toggle-location").checked;
+    chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
+        const url = new URL(tabs[0].url);
+        const parts = url.hostname.split(".");
+        const domain = "https://*." + parts[parts.length - 2] + "." + parts[parts.length - 1] + "/*";
+        console.log(domain, blockLocation)
+        if (blockLocation) {
+            chrome.contentSettings.location.set({
+                primaryPattern: domain,
+                setting: 'block'
+            });
+        } else {
+            chrome.contentSettings.location.set({
+                primaryPattern: domain,
+                setting: 'allow'
+            });
+        }
+    })
+});
+
+// Notifications
+document.getElementById("settings-toggle-notifications").addEventListener("click", function () {
+    const blockNotifications = document.getElementById("settings-toggle-notifications").checked;
+    chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
+        const url = new URL(tabs[0].url);
+        const parts = url.hostname.split(".");
+        const domain = "https://*." + parts[parts.length - 2] + "." + parts[parts.length - 1] + "/*";
+        console.log(domain, blockNotifications)
+        if (blockNotifications) {
+            chrome.contentSettings.notifications.set({
+                primaryPattern: domain,
+                setting: 'block'
+            });
+        } else {
+            chrome.contentSettings.notifications.set({
+                primaryPattern: domain,
+                setting: 'allow'
+            });
+        }
+    })
+});

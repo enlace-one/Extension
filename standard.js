@@ -17,6 +17,7 @@ const variables = {
     ppGeneratorName: "Pass Phrases",
     generatorName: "Generator",
     cookiesName: "Cookies",
+    pageSettingsName: "Site Settings",
   }
   
 window.addEventListener("DOMContentLoaded", function() {
