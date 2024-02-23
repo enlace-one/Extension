@@ -134,10 +134,22 @@
       <div class="tab-content active" id="page-notes-tab">
         <label>URL Pattern</label>
         <br />
-        <textarea id="url-pattern" rows="3" cols="30"></textarea>
-        <button class="undo-tab-button-style tab-button" data-tab="page-notes-search-tab">Search <i class="pageNotesName"></i></button>
-        <br />
-        <br />
+        <textarea id="url-pattern" rows="3" style="width: 70vw;" ></textarea>
+        <table>
+          <tr>
+            <td>
+              <label>Change with tabs</label>
+              <label class="toggle">
+                <input type="checkbox" id="page-notes-toggle-change" checked> 
+                <span></span>
+              </label>
+            </td>
+            <td>
+              <button class="undo-tab-button-style tab-button" data-tab="page-notes-search-tab">Search <i class="pageNotesName"></i></button>
+            </td>
+          </tr>
+        </table>
+        <br>
         <label class="pageNotesName">Page Notes</label>
         <br />
         <textarea id="page-notes-textarea" style="width: 70vw; height: 70vh;"></textarea>

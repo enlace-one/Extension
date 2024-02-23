@@ -134,6 +134,12 @@ async function setActiveURL(url, isPattern=false) {
     document.getElementById("page-notes-textarea").value = keyTextArray[1]
 }
 
+let changeWithTabs = true
+
+document.getElementById("page-notes-toggle-change").addEventListener("click", function () {
+    changeWithTabs = document.getElementById("page-notes-toggle-change").checked
+});
+
 document.addEventListener("DOMContentLoaded", async function () {
     const [tab] = await chrome.tabs.query({ active: true, lastFocusedWindow: true });
     console.log(tab.url)
@@ -141,17 +147,21 @@ document.addEventListener("DOMContentLoaded", async function () {
   });
   
   chrome.tabs.onActivated.addListener(async (activeInfo) => {
-    const tab = await chrome.tabs.get(activeInfo.tabId);
-    if (tab.active) {
-      console.log("======= active tab url", tab.url);
-      setActiveURL(tab.url);
+    if (changeWithTabs) {
+        const tab = await chrome.tabs.get(activeInfo.tabId);
+        if (tab.active) {
+        console.log("======= active tab url", tab.url);
+        setActiveURL(tab.url);
+        }
     }
   });
   
   chrome.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
-    if (tab.active) {
-      console.log("======= updated tab url", tab.url);
-      setActiveURL(tab.url);
+    if (changeWithTabs) {
+        if (tab.active) {
+        console.log("======= updated tab url", tab.url);
+        setActiveURL(tab.url);
+        }
     }
   });
 
@@ -313,11 +323,11 @@ document.addEventListener("DOMContentLoaded", async function () {
 
 chrome.tabs.onActivated.addListener(async (activeInfo) => {
     refreshSiteSettings()
-  });
+});
   
-  chrome.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
+chrome.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
     refreshSiteSettings()
-  });
+});
 
 
 // Cookies 

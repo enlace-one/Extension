@@ -15,8 +15,12 @@ document.addEventListener("DOMContentLoaded", function () {
         // document.getElementById("page-notes-space").innerText = pageNoteBytes
         //console.log("Size of data in bytes (of 102400): " + bytes);
 
-        var snippetsBytes = JSON.stringify(result["snippet-data"]).length * 2; // Multiply by 2 to account for UTF-16 encoding
-        document.getElementById("snippets-space").innerText = snippetsBytes
+        try {
+            var snippetsBytes = JSON.stringify(result["snippet-data"]).length * 2; // Multiply by 2 to account for UTF-16 encoding
+            document.getElementById("snippets-space").innerText = snippetsBytes
+        } catch (error) {
+            console.log("No snippets found")
+        }
     });
 });
 
