@@ -18,6 +18,7 @@ const variables = {
     generatorName: "Generator",
     cookiesName: "Cookies",
     pageSettingsName: "Site Settings",
+    webRequestsName: "Requests",
   }
   
 window.addEventListener("DOMContentLoaded", function() {

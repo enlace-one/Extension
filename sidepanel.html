@@ -69,10 +69,33 @@
         <button id="page-notes-tab-button" class="tab-button active pageNotesName" data-tab="page-notes-tab">
           Page Notes
         </button>
-        <button id="page-notes-tab-button" class="tab-button pageSettingsName" data-tab="page-settings-tab">
+        <button id="page-settings-tab-button" class="tab-button pageSettingsName" data-tab="page-settings-tab">
           Page Settings
         </button>
+        <button id="web-requests-tab-button" class="tab-button webRequestsName" data-tab="web-requests-tab">
+          Requests
+        </button>
         <input type="button" value="Lock" id="lock-button" />
+      </div>
+      <div class="tab-content" id="web-requests-tab">
+        <h2>Web Requests</h2>
+        <label>Record</label>
+        <label class="toggle">
+          <input type="checkbox" id="requests-toggle-record"> 
+          <span></span>
+        </label>
+        <table style="overflow-wrap: break-word; word-wrap: break-word;" id="web-requests-table">
+          <tr>
+            <th>URL</th>
+            <th>Method</th>
+            <th>Status</th>
+          </tr>
+          <tr>
+            <td><input id="requests-url-input" style="width:100px"></td>
+            <td><input id="requests-method-input" style="width:50px"></td>
+            <td><input id="requests-status-input" style="width:50px"></td>
+          </tr>
+        </table>
       </div>
       <div class="tab-content" id="page-settings-tab">
         <h2>Change site settings</h2>
