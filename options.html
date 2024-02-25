@@ -782,38 +782,8 @@
                   </table>
                   <small>You can delete page notes, snippets, or turn off encryption to reduce space. Storage Item Count is mainly affected by page note count.</small>
                 </div>
-                <div class="danger-zone" style="border-color: yellow; border-style: dotted;">
-                    <h2>Caution</h2>
-                    <small>Be advised that changing these may prevent you from accessing the previously stored
-                        values.</small>
-                    <h3>Encryption</h3>
-                    <div class="option">
-                        <input id="encrypt-clipboard" type="checkbox" value="encrypt-clipboard">
-                        <label for="encrypt-clipboard">Encrypt <i class="clipboardName"></i></label>
-                        <small>(Default: Yes)</small>
-                    </div>
-                    <div class="option">
-                        <input id="encrypt-snippets" type="checkbox" value="encrypt-snippets">
-                        <label for="encrypt-snippets">Encrypt <i class="snippetsName"></i></label>
-                        <small>(Default: No)</small>
-                    </div>
-                    <div class="option">
-                        <input id="encrypt-page-notes" type="checkbox" value="encrypt-page-notes">
-                        <label for="encrypt-page-notes">Encrypt <i class="pageNotesName"></i></label>
-                        <small>(Default: No)</small>
-                    </div>
-                    <div>
-                        <label for="encryption-algorithm"><b>Encryption Algorithm:</b></label>
-                        <select id="encryption-algorithm">
-                            <option value="DES">DES</option>
-                            <option value="AES">AES</option>
-                            <option value="3DES">TripleDES</option>
-                        </select>
-                    </div>
-                </div>
-                <br>
-                <div class="danger-zone" style="border-color: orange; border-style: dotted;">
-                  <h2>Somewhat dangerous settings</h2>
+                <div class="danger-zone" style="border-color:yellow; border-style: dotted;">
+                  <h2>Caution</h2>
                   <small>Changing these could cause performance or memory issues</small>
                   <div class="danger-option">
                       <label for="max-char-clipboard">Max Characters for <i class="clipboardName"></i></label>
@@ -839,6 +809,36 @@
                       <input id="max-value-char-page-notes" type="number">
                   </div>
               </div>
+              <br>
+              <div class="danger-zone" style="border-color: orange; border-style: dotted;">
+                <h2>Beware</h2>
+                <small>Be advised that changing these may prevent you from accessing the previously stored
+                    values.</small>
+                <h3>Encryption</h3>
+                <div class="option">
+                    <input id="encrypt-clipboard" type="checkbox" value="encrypt-clipboard">
+                    <label for="encrypt-clipboard">Encrypt <i class="clipboardName"></i></label>
+                    <small>(Default: Yes)</small>
+                </div>
+                <div class="option">
+                    <input id="encrypt-snippets" type="checkbox" value="encrypt-snippets">
+                    <label for="encrypt-snippets">Encrypt <i class="snippetsName"></i></label>
+                    <small>(Default: No)</small>
+                </div>
+                <div class="option">
+                    <input id="encrypt-page-notes" type="checkbox" value="encrypt-page-notes">
+                    <label for="encrypt-page-notes">Encrypt <i class="pageNotesName"></i></label>
+                    <small>(Default: No)</small>
+                </div>
+                <div>
+                    <label for="encryption-algorithm"><b>Encryption Algorithm:</b></label>
+                    <select id="encryption-algorithm">
+                        <option value="DES">DES</option>
+                        <option value="AES">AES</option>
+                        <option value="3DES">TripleDES</option>
+                    </select>
+                </div>
+            </div>
               <br>
               <input class="m-3" type="submit" value="Submit" id="save_settings" />
               <br>
