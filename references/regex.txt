@@ -1,0 +1,2 @@
+/d = digits
+/D = not digits

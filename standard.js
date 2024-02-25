@@ -19,6 +19,7 @@ const variables = {
     cookiesName: "Cookies",
     pageSettingsName: "Site Settings",
     webRequestsName: "Requests",
+    referencesName: "References",
   }
   
 window.addEventListener("DOMContentLoaded", function() {

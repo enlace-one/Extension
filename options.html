@@ -144,7 +144,43 @@
                 <button class="tab-button htmlName" data-tab="html-tab">
                     Html
                 </button>
+                <button class="tab-button referencesName" data-tab="references-tab">
+                  References
+                </button>
                 <input type="button" value="Lock" id="lock-button" />
+            </div>
+            <div class="tab-content" id="references-tab">
+              <h2>References</h2>
+              <table>
+                <row>
+                  
+                  <td>
+                    <div id="references-list">
+                      <input type="text" id="references-search" placeholder="Search references">
+                      <ul id="references-ul" style="padding-left: 0px; margin-left: 0px">
+                      </ul>
+                    </div>
+                  </td>
+                  <td>
+                    <h3>File: <span id="references-title"></span></h3>
+                  </td>
+                  <td>
+                    <div class="hidden" id="references-edit-buttons">
+                        <button id="references-edit">Edit</button>
+                        <button id="references-save">Save</button>
+                        <button id="references-new">New</button>
+                    </div>
+                  </td>
+                </row>
+              </table>  
+                <div id="references-display">
+                    
+                    <div id="references-content">
+                        <textarea id="references-text" style="width:90vw; height: 80vh;" readonly>
+
+                        </textarea>
+                    </div>
+                </div>
             </div>
             <div class="tab-content" id="html-tab">
                 <div style="display: flex;"> 
@@ -780,7 +816,18 @@
                           <td>8192</td>
                       </tr>
                   </table>
-                  <small>You can delete page notes, snippets, or turn off encryption to reduce space. Storage Item Count is mainly affected by page note count.</small>
+                  <small>You can delete page notes, snippets, turn off encryption, or use Google Drive to reduce space. Storage Item Count is mainly affected by page note count.</small>
+                </div>
+                <div>
+                  <h2>Google Drive</h2>
+                  <p>By default, you are not signed in via Google Drive. If you choose to sign in, 
+                    then Google Drive will be used to store <i class="referencesName"></i> 
+                    (and <i class="pageNotesName"></i> in the near future).</p>
+                  <p></p>
+                  <small>Status:<span id="drive-sign-in-display">Signed out</span></small>
+                  <br>
+                  <button id="sign-in-button">Sign into Google Drive</button>
+                  <button id="sign-out-button" class="hidden">Sign out of Google Drive</button>
                 </div>
                 <div class="danger-zone" style="border-color:yellow; border-style: dotted;">
                   <h2>Caution</h2>

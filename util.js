@@ -148,7 +148,8 @@ default_settings = {
     "max-value-char-snippets": 1000,
     "max-key-char-page-notes": 200,
     "max-value-char-page-notes": 3000,
-    "encryption-algorithm": "AES"
+    "encryption-algorithm": "AES",
+    "last-open-ref-file": "css_selectors.txt"
 }
 
 async function getSetting(setting_name) {

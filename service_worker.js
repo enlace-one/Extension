@@ -2,12 +2,13 @@ console.log("service_worker.js")
 importScripts('crypto-js.min.js');
 importScripts('util.js');
 
-// Open options page on install
+// Open options page on install or update
 chrome.runtime.onInstalled.addListener(function(details) {
     if (details.reason === 'install' || details.reason === 'update') {
       chrome.tabs.create({ url: 'options.html' });
     }
 });
+
 
 // Options the options page on keyboard shortcut
 chrome.commands.onCommand.addListener(function(command) {
