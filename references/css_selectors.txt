@@ -1,2 +1,233 @@
-#id
-.class
+1. Selector: .class
+   Example: .intro
+   Description: Selects all elements with class="intro"
+
+2. Selector: .class1.class2
+   Example: .name1.name2
+   Description: Selects all elements with both name1 and name2 set within its class attribute
+
+3. Selector: .class1 .class2
+   Example: .name1 .name2
+   Description: Selects all elements with name2 that is a descendant of an element with name1
+
+4. Selector: #id
+   Example: #firstname
+   Description: Selects the element with id="firstname"
+
+5. Selector: *
+   Example: *
+   Description: Selects all elements
+
+6. Selector: element
+   Example: p
+   Description: Selects all <p> elements
+
+7. Selector: element.class
+   Example: p.intro
+   Description: Selects all <p> elements with class="intro"
+
+8. Selector: element,element
+   Example: div, p
+   Description: Selects all <div> elements and all <p> elements
+
+9. Selector: element element
+   Example: div p
+   Description: Selects all <p> elements inside <div> elements
+
+10. Selector: element>element
+    Example: div > p
+    Description: Selects all <p> elements where the parent is a <div> element
+
+11. Selector: element+element
+    Example: div + p
+    Description: Selects the first <p> element that is placed immediately after <div> elements
+
+12. Selector: element1~element2
+    Example: p ~ ul
+    Description: Selects every <ul> element that is preceded by a <p> element
+
+13. Selector: [attribute]
+    Example: [target]
+    Description: Selects all elements with a target attribute
+
+14. Selector: [attribute=value]
+    Example: [target="_blank"]
+    Description: Selects all elements with target="_blank"
+
+15. Selector: [attribute~=value]
+    Example: [title~="flower"]
+    Description: Selects all elements with a title attribute containing the word "flower"
+
+16. Selector: [attribute|=value]
+    Example: [lang|="en"]
+    Description: Selects all elements with a lang attribute value equal to "en" or starting with "en-"
+
+17. Selector: [attribute^=value]
+    Example: a[href^="https"]
+    Description: Selects every <a> element whose href attribute value begins with "https"
+
+18. Selector: [attribute$=value]
+    Example: a[href$=".pdf"]
+    Description: Selects every <a> element whose href attribute value ends with ".pdf"
+
+19. Selector: [attribute*=value]
+    Example: a[href*="w3schools"]
+    Description: Selects every <a> element whose href attribute value contains the substring "w3schools"
+
+20. Selector: :active
+    Example: a:active
+    Description: Selects the active link
+
+21. Selector: ::after
+    Example: p::after
+    Description: Insert something after the content of each <p> element
+
+22. Selector: ::before
+    Example: p::before
+    Description: Insert something before the content of each <p> element
+
+23. Selector: :checked
+    Example: input:checked
+    Description: Selects every checked <input> element
+
+24. Selector: :default
+    Example: input:default
+    Description: Selects the default <input> element
+
+25. Selector: :disabled
+    Example: input:disabled
+    Description: Selects every disabled <input> element
+
+26. Selector: :empty
+    Example: p:empty
+    Description: Selects every <p> element that has no children (including text nodes)
+
+27. Selector: :enabled
+    Example: input:enabled
+    Description: Selects every enabled <input> element
+
+28. Selector: :first-child
+    Example: p:first-child
+    Description: Selects every <p> element that is the first child of its parent
+
+29. Selector: ::first-letter
+    Example: p::first-letter
+    Description: Selects the first letter of every <p> element
+
+30. Selector: ::first-line
+    Example: p::first-line
+    Description: Selects the first line of every <p> element
+
+31. Selector: :first-of-type
+    Example: p:first-of-type
+    Description: Selects every <p> element that is the first <p> element of its parent
+
+32. Selector: :focus
+    Example: input:focus
+    Description: Selects the input element which has focus
+
+33. Selector: :fullscreen
+    Example: :fullscreen
+    Description: Selects the element that is in full-screen mode
+
+34. Selector: :hover
+    Example: a:hover
+    Description: Selects links on mouse over
+
+35. Selector: :in-range
+    Example: input:in-range
+    Description: Selects input elements with a value within a specified range
+
+36. Selector: :indeterminate
+    Example: input:indeterminate
+    Description: Selects input elements that are in an indeterminate state
+
+37. Selector: :invalid
+    Example: input:invalid
+    Description: Selects all input elements with an invalid value
+
+38. Selector: :lang(language)
+    Example: p:lang(it)
+    Description: Selects every <p> element with a lang attribute equal to "it" (Italian)
+
+39. Selector: :last-child
+    Example: p:last-child
+    Description: Selects every <p> element that is the last child of its parent
+
+40. Selector: :last-of-type
+    Example: p:last-of-type
+    Description: Selects every <p> element that is the last <p> element of its parent
+
+41. Selector: :link
+    Example: a:link
+    Description: Selects all unvisited links
+
+42. Selector: :not(selector)
+    Example: :not(p)
+    Description: Selects every element that is not a <p> element
+
+43. Selector: :nth-child(n)
+    Example: p:nth-child(2)
+    Description: Selects every <p> element that is the second child of its parent
+
+44. Selector: :nth-last-child(n)
+    Example: p:nth-last-child(2)
+    Description: Selects every <p> element that is the second child of its parent, counting from the last child
+
+45. Selector: :nth-last-of-type(n)
+    Example: p:nth-last-of-type(2)
+    Description: Selects every <p> element that is the second <p> element of its parent, counting from the last child
+
+46. Selector: :nth-of-type(n)
+    Example: p:nth-of-type(2)
+    Description: Selects every <p> element that is the second <p> element of its parent
+
+47. Selector: :only-of-type
+    Example: p:only-of-type
+    Description: Selects every <p> element that is the only <p> element of its parent
+
+48. Selector: :only-child
+    Example: p:only-child
+    Description: Selects every <p> element that is the only child of its parent
+
+49. Selector: :optional
+    Example: input:optional
+    Description: Selects input elements with no "required" attribute
+
+50. Selector: :out-of-range
+    Example: input:out-of-range
+    Description: Selects input elements with a value outside a specified range
+
+51. Selector: :read-only
+    Example: input:read-only
+    Description: Selects input elements with the "readonly" attribute specified
+
+52. Selector: :read-write
+    Example: input:read-write
+    Description: Selects input elements with the "readonly" attribute not specified
+
+53. Selector: :required
+    Example: input:required
+    Description: Selects input elements with the "required" attribute specified
+
+54. Selector: :root
+    Example: :root
+    Description: Selects the document's root element
+
+55. Selector: ::selection
+    Example: ::selection
+    Description: Selects the portion of an element that has been selected by a user
+
+56. Selector: :target
+    Example: #news:target
+    Description: Selects the current active #news element (clicked on a URL containing that anchor name)
+
+57. Selector: :valid
+    Example: input:valid
+    Description: Selects all input elements with a valid value
+
+58. Selector: :visited
+    Example: a:visited
+    Description: Selects all visited links
+
+Source: https://www.w3schools.com/cssref/css_selectors.php
