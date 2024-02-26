@@ -46,4 +46,11 @@ Assertions:
 ?()| - Condition [if then else]
 ?# - Comment
 
+Examples:
+^(?:(?!(\w)(\w)\2\1).)+$ - effusive, not labba
+^"[^"]+$ - Content in “”
+(?<!"(?=Tarzan"))Tarzan - Tarzan, not “Tarzan”
+^(?!(xx+)\1+$) - Find prime # of ‘x’
+
+
 Source: https://www.rexegg.com/regex-quickstart.html
