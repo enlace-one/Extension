@@ -5,8 +5,23 @@
 document.getElementById('page-notes-textarea').addEventListener('keydown', function(event) {
     if (event.key === "Enter") {
       storeKeyValue();
+      document.getElementById("page-notes-unsaved-changes").classList.add("hidden")
+      document.getElementById("page-notes-saved-changes").classList.remove("hidden")
+    } else if (event.altKey && event.key === 't') {
+        let currentDate = new Date();
+        let options = { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false };
+        let formattedDate = currentDate.toLocaleString('en-GB', options);
+        this.value += formattedDate;
+}    else {
+        document.getElementById("page-notes-saved-changes").classList.add("hidden")
+        document.getElementById("page-notes-unsaved-changes").classList.remove("hidden")
     }
 });
+
+// document.getElementById('page-notes-textarea').addEventListener('change', function(event) {
+//     document.getElementById("page-notes-saved-changes").classList.add("hidden")
+//     document.getElementById("page-notes-unsaved-changes").classList.remove("hidden")
+// });
 
 document.getElementById('url-pattern').addEventListener('keydown', function(event) {
     if (event.key === "Enter") {

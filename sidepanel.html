@@ -168,18 +168,24 @@
               </label>
             </td>
             <td>
-              <button class="undo-tab-button-style tab-button" data-tab="page-notes-search-tab">Search <i class="pageNotesName"></i></button>
+              <button class="undo-tab-button-style tab-button" data-tab="page-notes-search-tab">Search</button>
             </td>
           </tr>
         </table>
         <br>
-        <label class="pageNotesName">Page Notes</label>
+        <table>
+          <tr>
+            <td><label class="pageNotesName">Page Notes</label></td>
+            <td class="hidden" id="page-notes-unsaved-changes" style="color:darkorange"><small>Unsaved Changes</small></td>
+            <td class="hidden" id="page-notes-saved-changes" style="color:green"><small>Saved</small></td>
+          </tr>
+        </table>
         <br />
         <textarea id="page-notes-textarea" style="width: 70vw; height: 70vh;"></textarea>
         <!-- rows="15" cols="30" -->
         <br />
 
-        <small>Press "Enter" to save</small>
+        <small>Press "Enter" to save. Alt+T to paste current date/time</small>
       </div>
     </div>
   </div>
