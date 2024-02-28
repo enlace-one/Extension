@@ -119,6 +119,12 @@ async function runOnUnlock() {
     showhide("locked-div");
     showhide("unlocked-div");
     document.getElementById("password").value = "";
+
+    // In your app
+    navigator.serviceWorker.controller.postMessage({
+        action: 'appStateChanged',
+        isUnlocked: true
+    });
 }
 
 async function setPassword(key) {

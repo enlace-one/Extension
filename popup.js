@@ -34,6 +34,11 @@ document.addEventListener("EnlaceUnlocked", async function() {
         }
         element.addEventListener("change", async function() {
             console.log("triggered input onchange")
+             
+            navigator.serviceWorker.controller.postMessage({
+                action: 'appStateChanged',
+                hasChanged: true
+            });
             if (await getSetting("encrypt-clipboard")) {
                 eStore(element.getAttribute("key"), element.value)
             } else {

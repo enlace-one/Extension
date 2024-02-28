@@ -18,6 +18,15 @@ chrome.commands.onCommand.addListener(function(command) {
   });
 
 
+async function get_clipboard_command_value(command) {
+  if (await getSetting("encrypt-clipboard") === true) {
+    return await convertSmartValues(await eGet(command))
+  } else {
+    return await convertSmartValues(await get(command))
+  }
+}
+
+
 
 // Handle Keyboard shortcuts
 chrome.commands.onCommand.addListener(async (command) => {
@@ -41,7 +50,8 @@ chrome.commands.onCommand.addListener(async (command) => {
             chrome.sidePanel.open({ tabId: tab.id });
           });
     } else if (command.startsWith("copy-value")) {
-        await addToClipboard(await convertSmartValues(await eGet(command)))
+        await addToClipboard(await get_clipboard_command_value(command))
+
     } else if (command.startsWith("start-stop-clip-combiner")) {
 
     } else if (command === "open-extension-tab") {
@@ -122,3 +132,168 @@ async function convertSmartValues(string) {
     return string
 
 }
+
+//////////////////
+// Context Menu //
+//////////////////
+
+// chrome.runtime.onInstalled.addListener(() =>
+//     chrome.contextMenus.create({
+//         id: "copy-to-bin",
+//         title: "Copy value to first free bin or last bin",
+//         contexts: ["selection"]
+//     })
+// );
+
+// // Add a listener for the context menu item
+// chrome.contextMenus.onClicked.addListener(async (info, tab) => {
+//     if (info.menuItemId === "copy-to-bin") {
+//       chrome.commands.getAll(async function(commands) {
+//         commands.forEach(async function(command) {
+//             if (command.name.startsWith("copy-value")) {
+//               const value = await get_clipboard_command_value(command.name)
+//               if (value == null || value === "") {
+//                 if (await getSetting("encrypt-clipboard")) {
+//                   eStore(command.name, info.selectionText)
+//                 } else {
+//                   store(command.name, info.selectionText)
+//                 }
+//                 return true
+//               }
+//             }
+//           });
+//           if (await getSetting("encrypt-clipboard")) {
+//             eStore("copy-value-5", info.selectionText)
+//           } else {
+//             store("copy-value-5", info.selectionText)
+//           }
+//         });
+//     }
+// });
+
+// // Add a listener for the context menu item to paste the value "test"
+// chrome.contextMenus.onClicked.addListener(async (info, tab) => {
+//   if (info.menuItemId.startsWith("paste-from-")) {
+//       // Paste the word "test" in the current editable field
+//       command = info.menuItemId.split("paste-from-")[1];
+//       chrome.scripting.executeScript({
+//           target: { tabId: tab.id },
+//           function: function() {
+//               document.activeElement.value = document.activeElement.value + get_clipboard_command_value(command);
+//           }
+//       });
+//   }
+// });
+
+
+// self.addEventListener('message', async (event) => {
+//   if (event.data.action === 'appStateChanged') {
+//       if (event.data.isUnlocked) {
+//           try {
+//               chrome.commands.getAll(async function(commands) {
+//                   for (let command of commands) {
+//                       if (!await isLocked()) {
+//                           console.log("App unlocked, creating context menu")
+//                           if (command.name.startsWith("copy-value")) {
+//                               const value = await get_clipboard_command_value(command.name)
+//                               console.log(value)
+//                               chrome.contextMenus.create({
+//                                   id: "paste-from-" + command.name,
+//                                   title: "paste " + value.substring(0, 10) + ".. (" + command.shortcut + ")",
+//                                   contexts: ["editable"]
+//                               });
+//                           }
+//                       } else {
+//                           console.log("App locked, not creating context menu")
+//                       }
+//                   }
+//               });
+//           } catch (error) {
+//               chrome.contextMenus.update("paste-from-" + command.name, {
+//                   title: "paste " + value.substring(0, 10) + " (" + command.shortcut + ")",
+//               }, function() {
+//                   if (chrome.runtime.lastError) {
+//                       console.error(chrome.runtime.lastError.message);
+//                   } else {
+//                       console.log("Context menu item updated successfully");
+//                   }
+//               });
+//           }
+//       }
+//   }
+// // });
+// self.addEventListener('message', async (event) => {
+//   if (event.data.action === 'appStateChanged') {
+//       if (event.data.isUnlocked) {
+//           try {
+//               chrome.commands.getAll(async function(commands) {
+//                   for (let command of commands) {
+//                       try {
+//                         const value = await get_clipboard_command_value(command.name)
+//                         chrome.contextMenus.update("paste-from-" + command.name, {
+//                             title: "paste " + value.substring(0, 10) + " (" + command.shortcut + ")",
+//                         });
+//                       } catch {
+//                               const value = await get_clipboard_command_value(command.name)
+//                               chrome.contextMenus.create({
+//                                   id: "paste-from-" + command.name,
+//                                   title: "paste " + value.substring(0, 10) + ".. (" + command.shortcut + ")",
+//                                   contexts: ["editable"]
+//                               });
+//                       }
+//                   }
+//               });
+//           } catch (error) {
+//               console.error(error);
+//           }
+//       }
+//   }
+// });
+
+// self.addEventListener('message', (event) => {
+//   if (event.data.action === 'appStateChanged') {
+//       if (event.data.hasChanged) {
+//         chrome.commands.getAll(async function(commands) {
+//           commands.forEach(async function(command) {
+//             if (! await isLocked ()) {
+//               console.log("App unlocked, creating context menu")
+//               if (command.name.startsWith("copy-value")) {
+//                 const value = await get_clipboard_command_value(command.name)
+//                 console.log(value)
+//                 chrome.contextMenus.update("paste-from-" + command.name, {
+//                   title: "paste " + value.substring(0, 10) + " (" + command.shortcut + ")",
+//               }, function() {
+//                   if (chrome.runtime.lastError) {
+//                       console.error(chrome.runtime.lastError.message);
+//                   } else {
+//                       console.log("Context menu item updated successfully");
+//                   }
+//               });
+//               }
+//             } else {
+//               console.log("App locked, not creating context menu")
+//             }
+//           });
+//         });
+//       }
+//     }
+//   });
+
+
+
+
+// chrome.commands.getAll(async function(commands) {
+//   if (!await isLocked()) {
+//     commands.forEach(async function(command) {
+//         if (command.name.startsWith("copy-value")) {
+//           const value = await get_clipboard_command_value(command.name)
+//           console.log(value)
+//           chrome.contextMenus.create({
+//             id: "paste-from-" + command.name,
+//             title: "paste" + value.substring(0, 10) + " (" + command.shortcut + ")",
+//             contexts: ["editable"]
+//           });
+//         }
+//     });
+//   }
+// });
