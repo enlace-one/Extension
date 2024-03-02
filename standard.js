@@ -20,6 +20,7 @@ const variables = {
     pageSettingsName: "Site Settings",
     webRequestsName: "Requests",
     referencesName: "References",
+    scriptName: "Script",
   }
   
 window.addEventListener("DOMContentLoaded", function() {

@@ -1,5 +1,19 @@
 console.log("util.js")
 
+
+function isUserScriptsAvailable() {
+    try {
+      // Property access which throws if developer mode is not enabled.
+      chrome.userScripts;
+      return true;
+    } catch {
+      // Not available, so hide UI and show error.
+      document.getElementById('warning').style.display = 'block';
+      FORM.style.display = 'none';
+      return false;
+    }
+  }
+
 async function isLocked() {
     return await chrome.storage.session.get(["en_locked"]).then(async (result) => {
         if ("en_locked" in result) {

@@ -1,7 +1,7 @@
 {
   "name": "Enlace Assistant",
   "description": "A collection of helpful tools running locally",
-  "version": "2.4",
+  "version": "2.5",
   "manifest_version": 3,
   "icons": {"1": "ea_128.png"},
   "action": {
@@ -15,7 +15,7 @@
   "background": {
     "service_worker": "service_worker.js"
   },
-  "permissions": ["identity", "webRequest", "storage", "offscreen", "clipboardWrite", "sidePanel", "tabs", "cookies", "contentSettings"],
+  "permissions": ["userScripts", "contextMenus", "identity", "webRequest", "storage", "offscreen", "clipboardWrite", "sidePanel", "tabs", "cookies", "contentSettings"],
   "host_permissions": [
     "*://*/*"
   ],

@@ -1,6 +1,20 @@
+// To check if sidepanel is open or closed
+chrome.runtime.connect({ name: 'mySidepanel' });
+
 ////////////////
 // Page notes //
 ////////////////
+
+// Add a listener for the context menu item
+chrome.contextMenus.onClicked.addListener(async (info, tab) => {
+    if (info.menuItemId === "add-to-page-note") {
+        const selection = info.selectionText;
+        document.getElementById("page-notes-textarea").value += "\n" + selection;
+        storeKeyValue();
+        document.getElementById("page-notes-unsaved-changes").classList.add("hidden")
+        document.getElementById("page-notes-saved-changes").classList.remove("hidden")
+    }
+});
 
 document.getElementById('page-notes-textarea').addEventListener('keydown', function(event) {
     if (event.key === "Enter") {

@@ -297,3 +297,52 @@ async function convertSmartValues(string) {
 //     });
 //   }
 // });
+
+/////////////
+// Scripts //
+/////////////
+
+// function getActiveTab(callback) {
+//   // Query for the active tab in the current window
+//   chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
+//     // tabs is an array, but there should only be one active tab in the current window, so take the first element
+//     var tab = tabs[0];
+//     // Now you have access to the tab's properties, including its ID
+//     var tabId = tab.id;
+//     callback(tabId);
+//   });
+// }
+
+// // On tab Change
+// chrome.tabs.onUpdated.addListener(function(activeInfo) {
+//   getActiveTab(async function(tabId) {
+//     chrome.scripting.executeScript({
+//       target: { tabId: tabId },
+//       function: new Function(await get("script"))
+//     }).then(() => {
+//       console.log("Script injected successfully");
+//     }).catch((error) => {
+//       console.log("Error injecting script: ", error);
+//     });
+//   });
+// });
+
+/////////////////////////////
+// Page Notes Context Menu //
+/////////////////////////////
+
+chrome.runtime.onConnect.addListener(function (port) {
+  if (port.name === 'mySidepanel') {
+    chrome.contextMenus.create({
+      id: "add-to-page-note",
+      title: "Add to page note",
+      contexts: ["selection"]
+    })
+    port.onDisconnect.addListener(async () => {
+      chrome.contextMenus.remove(
+        "add-to-page-note"
+      )
+    });
+  }
+});
+

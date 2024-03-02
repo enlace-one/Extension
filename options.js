@@ -9,6 +9,11 @@ let googleToken = null
 
 // On page load, check if the user is signed in
 chrome.identity.getAuthToken({interactive: false}, async function(token) {
+    if (chrome.runtime.lastError) {
+        // Handle error - for example, by showing a sign-in prompt to the user
+        console.log(chrome.runtime.lastError.message);
+        return;
+      }
     if (token) {
         googleToken = token
         folderId = await createFolderIfNotExists(token, folderName)
@@ -29,15 +34,27 @@ document.getElementById("sign-out-button").addEventListener("click", function() 
     });
 });
 
+// sign-in-button
 window.onload = function() {
     document.querySelector('#sign-in-button').addEventListener('click', async function() {
       chrome.identity.getAuthToken({interactive: true}, async function(token) {
+        if (chrome.runtime.lastError) {
+            // Handle error - for example, by showing a sign-in prompt to the user
+            console.log(chrome.runtime.lastError.message);
+            showNotification("Sign in failed.")
+            return;
+          }
         googleToken = token
-        folderId = await createFolderIfNotExists(token, folderName)
-        referencesFolderId = await createFolderIfNotExists(token, "References", folderId)
-        document.getElementById("sign-in-button").classList.add("hidden")
-        document.getElementById("drive-sign-in-display").innerText = "Signed in"
-        document.getElementById("sign-out-button").classList.remove("hidden")
+        if (token) {
+            showNotification("Signed in")
+            folderId = await createFolderIfNotExists(token, folderName)
+            referencesFolderId = await createFolderIfNotExists(token, "References", folderId)
+            document.getElementById("sign-in-button").classList.add("hidden")
+            document.getElementById("drive-sign-in-display").innerText = "Signed in"
+            document.getElementById("sign-out-button").classList.remove("hidden")
+        } else {
+            showNotification("Sign in failed")
+        }
       });
     });
   };
@@ -219,7 +236,7 @@ async function searchFile(token, folderId, fileName) {
     return fetch(`https://www.googleapis.com/drive/v3/files?q='${folderId}'+in+parents+and+name='${fileName}'`, options)
         .then(response => response.json())
         .then(data => {
-            if (data.files.length > 0) {
+            if (data.files && data.files.length > 0) {
                 return data.files[0].id;
             } else {
                 return null;
@@ -307,7 +324,7 @@ async function createFileIfNotExists(token, folderId, fileName) {
     </div>
 </div> */
 
-let ref_files = ["css_selectors.txt", "regex.txt"]
+let ref_files = ["css_selectors.txt", "regex.txt", "bash.txt", "chrome_keyboard.txt", "git.txt", "country_codes.txt", "linux_keyboard.txt", "linux_term.txt", "nmap.txt", "powershell.txt", "sql.txt", "us_states.txt", "windows_cmd.txt", "windows_keyboard.txt"]
 // Opens the local References folder and creates a new Google Drive file for each if they don't exist
 async function updateDrive() {
     for (let file of ref_files) {
@@ -395,10 +412,11 @@ document.getElementById("references-new").addEventListener("click", async functi
 
 
 // Search for references
-document.getElementById("references-search").addEventListener("input", async function() {
+async function search_references() {
     const search = document.getElementById("references-search").value
     const ul = document.getElementById("references-ul")
     ul.innerHTML = ""
+    ref_files.sort()
     ref_files.forEach(file => {
         if (file.includes(search)) {
             const li = document.createElement("li");
@@ -406,19 +424,25 @@ document.getElementById("references-search").addEventListener("input", async fun
             //li.style.color = 'blue'; // Change the text color to blue
             li.style.fontStyle = "bold"
             li.style.backgroundColor = "lightblue";
-            li.style.fontSize = '16px'; // Change the font size to 18px
-            li.style.padding = '10px'; // Add some padding
+            li.style.fontSize = '14px'; // Change the font size to 18px
+            li.style.padding = '5px'; // Add some padding
             li.style.marginRight = '0px'; // Add some margin
             li.style.border = '1px solid black'; // Add a border
-            li.style.width = '60vw';
+            li.style.width = '40vw';
             li.style.listStyleType = 'none'; // Remove the list item bullet
             li.addEventListener("click", async function() {
                 openRefFile(file);
             });
             ul.appendChild(li);
         }
-    }
-    )
+    })
+}
+
+document.getElementById("references-search").addEventListener("click", async function() {
+    search_references()
+})
+document.getElementById("references-search").addEventListener("input", async function() {
+    search_references()
 })
 
 // When lose focus, clear the search results
@@ -617,3 +641,128 @@ document.getElementById("html-editor").addEventListener("input", function() {
     doc.close();
     //ocument.getElementById('html-viewer').innerHTML = editorContent;
 })
+
+/////////////
+// Scripts //
+/////////////
+const USER_SCRIPT_ID = 'default';
+const default_script = `// Get current url
+var url = window.location.href;
+
+// Check if url includes a certain phrase
+if (url.includes("https://www.google.com/")) {
+    console.log("This is a Google search results page");
+}
+
+// Set all links to open in a new tab
+if (url.includes("https://xyz.abc.hij/")) {
+    var links = document.getElementsByTagName('a');
+    for (var i = 0; i < links.length; i++) {
+        links[i].setAttribute('target', '_blank');
+    }
+}
+
+// Trigger the page to refresh every 60 seconds
+const continue_refreshing = true;
+if (url.includes("https://klm.abc.hij/")) {
+    function refresh(seconds=60) {
+        setTimeout(function() {
+            if (!continue_refreshing) {
+                return;
+            }
+            location.reload();
+            refresh(seconds);
+        }, seconds * 1000);
+    }
+    refresh()
+}
+
+// Click a button in the dom every 60 seconds
+if (url.includes("https://def.abc.hij/")) {
+    function clickButton(seconds=60) {
+        setTimeout(function() {
+            if (!continue_refreshing) {
+                return;
+            }
+            document.querySelector('#my_button').click();
+            clickButton(seconds);
+        }, seconds * 1000);
+    }
+    clickButton()
+
+}`
+
+async function updateUi() {
+    if (!isUserScriptsAvailable()) return;
+  
+    // Access settings from storage with default values.
+    const script = await chrome.storage.sync.get({
+      userScript: default_script
+    });
+  
+    // Update UI with current values.
+    document.getElementById("script-editor").value = script["userScript"];
+  }
+
+
+if (isUserScriptsAvailable()) {
+    document.querySelector('.scriptName[data-tab="script-tab"]').classList.remove("hidden")
+    updateUi()
+}
+    
+
+document.getElementById("script-editor").addEventListener("keydown", async function(event) {
+    // If CTRL + Enter
+    if (event.ctrlKey && event.key === "Enter") {
+        const script = document.getElementById('script-editor').value;
+        chrome.storage.sync.set({userScript: script}, function() {
+            showNotification("Script saved")
+        });
+        const existingScripts = await chrome.userScripts.getScripts({
+            ids: [USER_SCRIPT_ID]
+          });
+        
+          if (existingScripts.length > 0) {
+            // Update existing script.
+            await chrome.userScripts.update([
+              {
+                id: USER_SCRIPT_ID,
+                matches: ['<all_urls>'],
+                world: 'MAIN',
+                js: [{ code: script}]
+              }
+            ]);
+          } else {
+            // Register new script.
+            await chrome.userScripts.register([
+              {
+                id: USER_SCRIPT_ID,
+                matches: ['<all_urls>'],
+                world: 'MAIN',
+                js: [{ code: script}]
+              }
+            ]);
+          }
+    }
+
+});
+// // When this is clicked: <button class="tab-button scriptName" data-tab="script-tab">
+// document.querySelector('.scriptName[data-tab="script-tab"]').addEventListener("click", async function() {
+//     try {
+//         const script = await get("script")
+//     } catch {
+//         // Nothing
+//     }
+//     // fetch script.js file and set content as value of script-editor
+//     fetch("script.js").then(response => response.text()).then(data => {
+//         document.getElementById('script-editor').value = data
+//     })
+// });
+
+// document.getElementById("script-editor").addEventListener("input", function() {
+//     // Get content from the editor
+//     const editorContent = document.getElementById('script-editor').value;
+
+//     // Save content to chrome.storage
+//     store("script", editorContent)
+// });

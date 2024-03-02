@@ -7,7 +7,7 @@
     <style>
         /* Overrides default */
         .container {
-            max-width: 1200px;
+            max-width: 100vw;
             margin: 0 auto;
             background-color: #fff;
             border-radius: 10px;
@@ -147,10 +147,19 @@
                 <button class="tab-button referencesName" data-tab="references-tab">
                   References
                 </button>
+                <button class="tab-button scriptName hidden" data-tab="script-tab">
+                  Script
+                </button>
                 <input type="button" value="Lock" id="lock-button" />
             </div>
+            <div class="tab-content" id="script-tab">
+              <h2 class="scriptName"></h2>
+              <small>Save this script once (and after each update), and it should run on any page you visit.</small>
+              <textarea id="script-editor" style="width:92vw; height: 80vh;"></textarea>
+              <small>Press CTRL+Enter to Save</small>
+            </div>
             <div class="tab-content" id="references-tab">
-              <h2>References</h2>
+              <h2 class="referencesName">References</h2>
               <table>
                 <row>
                   
@@ -176,7 +185,7 @@
                 <div id="references-display">
                     
                     <div id="references-content">
-                        <textarea id="references-text" style="width:90vw; height: 80vh;" readonly>
+                        <textarea id="references-text" style="width:92vw; height: 80vh;" readonly>
 
                         </textarea>
                     </div>
