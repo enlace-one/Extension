@@ -16,20 +16,32 @@ chrome.contextMenus.onClicked.addListener(async (info, tab) => {
     }
 });
 
+let saveTimeout;
 document.getElementById('page-notes-textarea').addEventListener('keydown', function(event) {
-    if (event.key === "Enter") {
-      storeKeyValue();
-      document.getElementById("page-notes-unsaved-changes").classList.add("hidden")
-      document.getElementById("page-notes-saved-changes").classList.remove("hidden")
-    } else if (event.altKey && event.key === 't') {
+    clearTimeout(saveTimeout); // Clear the existing timeout on every key press
+    document.getElementById("page-notes-saved-changes").classList.add("hidden")
+    document.getElementById("page-notes-unsaved-changes").classList.remove("hidden")
+    saveTimeout = setTimeout(() => {
+        storeKeyValue();
+        document.getElementById("page-notes-unsaved-changes").classList.add("hidden");
+        document.getElementById("page-notes-saved-changes").classList.remove("hidden");
+    }, 3000); // Set a new timeout
+});
+
+document.getElementById('page-notes-textarea').addEventListener('keydown', function(event) {
+     if (event.altKey && event.key === 't') {
+        event.preventDefault()
         let currentDate = new Date();
         let options = { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false };
         let formattedDate = currentDate.toLocaleString('en-GB', options);
         this.value += formattedDate;
-}    else {
-        document.getElementById("page-notes-saved-changes").classList.add("hidden")
-        document.getElementById("page-notes-unsaved-changes").classList.remove("hidden")
-    }
+    } else if (event.ctrlKey && event.key === 's') {
+        event.preventDefault()
+        storeKeyValue();
+        document.getElementById("page-notes-unsaved-changes").classList.add("hidden");
+        document.getElementById("page-notes-saved-changes").classList.remove("hidden");
+        saveTimeout = ""
+    }  
 });
 
 // document.getElementById('page-notes-textarea').addEventListener('change', function(event) {
