@@ -20,10 +20,6 @@
     "*://*/*"
   ],
   "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEApHtdEqOalW6P/hF0u1RWz5BtocEkpBmnhLHaDdhuqkAHjjCQsy1WcuF+XF5Oz1E6fa1gfjNU6m8kP70CxxqZ/YLXXZYSZXNSlyMQRG/3FmX8lWEQxjIDBXrNhutJRLOo4VNIFJM56BMKrKzMLSwqTn7kJ/mCKrxOP+OF5SJYmo2qUezwMNrjWV9dPbanbl+Jc9nTtG7IkiVvBh/J7WuBYhABpL3WqLwA65KYaCVuQjvFZ/BbrcY1jm4Qy+Mb7pusUO1bbRYfMG8mD1ZV3bnIRaCUXfrOR/CCmM07ZNv7UUoRTU5FUz+X99lEzppu5J7konlHcZ59WOlTTPIISL97HwIDAQAB",
-  "oauth2": {
-    "client_id": "24804471136-cmgg1oqla76m8t4mnppk2rguuj4ajmdf.apps.googleusercontent.com",
-    "scopes":["https://www.googleapis.com/auth/drive.file", "https://www.googleapis.com/auth/drive.appdata"]
-  },
   "commands": {
     "copy-value-1": {
       "suggested_key": {
