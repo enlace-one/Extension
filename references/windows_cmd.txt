@@ -30,3 +30,7 @@ set 	#view all environmental variables
 cd C:\$Recycle.Bin
 net user #get users
 net accounts #pw settings
+
+Specific:
+shutdown -r -f -t 1
+setx /M path "%path%;C:\your\path"

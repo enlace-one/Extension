@@ -654,6 +654,13 @@ if (url.includes("https://www.google.com/")) {
     console.log("This is a Google search results page");
 }
 
+// Custom keyboard shortcuts
+document.addEventListener('keydown', function(event) {
+    if (event.ctrlKey && event.key === 's') {
+        console.log("Ctrl + S pressed");
+    }
+});
+
 // Set all links to open in a new tab
 if (url.includes("https://xyz.abc.hij/")) {
     var links = document.getElementsByTagName('a');

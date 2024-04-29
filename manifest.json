@@ -1,7 +1,7 @@
 {
   "name": "Enlace Assistant",
   "description": "A collection of helpful tools running locally",
-  "version": "2.5",
+  "version": "3.0",
   "manifest_version": 3,
   "icons": {"1": "ea_128.png"},
   "action": {
