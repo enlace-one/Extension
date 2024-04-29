@@ -22,6 +22,9 @@ onStartSpecific()
 // Store new keys and set value. Select "Search" input box.
 document.addEventListener("EnlaceUnlocked", async function() {
     console.log("triggered unlock stuff ")
+    const copy_html = '<button id="copy-{ID}" style="width: 8vw;"><img style="width: 100%; height: auto;" src="images/copy.svg" alt="Icon"></button>'
+    const paste_html = '<button id="paste-{ID}" style="width: 8vw;"><img style="width: 100%; height: auto;" src="images/paste.svg" alt="Icon"></button>'
+
     Array.from(document.getElementsByClassName("store-input-value")).forEach(async element => {
         try {
             if (await getSetting("encrypt-clipboard")) {
@@ -44,8 +47,29 @@ document.addEventListener("EnlaceUnlocked", async function() {
             } else {
                 store(element.getAttribute("key"), element.value)
             }
+            showNotification("Saved")
         });
+
+        // Add copy/paste button after the variable element
+        const copyButton = copy_html.replace("{ID}", element.getAttribute("key"));
+        const pasteButton = paste_html.replace("{ID}", element.getAttribute("key"));
+        element.insertAdjacentHTML('afterend', copyButton + pasteButton);
+
+        // Add event listeners for the copy and paste buttons
+        document.getElementById("copy-" + element.getAttribute("key")).addEventListener("click", function() {
+            element.select()
+            document.execCommand('copy');
+            showNotification("Copied");
+        });
+        document.getElementById("paste-" + element.getAttribute("key")).addEventListener("click", async function() {
+            const text = await navigator.clipboard.readText();
+            element.value = text;
+            showNotification("Pasted");
+        });
+
     });
+
+
 });
 
 
@@ -196,144 +220,6 @@ get("snippet-data").then((value) => {
     }
   }
 
-////////////////////////
-// Password Generator //
-////////////////////////
-
-
-document.getElementById("generator-run").addEventListener("click", runGenerator)
-
-function runGenerator() {
-    // Get input values
-    const length = parseInt(document.getElementById("generator-length").value);
-    const includeLowercase = document.getElementById("generator-includeLowercase").checked;
-    const includeUppercase = document.getElementById("generator-includeUppercase").checked;
-    const includeNumbers = document.getElementById("generator-includeNumbers").checked;
-    const includeSpecialChars = document.getElementById("generator-includeSpecialChars").checked;
-    const specialChars = document.getElementById("generator-specialChars").value;
-    const minNumbers = parseInt(document.getElementById("generator-minNumbers").value);
-    const minLowercase = parseInt(document.getElementById("generator-minLowercase").value);
-    const minUppercase = parseInt(document.getElementById("generator-minUppercase").value);
-    const minSpecialChars = parseInt(document.getElementById("generator-minSpecialChars").value);
-    const avoidAmbiguousChars = document.getElementById("generator-avoidAmbiguousChars").checked;
-    let lowercaseChar = 'abcdefghijklmnopqrstuvwxyz'
-    let uppercaseChar = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
-    let numericChar = '0123456789'
-
-    if (avoidAmbiguousChars) {
-        uppercaseChar = uppercaseChar.replace("I", "")
-        lowercaseChar = lowercaseChar.replace("l", "")
-        numericChar = numericChar.replace("1", "")
-        uppercaseChar = uppercaseChar.replace("O", "")
-        numericChar = numericChar.replace("0", "")
-    }
-
-    // Define character sets
-    let chars = '';
-    if (includeLowercase) chars += lowercaseChar
-    if (includeUppercase) chars += uppercaseChar;
-    if (includeNumbers) chars += numericChar;
-    if (includeSpecialChars) chars += specialChars;
-
-    // Generate password
-    let password = '';
-    const getRandomChar = () => chars[Math.floor(Math.random() * chars.length)];
-    const getRandomIndex = () => Math.floor(Math.random() * password.length);
-
-    // Ensure minimum requirements
-    for (let i = 0; i < minNumbers; i++) {
-        password += numericChar[Math.floor(Math.random() * numericChar.length)]
-    }
-    for (let i = 0; i < minLowercase; i++) {
-        password += lowercaseChar[Math.floor(Math.random() * lowercaseChar.length)]
-    }
-    for (let i = 0; i < minUppercase; i++) {
-        password += uppercaseChar[Math.floor(Math.random() * uppercaseChar.length)];
-    }
-    for (let i = 0; i < minSpecialChars; i++) {
-        password += specialChars[Math.floor(Math.random() * specialChars.length)]
-    }
-
-    // Generate remaining characters to meet length requirement
-    while (password.length < length) {
-        password += getRandomChar();
-    }
-
-    // Shuffle password
-    password = password.split('').sort(() => Math.random() - 0.5).join('');
-
-    // Display password
-    document.getElementById("generator-output").value = password;
-}
-
-const defaultGeneratorSettings = {
-    length: 18,
-    includeLowercase: true,
-    includeUppercase: true,
-    includeNumbers: true,
-    includeSpecialChars: true,
-    specialChars: "!$?@#%*",
-    minNumbers: 1,
-    minLowercase: 1,
-    minUppercase: 1,
-    minSpecialChars: 1,
-    avoidAmbiguousChars: true
-};
-
-function setGeneratorValues() {
-    for (const key in defaultGeneratorSettings) {
-        getGeneratorSetting(key).then((value) => {
-            const element = document.getElementById(`generator-${key}`);
-            if (element && element.type === "checkbox") {
-                element.checked = value;
-            } else if (element) {
-                element.value = value;
-            }
-        });
-    }
-    setTimeout(() => runGenerator(), 1000)
-}
-setGeneratorValues();
-
-// Save Generator Settings
-document.getElementById("generator-save-preferences").addEventListener("click", async function() {
-    for (const key in defaultGeneratorSettings) {
-        const element = document.getElementById(`generator-${key}`);
-        if (element && element.type === "checkbox") {
-            await storeGeneratorSetting(key, element.checked);
-        } else if (element) {
-            await storeGeneratorSetting(key, element.value);
-        }
-    }
-    showNotification("Generator Settings Saved");
-});
-
-document.getElementById("generator-revert-preferences").addEventListener("click", async function () {
-    store("generator-settings", {});
-    setGeneratorValues();
-
-})
-
-// Function to get generator setting
-async function getGeneratorSetting(setting_name) {
-    const generatorSettings = await get("generator-settings") || {};
-    return generatorSettings.hasOwnProperty(setting_name) ? generatorSettings[setting_name] : defaultGeneratorSettings[setting_name];
-}
-
-// Function to store generator setting
-async function storeGeneratorSetting(setting_name, value) {
-    const generatorSettings = (await get("generator-settings")) || {};
-    generatorSettings[setting_name] = value;
-    await store("generator-settings", generatorSettings);
-}
-
-
-document.getElementById("generator-copy").addEventListener("click", function () {
-    document.getElementById("generator-output").select();
-    document.execCommand('copy');
-    showNotification("Copied")
-})
-
 //////////////////////////
 // Passphrase generator //
 //////////////////////////
@@ -467,209 +353,6 @@ document.getElementById("pp-generator-revert-preferences").addEventListener("cli
 
 })
   
-/////////////
-// Cookies //
-/////////////
-
-// // Get all cookies
-// document.getElementById("get-cookies").addEventListener("click", function () {
-//     chrome.cookies.getAll({}, function (cookies) {
-//         console.log(cookies)
-//         document.getElementById("cookie-output").value = JSON.stringify(cookies, null, 2);
-//     });
-// })
-
-document.addEventListener("DOMContentLoaded", function() {
-    loadCookies();
-});
-
-document.getElementById("search-cookies-button").addEventListener("click", function () {
-    loadCookies(document.getElementById("search-cookies").value);
-});
-
-document.getElementById("search-cookies").addEventListener("keydown", function (event) {
-    if (event.key === "Enter") {
-        loadCookies(document.getElementById("search-cookies").value);
-    }
-});
-
-function loadCookies(text_to_search = "") {
-    const site_only = document.getElementById("filter-by-site-cookies").checked;
-    if (site_only) {
-        chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
-            const url = new URL(tabs[0].url);
-            const domain = url.hostname;
-            chrome.cookies.getAll({domain: domain}, function (cookies) {
-                displayCookies(cookies, text_to_search);
-            });
-        });
-    } else {
-        chrome.cookies.getAll({}, function (cookies) {
-            displayCookies(cookies, text_to_search);
-        });
-    }
-}
-
-
-function displayCookies(cookies, text_to_search) {
-    // Edit and Delete not working, need to style list items
-    const list = document.getElementById('cookie-list');
-    list.innerHTML = ''; // clear the list
-
-    for (let cookie of cookies) {
-        if (text_to_search && !JSON.stringify(cookie).toLowerCase().includes(text_to_search.toLowerCase())) {
-            continue;
-        }
-        // Create a list item for each cookie
-        const listItem = document.createElement('li');
-        listItem.classList.add('cookie-item');
-
-        // Create a button to toggle the visibility of the cookie details
-        const toggleButton = document.createElement('button');
-        toggleButton.textContent = `${cookie.name} - ${cookie.domain}`;
-        toggleButton.addEventListener('click', () => {
-            detailDiv.style.display = detailDiv.style.display === 'none' ? '' : 'none';
-        });
-        toggleButton.classList.add("subtle-button")
-        listItem.appendChild(toggleButton);
-
-        const detailDiv = document.createElement('div');
-        detailDiv.style.display = 'none';
-
-        // Create a textarea to hold the cookie details
-        const detailsTextarea = document.createElement('textarea');
-        detailsTextarea.rows = 10;
-        detailsTextarea.cols = 50;
-        // detailsTextarea.style.display = 'none'; // hide the textarea by default
-        detailsTextarea.textContent = JSON.stringify(cookie, null, 2);
-        detailsTextarea.readOnly = true;
-        detailDiv.appendChild(detailsTextarea);
-
-        // Create a delete button
-        const deleteButton = document.createElement('button');
-        
-        deleteButton.textContent = 'Delete';
-        deleteButton.addEventListener('click', () => {
-            chrome.cookies.remove({url: "http://" + cookie.domain + cookie.path, name: cookie.name}, function(deletedCookie) {
-                if (chrome.runtime.lastError) {
-                    console.error(chrome.runtime.lastError.message);
-                } else {
-                    console.log(deletedCookie);
-                    // Remove the list item from the list
-                    list.removeChild(listItem);
-                }
-            });
-        });
-        // deleteButton.style.display = 'none';
-        detailDiv.appendChild(deleteButton);
-
-        // Create an edit button
-        if (cookie.httpOnly) {
-            const httpOnlyWarning = document.createElement('small');
-            httpOnlyWarning.textContent = '  This cookie cannot be edited (httpOnly)';
-            detailDiv.appendChild(httpOnlyWarning);
-        } else if (cookie.domain.startsWith('.')) { 
-            const httpOnlyWarning = document.createElement('small');
-            httpOnlyWarning.textContent = "  This cookie cannot be edited (cookie's domain starts with a dot)";
-            detailDiv.appendChild(httpOnlyWarning);
-        } else {
-            const editButton = document.createElement('button');
-            editButton.textContent = 'Edit';
-            editButton.addEventListener('click', () => {
-                // Make the textarea editable and focus it
-                detailsTextarea.readOnly = false;
-                detailsTextarea.focus();
-            });
-            detailDiv.appendChild(editButton);
-        }
-        listItem.appendChild(detailDiv);
-
-        // Add an event listener for when the textarea loses focus
-        detailsTextarea.addEventListener('blur', () => {
-            // Make the textarea read-only again
-            detailsTextarea.readOnly = true;
-
-            // Parse the edited JSON and save the changes to the cookie
-            try {
-                console.log(detailsTextarea.value)
-                const editedCookie = JSON.parse(detailsTextarea.value);
-                console.log(editedCookie.value)
-                console.log(cookie.domain + cookie.path)
-                chrome.cookies.set({
-                    url: "https://" + cookie.domain + cookie.path,
-                    name: cookie.name,
-                    value: editedCookie.value,
-                    secure: cookie.secure,
-                    httpOnly: cookie.httpOnly,
-                    sameSite: cookie.sameSite,
-                    // Add other cookie properties here if needed
-                }, function(cookie) {
-                    if (chrome.runtime.lastError) {
-                        console.error(chrome.runtime.lastError.message);
-                        showNotification("Error: " + chrome.runtime.lastError.message)
-                    } else {
-                        console.log(cookie);
-                        showNotification("Cookie updated")
-                    }
-                });
-            } catch (error) {
-                console.error('Invalid JSON:', error);
-                showNotification("Error: Invalid JSON. " + error)
-            }
-        });
-
-        // Add the list item to the list
-        list.appendChild(listItem);
-    }
-}
-
-document.getElementById("cookies-delete-site").addEventListener("click", function () {
-    chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
-        const url = new URL(tabs[0].url);
-        const domain = url.hostname;
-        chrome.cookies.getAll({domain: domain}, function (cookies) {
-            cookies.forEach(cookie => {
-                chrome.cookies.remove({url: "https://" + cookie.domain + cookie.path, name: cookie.name}, function(deletedCookie) {
-                    if (chrome.runtime.lastError) {
-                        console.error(chrome.runtime.lastError.message);
-                    } else {
-                        console.log(deletedCookie);
-                    }
-                });
-            });
-        });
-    });
-    showNotification("Deleted all cookies for this site")
-    // Wait 1 second before reloading the cookies
-    setTimeout(() => loadCookies(document.getElementById("search-cookies").value), 1000);
-});
-
-
-document.getElementById("cookies-delete-all").addEventListener("click", function () {
-    chrome.cookies.getAll({}, function (cookies) { // Pass an empty object as the first argument
-        cookies.forEach(cookie => {
-            // Try to remove the cookie with a http:// URL
-            chrome.cookies.remove({url: "https://" + cookie.domain + cookie.path, name: cookie.name}, function(deletedCookie) {
-                if (chrome.runtime.lastError) {
-                    // If that fails, try to remove the cookie with a https:// URL
-                    chrome.cookies.remove({url: "http://" + cookie.domain + cookie.path, name: cookie.name}, function(deletedCookie) {
-                        if (chrome.runtime.lastError) {
-                            console.error(chrome.runtime.lastError.message);
-                        } else {
-                            console.log("Deleted " + deletedCookie);
-                        }
-                    });
-                } else {
-                    console.log("Deleted " + deletedCookie);
-                }
-            });
-        });
-    });
-    showNotification("Deleted all cookies")
-    // Wait 1 second before reloading the cookies
-    setTimeout(() => loadCookies(document.getElementById("search-cookies").value), 1000);
-});
-
 //////////////////////////////
 // Handle Bottom Button Bar //
 //////////////////////////////
