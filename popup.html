@@ -66,75 +66,7 @@
         <button class="tab-button clipboardName" data-tab="e-clip">
           e-Clip
         </button>
-        <button class="tab-button generatorName" data-tab="pw-generator-tab">
-          Generator
-        </button>
         <input type="button" value="Lock" id="lock-button" />
-      </div>
-      <div class="tab-content" id="pw-generator-tab">
-        <h2 class="generatorName">Generator</h2>
-        <div class="subtab-content active" id="phrase-subtab">
-        
-          <input id="pp-generator-output" style="height:30px; font-size: medium; width: 80vw">
-          <br>
-          <button id="pp-generator-copy" type="button"><img src="images/copy.svg" alt="Icon" style="width: 36vw" height="20"
-              ></button>
-          <button id="pp-generator-run" type="button"><img src="images/redo.svg" alt="Icon" style="width: 36vw" height="20"
-              ></button>
-          
-          <table>
-            <tr>
-              <td colspan="2">
-                <label>Word Count</label>
-              </td>
-              <td>
-                <input class="w-5" id="pp-generator-count" type="number" value="3" />
-              </td>
-            </tr>
-            <tr>
-              <td colspan="2">
-                <label>Capitalization</label>
-              </td>
-              <td>
-                <select class="w-5" id="pp-generator-case" >
-                  <option value="upper">UPPERCASE</option>
-                  <option value="lower">lowercase</option>
-                  <option value="title">Title Case</option>
-                </select>
-              </td>
-            </tr>
-            <tr>
-              <td colspan="2">
-                <label>Seperator</label>
-              </td>
-              <td>
-                <input class="w-5" id="pp-generator-seperator" value="-" />
-              </td>
-            </tr>
-            <tr>
-              <td colspan="2">
-                <label>Small words</label>
-              </td>
-              <td>
-                <input type="checkbox" id="pp-generator-smallWords" checked />
-              </td>
-            </tr>
-            <tr>
-              <td colspan="2">
-                <label>Include Number</label>
-              </td>
-              <td>
-                <input type="checkbox" id="pp-generator-number" checked />
-              </td>
-            </tr>
-            <tr>
-              <td colspan="3">
-                <input id="pp-generator-save-preferences" value="Save Preferences" type="button">
-                <input id="pp-generator-revert-preferences" value="Revert" type="button">
-              </td>
-            </tr>
-          </table>
-        </div>
       </div>
       <div class="tab-content" id="e-clip">
         <h2 class="clipboardName">e-Clip</h2>

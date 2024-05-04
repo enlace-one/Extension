@@ -250,3 +250,19 @@ function showNotification(message) {
     return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); // $& means the whole matched string
 }
 
+
+
+const defaultPageNoteConfig = {
+    unorderedListStyle: "-",
+    shortcuts: {
+        togglePreview: "Alt-P"
+    },
+    autofocus: true,
+    spellChecker: false,
+    renderingConfig: {
+        codeSyntaxHighlighting: true
+    },
+    lineNumbers: false,
+    // uploadImage: true, 
+    toolbar: ["bold", "italic", "code", "quote", "link", "image", "preview", "side-by-side", "fullscreen", "guide", "table"]
+}

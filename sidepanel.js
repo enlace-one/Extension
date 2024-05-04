@@ -295,28 +295,7 @@ function get_default_title(url) {
 const easyMDE = new EasyMDE(
     {
         element: document.getElementById('page-notes-textarea'), 
-        unorderedListStyle: "-",
-        shortcuts: {
-            togglePreview: "Alt-P"
-        },
-        autofocus: true,
-        toolbar: ["bold", "italic", "heading", "code", "quote", "unordered-list", "ordered-list", "clean-block", "link", "image", "preview", "side-by-side", "fullscreen", "guide", "horizontal-rule", "table"]
-        // autosave: {
-        //     enabled: true,
-        //     delay: 1000,
-        //     uniqueId: uniqueId,
-        //     timeFormat: {
-        //         locale: 'en-US',
-        //         format: {
-        //             year: 'numeric',
-        //             month: 'long',
-        //             day: '2-digit',
-        //             hour: '2-digit',
-        //             minute: '2-digit',
-        //         },
-        //     },
-        //     text: "Autosaved: "
-        // },
+        ...defaultPageNoteConfig
     }
 );
 
@@ -341,6 +320,7 @@ const urlPatternElement = document.getElementById("url-pattern");
 const titleElement = document.getElementById("page-notes-title");
 const idElement = document.getElementById("page-note-id");
 const pageNotesTabButton = document.getElementById("page-notes-tab-button")
+const savedAtIndicator = document. querySelector(".autosave")//getElementById("page-notes-saved-at")
 
 let encryptPageNotes = false
 getSetting("encrypt-page-notes").then((value) => {
@@ -368,13 +348,20 @@ async function _save_page_note(id, note, title, url_pattern) {
     console.log(`Note saved with ID: ${id}`);
 }
 
+async function savedAtBanner() {
+    savedAtIndicator.innerText = "Saved."
+    setTimeout(function() {
+        savedAtIndicator.innerText = ""
+    }, 1000)
+}
+
 async function save_page_note() {
     const url = urlPatternElement.value;
     const title = titleElement.value;
     const id = idElement.value;
     const note = await easyMDE.value();
     _save_page_note(id, note, title, url)
-    showNotification("Saved")
+    savedAtBanner()
 }
 
 let saveTimeout;
@@ -411,6 +398,7 @@ async function open_page_note(id) {
     idElement.value = id;
     pageNotesTabButton.classList.remove("hidden");
     pageNotesTabButton.click();
+    easyMDE.codemirror.refresh()
     
 }
 
@@ -458,9 +446,13 @@ async function search_page_notes() {
 
     const page_notes = await _search_page_note(term); 
     console.log("Searched. Page notes returned ", page_notes.length)
-    
-    makePageNoteTable(page_notes, table)
-    
+
+    if (page_notes.length > 0) {
+        document.getElementById("no-search-results-page-notes").classList.add("hidden")
+        makePageNoteTable(page_notes, table)
+    } else {
+        document.getElementById("no-search-results-page-notes").classList.remove("hidden")
+    }    
 }
 
 document.getElementById("page-notes-search").addEventListener("keydown", function (event) {
@@ -551,8 +543,11 @@ async function setActiveURL(url) {
     const page_notes = await get_matching_page_notes(url); 
     console.log("Searched. Page notes returned ", page_notes.length)
     if (page_notes.length > 0) { 
+        document.getElementById("no-matching-page-notes").classList.add("hidden")
         document.getElementById("page-notes-indicator").innerText = "(" + page_notes.length + ")";
         makePageNoteTable(page_notes, table)
+    } else {
+        document.getElementById("no-matching-page-notes").classList.remove("hidden")
     }
 
     if (page_notes.length === 1 &&  pageNotesTabButton.classList.contains("hidden")) {
@@ -628,21 +623,24 @@ function insertTextAtCursor(text) {
     const pos = easyMDE.codemirror.getCursor();
     easyMDE.codemirror.setSelection(pos, pos);
     easyMDE.codemirror.replaceSelection(text);
-    // easyMDE.codemirror.setCursor(pos + text.length)
+    // Move the cursor to the end of the inserted text
+    easyMDE.codemirror.setCursor({line: pos.line, ch: pos.ch + text.length});
+    
 }
 
 document.querySelector(".EasyMDEContainer").addEventListener('keydown', async function(event) {
     if (event.ctrlKey && event.key === ';') {
         console.log("Adding current date/time")
-       event.preventDefault()
-       let currentDate = new Date();
-       let options = { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false };
-       let formattedDate = currentDate.toLocaleString('en-GB', options);
+        event.preventDefault()
+        let currentDate = new Date();
+        let options = { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false };
+        let formattedDate = currentDate.toLocaleString('en-GB', options);
         insertTextAtCursor(formattedDate);
-   } else if (event.ctrlKey && event.key === 'u') {
-        console.log("Adding current url")
+   } else if (event.ctrlKey && event.key === ':') {
+        event.preventDefault()
+        console.log("Adding current url");
         let url = await getCurrentURL()
-        url = "[title](" + url + ")"
+        url = "[title](" + url + ")";
         insertTextAtCursor(url);
    }
 });

@@ -6,6 +6,7 @@
   <link rel="stylesheet" href="default.css">
   <meta charset="UTF-8">
   <link rel="stylesheet" href="/third_party/easymde.min.css">
+  <link rel="stylesheet" href="/third_party/highlight.min.css">
   <style>
     .toggle {
       width: 30px;
@@ -66,9 +67,9 @@ tr:nth-child(even) {
 }
 
 .cm-spell-error {
-  /* text-decoration: underline; */
-  /* text-decoration-color: rgb(247, 165, 165);  */
-  /* text-decoration-thickness: 1px;  */
+  text-decoration: underline;
+  text-decoration-color: rgb(247, 165, 165); 
+  text-decoration-thickness: 1px; 
   background-color: white !important;
 }
 
@@ -76,6 +77,7 @@ tr:nth-child(even) {
 
 
 <script src="/third_party/easymde.min.js"></script>
+<script src="/third_party/highlight.min.js"></script>
 
 
 </head>
@@ -112,16 +114,18 @@ tr:nth-child(even) {
       <div class="tab-content active" id="open-page-notes-tab">
         <div id="page-notes-matching-url">
           <h3>Page Notes Matching Current URL</h3>
+          <p id="no-matching-page-notes">None found</p>
           <table id="page-notes-matching-url-table"></table>
         </div>
         <hr style="margin:10px">
-        <h3>Search</h3>
-        <input id="page-notes-search" placeholder="Search..." style="padding: 8px; border: 1px solid #ccc; border-radius: 4px; width: calc(100% - 20px);">
+        <!-- <h3>Search</h3> -->
+        <input id="page-notes-search" placeholder="Search..." style="margin-bottom: 10px; padding: 8px; border: 1px solid #ccc; border-radius: 4px; width: calc(100% - 20px);">
         <br>
+        <p class="hidden" id="no-search-results-page-notes">None found</p>
         <div id="page-notes-search-results">
           <table id="page-notes-result-table"></table>
         </div>
-        <small class="m-3">Press "Enter" to search.</small>
+        <!-- <small class="m-3">Press "Enter" to search.</small> -->
       </div>
       <div class="tab-content" id="page-notes-tab">
         <label>Title</label>
@@ -133,8 +137,9 @@ tr:nth-child(even) {
         <span class="hidden" id="page-note-id"></span>
         <br />
         <textarea id="page-notes-textarea" style="width: 70vw; height: 70vh;"></textarea>
+        <p id="page-notes-saved-at" style="color: grey;"></p>
         <br />
-        <small>CTRL+; to paste current date/time. Supports most of <a href="https://github.com/Ionaru/easy-markdown-editor?tab=readme-ov-file#keyboard-shortcuts">these.</a></small>
+        <small>CTRL+; to paste current date/time, CTRL+: to past current URL. Supports most of <a target="_blank" href="https://github.com/Ionaru/easy-markdown-editor?tab=readme-ov-file#keyboard-shortcuts">these</a> and <a target="_blank" href="https://codemirror.net/5/doc/manual.html#commands">these.</a></small>
       </div>
     </div>
   </div>

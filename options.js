@@ -506,15 +506,15 @@ get("page-note-json").then((value)=> {
     if (value != "" && value != null && value != 0 && value != undefined) {
         pageNoteJson.value = JSON.stringify(value, null, 4)
     } else {
-        pageNoteJson.value = JSON.stringify({
-            unorderedListStyle: "-",
-            shortcuts: {
-                togglePreview: "Alt-P"
-            },
-            autofocus: true,
-            toolbar: ["bold", "italic", "heading", "code", "quote", "unordered-list", "ordered-list", "clean-block", "link", "image", "preview", "side-by-side", "fullscreen", "guide", "horizontal-rule", "table"]
-        }, null, 4)
+        pageNoteJson.value = JSON.stringify(defaultPageNoteConfig, null, 4)
+        
     }
+})
+
+document.getElementById("reset-page-note-config").addEventListener("click", function () {
+    pageNoteJson.value = JSON.stringify(defaultPageNoteConfig, null, 4)
+    store("page-note-json", defaultPageNoteConfig)
+    showNotification("Saved")
 })
 
 // Save
