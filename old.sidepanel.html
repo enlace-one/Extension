@@ -4,8 +4,6 @@
 <head>
   <title>My Sidepanel</title>
   <link rel="stylesheet" href="default.css">
-  <meta charset="UTF-8">
-  <link rel="stylesheet" href="/third_party/easymde.min.css">
   <style>
     .toggle {
       width: 30px;
@@ -47,34 +45,11 @@
 .toggle input:checked + span:before {
   transform: translateX(100%);
 }
-
-table, th, td {
-  border: 1px solid #ddd;
-}
-
-th, td {
-  padding: 8px;
-  /* text-align: left; */
-}
-
-tr:nth-child(even) {
-  background-color: #f2f2f2;
-}
-
-.onHoverChange:hover {
-  background-color: #535353;
-}
-
-.cm-spell-error {
-  /* text-decoration: underline; */
-  /* text-decoration-color: rgb(247, 165, 165);  */
-  /* text-decoration-thickness: 1px;  */
-  background-color: white !important;
-}
-
-</style>
+  </style>
 
 
+
+<link rel="stylesheet" href="/third_party/easymde.min.css">
 <script src="/third_party/easymde.min.js"></script>
 
 
@@ -98,43 +73,55 @@ tr:nth-child(even) {
     </div>
     <div id="unlocked-div" class="hidden">
       <div class="tabs">
-        <button id="page-notes-tab-button" class="tab-button hidden" data-tab="page-notes-tab">
-          Page Note
-        </button>
-        <button id="new-page-notes-tab-button" class="tab-button" data-tab="page-notes-tab">
-          New
-        </button>
-        <button id="open-page-notes-tab-button" class="tab-button active" data-tab="open-page-notes-tab">
-          Open <span id="page-notes-indicator"></span>
+        <button id="page-notes-tab-button" class="tab-button active pageNotesName" data-tab="page-notes-tab">
+          Page Notes
         </button>
         <input type="button" value="Lock" id="lock-button" />
       </div>
-      <div class="tab-content active" id="open-page-notes-tab">
-        <div id="page-notes-matching-url">
-          <h3>Page Notes Matching Current URL</h3>
-          <table id="page-notes-matching-url-table"></table>
-        </div>
-        <hr style="margin:10px">
-        <h3>Search</h3>
-        <input id="page-notes-search" placeholder="Search..." style="padding: 8px; border: 1px solid #ccc; border-radius: 4px; width: calc(100% - 20px);">
+      <div class="tab-content" id="page-notes-search-tab">
+        <button class="undo-tab-button-style tab-button m-3" data-tab="page-notes-tab">
+          Back
+        </button>
+        <br>
+        <input id="page-notes-search" placeholder="Search...">
         <br>
         <div id="page-notes-search-results">
           <table id="page-notes-result-table"></table>
         </div>
-        <small class="m-3">Press "Enter" to search.</small>
+        <small class="m-3">Press "Enter" to search. Values cannot be searched if encrypted</small>
       </div>
-      <div class="tab-content" id="page-notes-tab">
-        <label>Title</label>
-        <input id="page-notes-title" rows="3" style="width: 70vw;" />
-        <br>
-        <br>
+      <div class="tab-content active" id="page-notes-tab">
         <label>URL Pattern</label>
-        <textarea id="url-pattern" rows="1" style="width: 70vw;" ></textarea>
-        <span class="hidden" id="page-note-id"></span>
+        <br />
+        <textarea id="url-pattern" rows="3" style="width: 70vw;" ></textarea>
+        <table>
+          <tr>
+            <td>
+              <label>Change with tabs</label>
+              <label class="toggle">
+                <input type="checkbox" id="page-notes-toggle-change"> 
+                <span></span>
+              </label>
+            </td>
+            <td>
+              <button class="undo-tab-button-style tab-button" data-tab="page-notes-search-tab">Search</button>
+            </td>
+          </tr>
+        </table>
+        <br>
+        <table>
+          <tr>
+            <td><label class="pageNotesName">Page Notes</label></td>
+            <td class="hidden" id="page-notes-unsaved-changes" style="color:darkorange"><small>Unsaved Changes</small></td>
+            <td class="hidden" id="page-notes-saved-changes" style="color:green"><small>Saved</small></td>
+          </tr>
+        </table>
         <br />
         <textarea id="page-notes-textarea" style="width: 70vw; height: 70vh;"></textarea>
+        <!-- rows="15" cols="30" -->
         <br />
-        <small>CTRL+; to paste current date/time. Supports most of <a href="https://github.com/Ionaru/easy-markdown-editor?tab=readme-ov-file#keyboard-shortcuts">these.</a></small>
+
+        <small>Press "Enter" to save. Alt+T to paste current date/time</small>
       </div>
     </div>
   </div>

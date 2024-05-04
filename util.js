@@ -214,7 +214,7 @@ async function storeSetting(setting_name, value) {
 }
 
 
-function generateRandomAlphaNumeric(length) {
+async function generateRandomAlphaNumeric(length) {
     const charset = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
     let result = '';
     for (let i = 0; i < length; i++) {

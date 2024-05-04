@@ -29,21 +29,7 @@ chrome.runtime.connect({ name: 'mySidepanel' });
 //     }, 3000); // Set a new timeout
 // });
 
-// document.getElementById('page-notes-textarea').addEventListener('keydown', function(event) {
-//      if (event.altKey && event.key === 't') {
-//         event.preventDefault()
-//         let currentDate = new Date();
-//         let options = { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false };
-//         let formattedDate = currentDate.toLocaleString('en-GB', options);
-//         this.value += formattedDate;
-//     } else if (event.ctrlKey && event.key === 's') {
-//         event.preventDefault()
-//         storeKeyValue();
-//         document.getElementById("page-notes-unsaved-changes").classList.add("hidden");
-//         document.getElementById("page-notes-saved-changes").classList.remove("hidden");
-//         saveTimeout = ""
-//     }  
-// });
+
 
 // // document.getElementById('page-notes-textarea').addEventListener('change', function(event) {
 // //     document.getElementById("page-notes-saved-changes").classList.add("hidden")
@@ -83,20 +69,34 @@ chrome.runtime.connect({ name: 'mySidepanel' });
 //     }
 // }
 
-// function defaultPattern(url) {
-//     if (url === undefined) {
-//         url = ""
-//     }
-//     if (url.includes("?")) {
-//         url = url.split("?")[0]
-//     }
-//     if (url.includes("#")) {
-//         url = url.split("#")[0]
-//     }
-//     const escapedString = escapeRegExp(url);
-//     console.log("returning " + escapedString)
-//     return escapedString
-// }
+function get_default_pattern(url) {
+    if (url === undefined) {
+        url = ""
+    }
+    if (url.includes("?")) {
+        url = url.split("?")[0]
+    }
+    if (url.includes("#")) {
+        url = url.split("#")[0]
+    }
+    const escapedString = escapeRegExp(url);
+    console.log("returning " + escapedString)
+    return escapedString
+}
+
+function get_default_title(url) {
+    let title = ""
+    if (url === undefined) {
+        title = ""
+    } else {
+        try {
+            title = url.split("/")[2]
+        } catch {
+            console.log(`Failed to get domain from ${url}`)
+        }
+    }
+    return title
+}
 
 // async function checkMatch(url, isPattern=false) {
 //     const result = await searchPageNoteData(url, isPattern=isPattern)
@@ -291,35 +291,41 @@ chrome.runtime.connect({ name: 'mySidepanel' });
 /////////////
 
 // https://github.com/Ionaru/easy-markdown-editor?tab=readme-ov-file#install-easymde
-async function initializeEditor() {
-    const easyMDE = new EasyMDE(
-        {
-            element: document.getElementById('page-notes-textarea'), 
-            unorderedListStyle: "-",
-            shortcuts: {
-                togglePreview: "Alt-P"
-            },
-            autofocus: true,
-            autosave: {
-                enabled: true,
-                delay: 1000,
-                uniqueId: "enlace_markdown_editor",
-                timeFormat: {
-                    locale: 'en-US',
-                    format: {
-                        year: 'numeric',
-                        month: 'long',
-                        day: '2-digit',
-                        hour: '2-digit',
-                        minute: '2-digit',
-                    },
-                },
-                text: "Autosaved: "
-            },
-        }
-    );
-}
-initializeEditor();
+
+const easyMDE = new EasyMDE(
+    {
+        element: document.getElementById('page-notes-textarea'), 
+        unorderedListStyle: "-",
+        shortcuts: {
+            togglePreview: "Alt-P"
+        },
+        autofocus: true,
+        toolbar: ["bold", "italic", "heading", "code", "quote", "unordered-list", "ordered-list", "clean-block", "link", "image", "preview", "side-by-side", "fullscreen", "guide", "horizontal-rule", "table"]
+        // autosave: {
+        //     enabled: true,
+        //     delay: 1000,
+        //     uniqueId: uniqueId,
+        //     timeFormat: {
+        //         locale: 'en-US',
+        //         format: {
+        //             year: 'numeric',
+        //             month: 'long',
+        //             day: '2-digit',
+        //             hour: '2-digit',
+        //             minute: '2-digit',
+        //         },
+        //     },
+        //     text: "Autosaved: "
+        // },
+    }
+);
+
+
+
+// Architecture
+// UniqueID : Page Note
+// URL : UniqueID
+// Title : UniqueID
 
 // GET
 //easyMDE.value();
@@ -327,3 +333,287 @@ initializeEditor();
 // SET
 // easyMDE.value('New input for **EasyMDE**');
 
+//////////////
+// ELEMENTS //
+//////////////
+
+const urlPatternElement = document.getElementById("url-pattern");
+const titleElement = document.getElementById("page-notes-title");
+const idElement = document.getElementById("page-note-id");
+const pageNotesTabButton = document.getElementById("page-notes-tab-button")
+
+//////////
+// SAVE //
+//////////
+
+async function _save_page_note(id, note, title, url_pattern) {
+    const noteData = {
+        note: note,
+        title: title,
+        url_pattern: url_pattern,
+        id: id
+    };
+    //notes[id] = noteData;
+    store(id, noteData)
+    console.log(`Note saved with ID: ${id}`);
+}
+
+async function save_page_note() {
+    const url = urlPatternElement.value;
+    const title = titleElement.value;
+    const id = idElement.value;
+    const note = await easyMDE.value();
+    _save_page_note(id, note, title, url)
+    showNotification("Saved")
+}
+
+let saveTimeout;
+
+easyMDE.codemirror.on("change", () => {
+    clearTimeout(saveTimeout);
+    saveTimeout = setTimeout(() => {
+        save_page_note();
+    }, 1500); // 2000 milliseconds = 2 seconds
+});
+
+/////////
+// GET //
+/////////
+
+async function get_page_note(id) {
+    return get(id)
+}
+
+async function open_page_note(id) {
+    console.log(`Opening page note ${id}`)
+
+    const page_note = await get_page_note(id)
+
+    console.log(page_note)
+
+    easyMDE.value(page_note.note);
+    urlPatternElement.value = page_note.url_pattern;
+    titleElement.value = page_note.title;
+    idElement.value = id;
+    pageNotesTabButton.classList.remove("hidden");
+    pageNotesTabButton.click();
+    
+}
+
+////////////
+// DELETE //
+////////////
+
+async function delete_page_note(id) {
+    await chrome.storage.sync.remove(id)
+}
+
+////////////
+// SEARCH //
+////////////
+
+async function _search_page_note(term, thorough=false) {
+    const filteredNotes = [];
+    const lowerCaseTerm = term.toLowerCase();
+
+    const results = await chrome.storage.sync.get();
+    for (let key in results) {
+        let note = results[key];
+        if (key.startsWith("mde_")) {
+            if (note.title.toLowerCase().includes(lowerCaseTerm)) {
+                filteredNotes.push(note);
+            } else if (thorough) {
+                if (note.note.toLowerCase().includes(lowerCaseTerm)) {
+                    filteredNotes.push(note);
+                }
+            }
+        }
+    }
+    
+
+    return filteredNotes;
+}
+
+
+async function search_page_notes() {
+    const term = document.getElementById("page-notes-search").value;
+    const table = document.getElementById("page-notes-result-table");
+    table.innerHTML = "";
+
+    const page_notes = await _search_page_note(term); 
+    console.log("Searched. Page notes returned ", page_notes.length)
+    
+    makePageNoteTable(page_notes, table)
+    
+}
+
+document.getElementById("page-notes-search").addEventListener("keydown", function (event) {
+    if (event.key === "Enter") {
+        event.preventDefault(); // Prevent the default action to avoid any unwanted behavior (like form submission)
+        search_page_notes();
+    }
+});
+
+////////////////////
+// AUTO MATCH URL //
+////////////////////
+
+async function get_matching_page_notes(url) {
+    const matchingNotes = [];
+
+    const results = await chrome.storage.sync.get()
+    for (key in results) {
+        let result = results[key]
+        if (key.startsWith("mde_")) {
+            if (new RegExp(result.url_pattern).test(url)) {
+                result["id"] = key
+                matchingNotes.push(result);
+            }
+        }
+    }
+
+    // for (const id in notes) {
+    //     const note = notes[id];
+    //     // Assuming url_pattern in note is a regex or specific string to match URLs
+    //     if (new RegExp(note.url_pattern).test(url)) {
+    //         matchingNotes.push(note);
+    //     }
+    // }
+
+    return matchingNotes;
+}
+
+// Search for matching page note to current url 
+// If found:
+    // put matching page notes in search tab
+    // If one, then open it in page note tab and unhide the tab. 
+
+async function makePageNoteTable(page_notes, table){
+    table.innerHTML = "<tr><th>Title</th><th>Note</th><th></th></tr>"; 
+    page_notes.forEach((note, index) => {
+        const row = table.insertRow();
+        const titleCell = row.insertCell();
+        const noteCell = row.insertCell();
+        const delCell = row.insertCell();
+
+        titleCell.textContent = note.title;
+        console.log("Note to truncate", note.note)
+        noteCell.textContent = truncateText(note.note, 20);
+        delCell.textContent = "Delete"
+        delCell.classList.add("onHoverChange")
+
+        titleCell.addEventListener("click", function() {
+            open_page_note(note.id)
+            
+        })
+        delCell.addEventListener("click", function() {
+            delete_page_note(note.id)
+            row.remove()
+        }) 
+    });
+
+};
+
+async function setActiveURL(url) {
+    const table = document.getElementById("page-notes-matching-url-table");
+    table.innerHTML = "";
+
+    document.getElementById("page-notes-indicator").innerText = "";
+    const page_notes = await get_matching_page_notes(url); 
+    console.log("Searched. Page notes returned ", page_notes.length)
+    if (page_notes.length > 0) { 
+        document.getElementById("page-notes-indicator").innerText = "(" + page_notes.length + ")";
+        makePageNoteTable(page_notes, table)
+    }
+
+    if (page_notes.length === 1 &&  pageNotesTabButton.classList.contains("hidden")) {
+        open_page_note(page_notes[0].id)
+    }
+}
+
+async function getCurrentURL() {
+    const [tab] = await chrome.tabs.query({ active: true, lastFocusedWindow: true });
+    return tab.url
+}
+
+document.addEventListener("DOMContentLoaded", async function () {
+    url = await getCurrentURL()
+    console.log("======= dom tab url", url)
+    setActiveURL(url);
+});
+        
+chrome.tabs.onActivated.addListener(async (activeInfo) => {
+    const tab = await chrome.tabs.get(activeInfo.tabId);
+    if (tab.active) {
+        console.log("======= active tab url", tab.url);
+        setActiveURL(tab.url);
+    }
+});
+
+chrome.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
+    if (tab.active) {
+        console.log("======= updated tab url", tab.url);
+        setActiveURL(tab.url);
+    }
+});
+
+////////////////////
+// NEW PAGE NOTES //
+////////////////////
+
+// When new is clicked 
+    // Put default url pattern
+    // Put default title
+
+async function get_current_url() {
+    const [tab] = await chrome.tabs.query({ active: true, lastFocusedWindow: true });
+    return tab.url;
+}
+
+async function newPageNote() {
+    console.log("Generating new page note")
+    const url = await get_current_url()
+    const url_pattern = await get_default_pattern(url)
+    const title = await get_default_title(url)
+
+    const id = "mde_" +  await generateRandomAlphaNumeric(8)
+
+    // TODO: CHECK IF TITLE IN ALREADY SAVED PAGENOTES!
+
+    urlPatternElement.value = url_pattern
+    titleElement.value = title
+    easyMDE.value("")
+    idElement.value = id
+    pageNotesTabButton.classList.remove("hidden")
+    document.getElementById("new-page-notes-tab-button").classList.remove("active")
+    pageNotesTabButton.classList.add("active")
+}
+
+document.getElementById("new-page-notes-tab-button").addEventListener("click", newPageNote)
+
+/////////////////////////
+// Additional Features //
+/////////////////////////
+
+function insertTextAtCursor(text) {
+    const pos = easyMDE.codemirror.getCursor();
+    easyMDE.codemirror.setSelection(pos, pos);
+    easyMDE.codemirror.replaceSelection(text);
+    // easyMDE.codemirror.setCursor(pos + text.length)
+}
+
+document.querySelector(".EasyMDEContainer").addEventListener('keydown', async function(event) {
+    if (event.ctrlKey && event.key === ';') {
+        console.log("Adding current date/time")
+       event.preventDefault()
+       let currentDate = new Date();
+       let options = { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false };
+       let formattedDate = currentDate.toLocaleString('en-GB', options);
+        insertTextAtCursor(formattedDate);
+   } else if (event.ctrlKey && event.key === 'u') {
+        console.log("Adding current url")
+        let url = await getCurrentURL()
+        url = "[title](" + url + ")"
+        insertTextAtCursor(url);
+   }
+});
