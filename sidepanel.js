@@ -342,18 +342,27 @@ const titleElement = document.getElementById("page-notes-title");
 const idElement = document.getElementById("page-note-id");
 const pageNotesTabButton = document.getElementById("page-notes-tab-button")
 
+let encryptPageNotes = false
+getSetting("encrypt-page-notes").then((value) => {
+    encryptPageNotes = value
+})
+
+let displayFullTable = false
+
 //////////
 // SAVE //
 //////////
 
 async function _save_page_note(id, note, title, url_pattern) {
+    if (encryptPageNotes) {
+        note = await encrypt(note)
+    } 
     const noteData = {
         note: note,
         title: title,
         url_pattern: url_pattern,
         id: id
     };
-    //notes[id] = noteData;
     store(id, noteData)
     console.log(`Note saved with ID: ${id}`);
 }
@@ -381,7 +390,11 @@ easyMDE.codemirror.on("change", () => {
 /////////
 
 async function get_page_note(id) {
-    return get(id)
+    page_note = await get(id)
+    if (encryptPageNotes) {
+        page_note.note = await decrypt(page_note.note)
+    } 
+    return page_note
 }
 
 async function open_page_note(id) {
@@ -423,14 +436,16 @@ async function _search_page_note(term, thorough=false) {
             if (note.title.toLowerCase().includes(lowerCaseTerm)) {
                 filteredNotes.push(note);
             } else if (thorough) {
-                if (note.note.toLowerCase().includes(lowerCaseTerm)) {
+                if (note.url_pattern.toLowerCase().includes(lowerCaseTerm)) {
                     filteredNotes.push(note);
+                } else if (! encryptPageNotes) {
+                    if (note.note.toLowerCase().includes(lowerCaseTerm)) {
+                        filteredNotes.push(note);
+                    }
                 }
             }
         }
     }
-    
-
     return filteredNotes;
 }
 
@@ -489,16 +504,29 @@ async function get_matching_page_notes(url) {
     // If one, then open it in page note tab and unhide the tab. 
 
 async function makePageNoteTable(page_notes, table){
-    table.innerHTML = "<tr><th>Title</th><th>Note</th><th></th></tr>"; 
+    if (displayFullTable && ! encryptPageNotes) {
+        table.innerHTML = "<tr><th>Title</th><th>Pattern</th><th>Note</th><th></th></tr>"; 
+    } else if (encryptPageNotes) {
+        table.innerHTML = "<tr><th>Title</th><th>Pattern</th><th></th></tr>"; 
+    } else {
+        table.innerHTML = "<tr><th>Title</th><th>Note</th><th></th></tr>"; 
+    }
     page_notes.forEach((note, index) => {
         const row = table.insertRow();
         const titleCell = row.insertCell();
-        const noteCell = row.insertCell();
+
+        if (!encryptPageNotes) {
+            const noteCell = row.insertCell();
+            noteCell.textContent = truncateText(note.note, 20);
+        }
+        if (encryptPageNotes || displayFullTable) {
+            const urlCell = row.insertCell();
+            urlCell.textContent = truncateText(note.url_pattern, 20);
+        } 
+        
         const delCell = row.insertCell();
 
         titleCell.textContent = note.title;
-        console.log("Note to truncate", note.note)
-        noteCell.textContent = truncateText(note.note, 20);
         delCell.textContent = "Delete"
         delCell.classList.add("onHoverChange")
 
