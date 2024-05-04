@@ -3,7 +3,14 @@
 
 <head>
     <title>Options Page</title>
+    <link rel="stylesheet" href="/third_party/easymde.min.css">
+    <link rel="stylesheet" href="/third_party/highlight.min.css">
+    
+    <script src="/third_party/easymde.min.js"></script>
+    <script src="/third_party/highlight.min.js"></script>
+    
     <link rel="stylesheet" href="default.css">
+    
     <style>
         /* Overrides default */
         .container {
@@ -146,6 +153,9 @@
                 </button>
                 <button class="tab-button referencesName" data-tab="references-tab">
                   References
+                </button>
+                <button class="tab-button pageNotesName" data-tab="page-notes-supertab">
+                  Page Notes
                 </button>
                 <button class="tab-button scriptName hidden" data-tab="script-tab">
                   Script
@@ -702,6 +712,47 @@
                     </div>
                 </div>
             </div>
+            <div class="tab-content" id="page-notes-supertab">
+              <hr>
+              <div class="tabs">
+                <button id="page-notes-tab-button" class="subtab-button hidden" data-tab="page-notes-tab">
+                  Page Note
+                </button>
+                <button id="new-page-notes-tab-button" class="subtab-button" data-tab="page-notes-tab">
+                  New
+                </button>
+                <button id="open-page-notes-tab-button" class="subtab-button active" data-tab="open-page-notes-tab">
+                  Open <span id="page-notes-indicator"></span>
+                </button>
+              </div>
+              <div class="subtab-content active" id="open-page-notes-tab">
+                <!-- <h3>Search</h3> -->
+                <input id="page-notes-search" placeholder="Search..." style="margin-bottom: 10px; padding: 8px; border: 1px solid #ccc; border-radius: 4px; width: 50%;">
+                <p hover-text="The search here is more powerful than in the sidebar. It searches the patterns and notes (when not encrypted) as well as the titles.">
+                  (i)
+                </p>
+                <br>
+                <p class="hidden" id="no-search-results-page-notes">None found</p>
+                <div id="page-notes-search-results">
+                  <table id="page-notes-result-table"></table>
+                </div>
+                <!-- <small class="m-3">Press "Enter" to search.</small> -->
+              </div>
+              <div class="subtab-content" id="page-notes-tab">
+                <label>Title</label>
+                <input id="page-notes-title" rows="3" style="width: 70vw;" />
+                <br>
+                <br>
+                <label>URL Pattern</label>
+                <textarea id="url-pattern" rows="1" style="width: 70vw;" ></textarea>
+                <span class="hidden" id="page-note-id"></span>
+                <br />
+                <textarea id="page-notes-textarea" style="width: 70vw; height: 70vh;"></textarea>
+                <p id="page-notes-saved-at" style="color: grey;"></p>
+                <br />
+                <small>CTRL+; to paste current date/time, CTRL+: to past current URL. Supports most of <a target="_blank" href="https://github.com/Ionaru/easy-markdown-editor?tab=readme-ov-file#keyboard-shortcuts">these</a> and <a target="_blank" href="https://codemirror.net/5/doc/manual.html#commands">these.</a></small>
+              </div>
+            </div>
             <div class="tab-content active" id="about-tab">
                 <p>
                     Welcome to <i class="extensionName"></i>! We aim to offer useful features ran entirely locally with
@@ -920,6 +971,7 @@
         <script src="crypto-js.min.js"></script>
         <script src="util.js"></script>
         <script src="standard.js"></script>
+        <script src="page-notes.js"></script>
         <script src="options.js"></script>
 </body>
 </html>
