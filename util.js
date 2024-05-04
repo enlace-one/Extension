@@ -210,7 +210,7 @@ async function storeSetting(setting_name, value) {
             console.log("missing setting" + setting_name)
         }
     }
-    store("enlace-settings", settings)
+    await store("enlace-settings", settings)
 }
 
 

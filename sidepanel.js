@@ -348,6 +348,7 @@ getSetting("encrypt-page-notes").then((value) => {
 })
 
 let displayFullTable = false
+let thoroughSearch = false
 
 //////////
 // SAVE //
@@ -425,7 +426,7 @@ async function delete_page_note(id) {
 // SEARCH //
 ////////////
 
-async function _search_page_note(term, thorough=false) {
+async function _search_page_note(term) {
     const filteredNotes = [];
     const lowerCaseTerm = term.toLowerCase();
 
@@ -435,7 +436,7 @@ async function _search_page_note(term, thorough=false) {
         if (key.startsWith("mde_")) {
             if (note.title.toLowerCase().includes(lowerCaseTerm)) {
                 filteredNotes.push(note);
-            } else if (thorough) {
+            } else if (thoroughSearch) {
                 if (note.url_pattern.toLowerCase().includes(lowerCaseTerm)) {
                     filteredNotes.push(note);
                 } else if (! encryptPageNotes) {
@@ -523,7 +524,7 @@ async function makePageNoteTable(page_notes, table){
             const urlCell = row.insertCell();
             urlCell.textContent = truncateText(note.url_pattern, 20);
         } 
-        
+
         const delCell = row.insertCell();
 
         titleCell.textContent = note.title;

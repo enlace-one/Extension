@@ -500,21 +500,40 @@ for (const key in default_settings) {
     });
 }
 
+const pageNoteJson = document.getElementById("page-note-json")
+
+get("page-note-json").then((value)=> {
+    if (value != "" && value != null && value != 0 && value != undefined) {
+        pageNoteJson.value = JSON.stringify(value, null, 4)
+    } else {
+        pageNoteJson.value = JSON.stringify({
+            unorderedListStyle: "-",
+            shortcuts: {
+                togglePreview: "Alt-P"
+            },
+            autofocus: true,
+            toolbar: ["bold", "italic", "heading", "code", "quote", "unordered-list", "ordered-list", "clean-block", "link", "image", "preview", "side-by-side", "fullscreen", "guide", "horizontal-rule", "table"]
+        }, null, 4)
+    }
+})
+
 // Save
-document.getElementById("save_settings").addEventListener("click", function() {
+document.getElementById("save_settings").addEventListener("click", async function() {
     for (let key in default_settings) {
         // Set the value of the element with key as its ID
         const element = document.getElementById(key);
         if (element && element.type === "checkbox") {
             if (element.checked) {
-                storeSetting(key, true)
+                await storeSetting(key, true)
             } else {
-                storeSetting(key, false)
+                await storeSetting(key, false)
             }
         } else if (element) {
-            storeSetting(key, element.value)
+            await storeSetting(key, element.value)
         }
     }
+    const pageNoteJsonValue = JSON.parse(pageNoteJson.value)
+    store("page-note-json", pageNoteJsonValue)
     showNotification("Saved")
 });
 
