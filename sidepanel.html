@@ -137,8 +137,14 @@ tr:nth-child(even) {
         <span class="hidden" id="page-note-id"></span>
         <br />
         <textarea id="page-notes-textarea" style="width: 70vw; height: 70vh;"></textarea>
-        <p id="page-notes-saved-at" style="color: grey;"></p>
-        <br />
+        <div style="display: flex; align-items: center;">
+          <input id="page-notes-expiring-checkbox" type="checkbox"/>
+          <label for="page-notes-expiring-checkbox">Expiring </label>
+          <p hover-text="When checked, the page note expires after 60 days without views or edits.">&nbsp; (i)</p>
+        </div>
+        <!-- <br />
+        <a id="open-page-note-in-options">Open this note in a new tab</a> -->
+        <br/>
         <small>CTRL+; to paste current date/time, CTRL+: to past current URL. Supports most of <a target="_blank" href="https://github.com/Ionaru/easy-markdown-editor?tab=readme-ov-file#keyboard-shortcuts">these</a> and <a target="_blank" href="https://codemirror.net/5/doc/manual.html#commands">these.</a></small>
       </div>
     </div>

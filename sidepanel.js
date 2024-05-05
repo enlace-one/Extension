@@ -51,3 +51,14 @@ chrome.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
         setActiveURL(tab.url);
     }
 });
+
+//////////////////////////////////
+// Open this in the options page//
+//////////////////////////////////
+
+// document.getElementById("open-page-note-in-options").addEventListener("click", async function() {
+//     const pageNoteId = idElement.value
+//     const url = await chrome.runtime.getURL('options.html') + '#' + pageNoteId;
+//     chrome.tabs.create({ url: url });
+
+// });

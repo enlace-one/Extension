@@ -798,3 +798,15 @@ document.getElementById("script-editor").addEventListener("keydown", async funct
 //     // Save content to chrome.storage
 //     store("script", editorContent)
 // });
+
+
+document.addEventListener("DOMContentLoaded", function() {
+    // If # in url, then get the value of it 
+    if (window.location.hash) {
+        var hashValue = window.location.hash.substring(1); // Removes the '#' from the beginning
+        console.log("hash:", hashValue)
+        document.getElementById("page-notes-super-tab").click()
+        open_page_note(hashValue)
+    }
+
+});

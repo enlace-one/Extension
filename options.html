@@ -3,12 +3,13 @@
 
 <head>
     <title>Options Page</title>
+    <meta charset="UTF-8">
     <link rel="stylesheet" href="/third_party/easymde.min.css">
     <link rel="stylesheet" href="/third_party/highlight.min.css">
     
     <script src="/third_party/easymde.min.js"></script>
     <script src="/third_party/highlight.min.js"></script>
-    
+
     <link rel="stylesheet" href="default.css">
     
     <style>
@@ -154,7 +155,7 @@
                 <button class="tab-button referencesName" data-tab="references-tab">
                   References
                 </button>
-                <button class="tab-button pageNotesName" data-tab="page-notes-supertab">
+                <button id="page-notes-super-tab" class="tab-button pageNotesName" data-tab="page-notes-supertab">
                   Page Notes
                 </button>
                 <button class="tab-button scriptName hidden" data-tab="script-tab">
@@ -203,248 +204,6 @@
             </div>
             <div class="tab-content" id="html-tab">
                 <div style="display: flex;"> 
-                    <div class="css-selectors"
-                        style="flex: .4;background-color: lightgray; border-radius: 10px; margin: 10px; height: 400px; overflow: auto;">
-                        <table>
-                            <tr>
-                              <th>CSS Selector</th>
-                              <th>HTML Attribute or Element</th>
-                            </tr>
-                            <tr>
-                              <td>.class1</td>
-                              <td>class="class1"</td>
-                            </tr>
-                            <tr>
-                              <td>.class1.class2</td>
-                              <td>class="class1 class2"</td>
-                            </tr>
-                            <tr>
-                              <td>.class1 .class2</td>
-                              <td>class="class1" (descendant of class="class2")</td>
-                            </tr>
-                            <tr>
-                              <td>#id</td>
-                              <td>id="id"</td>
-                            </tr>
-                            <tr>
-                              <td>*</td>
-                              <td>All elements</td>
-                            </tr>
-                            <tr>
-                              <td>element</td>
-                              <td>&lt;element&gt;</td>
-                            </tr>
-                            <tr>
-                              <td>element.class</td>
-                              <td>&lt;element class="class"&gt;</td>
-                            </tr>
-                            <tr>
-                              <td>div, p</td>
-                              <td>&lt;div&gt; and/or &lt;p&gt;</td>
-                            </tr>
-                            <tr>
-                              <td>div p</td>
-                              <td>All &lt;p&gt; inside &lt;div&gt;s</td>
-                            </tr>
-                            <tr>
-                              <td>div > p</td>
-                              <td>All &lt;p&gt; directly inside &lt;div&gt;s</td>
-                            </tr>
-                            <tr>
-                              <td>div + p</td>
-                              <td>The first &lt;p&gt; directly inside &lt;div&gt;s</td>
-                            </tr>
-                            <tr>
-                              <td>element1~element2</td>
-                              <td>All element2s preceded by element1</td>
-                            </tr>
-                            <tr>
-                              <td>[target]</td>
-                              <td>target=""</td>
-                            </tr>
-                            <tr>
-                              <td>[target="_blank"]</td>
-                              <td>target="_blank"</td>
-                            </tr>
-                            <tr>
-                              <td>[title~="flower"]</td>
-                              <td>title="the-flower-maker"</td>
-                            </tr>
-                            <tr>
-                              <td>[lang|="en"]</td>
-                              <td>lang="english"</td>
-                            </tr>
-                            <tr>
-                              <td>a[href^="https"]</td>
-                              <td>&lt;a href="https://gg"&gt;</td>
-                            </tr>
-                            <tr>
-                                <td>:active</td>
-                                <td>a:active</td>
-                              </tr>
-                              <tr>
-                                <td>::after</td>
-                                <td>p::after</td>
-                              </tr>
-                              <tr>
-                                <td>::before</td>
-                                <td>p::before</td>
-                              </tr>
-                              <tr>
-                                <td>:checked</td>
-                                <td>input:checked</td>
-                              </tr>
-                              <tr>
-                                <td>:default</td>
-                                <td>input:default</td>
-                              </tr>
-                              <tr>
-                                <td>:disabled</td>
-                                <td>input:disabled</td>
-                              </tr>
-                              <tr>
-                                <td>:empty</td>
-                                <td>p:empty</td>
-                              </tr>
-                              <tr>
-                                <td>:enabled</td>
-                                <td>input:enabled</td>
-                              </tr>
-                              <tr>
-                                <td>:first-child</td>
-                                <td>p:first-child</td>
-                              </tr>
-                              <tr>
-                                <td>::first-letter</td>
-                                <td>p::first-letter</td>
-                              </tr>
-                              <tr>
-                                <td>::first-line</td>
-                                <td>p::first-line</td>
-                              </tr>
-                              <tr>
-                                <td>:first-of-type</td>
-                                <td>p:first-of-type</td>
-                              </tr>
-                              <tr>
-                                <td>:focus</td>
-                                <td>input:focus</td>
-                              </tr>
-                              <tr>
-                                <td>:fullscreen</td>
-                                <td>:fullscreen</td>
-                              </tr>
-                              <tr>
-                                <td>:hover</td>
-                                <td>a:hover</td>
-                              </tr>
-                              <tr>
-                                <td>:in-range</td>
-                                <td>input:in-range</td>
-                              </tr>
-                              <tr>
-                                <td>:indeterminate</td>
-                                <td>input:indeterminate</td>
-                              </tr>
-                              <tr>
-                                <td>:invalid</td>
-                                <td>input:invalid</td>
-                              </tr>
-                              <tr>
-                                <td>:lang(language)</td>
-                                <td>p:lang(it)</td>
-                              </tr>
-                              <tr>
-                                <td>:last-child</td>
-                                <td>p:last-child</td>
-                              </tr>
-                              <tr>
-                                <td>:last-of-type</td>
-                                <td>p:last-of-type</td>
-                              </tr>
-                              <tr>
-                                <td>:link</td>
-                                <td>a:link</td>
-                              </tr>
-                              <tr>
-                                <td>::marker</td>
-                                <td>::marker</td>
-                              </tr>
-                              <tr>
-                                <td>:not(selector)</td>
-                                <td>:not(p)</td>
-                              </tr>
-                              <tr>
-                                <td>:nth-child(n)</td>
-                                <td>p:nth-child(2)</td>
-                              </tr>
-                              <tr>
-                                <td>:nth-last-child(n)</td>
-                                <td>p:nth-last-child(2)</td>
-                              </tr>
-                              <tr>
-                                <td>:nth-last-of-type(n)</td>
-                                <td>p:nth-last-of-type(2)</td>
-                              </tr>
-                              <tr>
-                                <td>:nth-of-type(n)</td>
-                                <td>p:nth-of-type(2)</td>
-                              </tr>
-                              <tr>
-                                <td>:only-of-type</td>
-                                <td>p:only-of-type</td>
-                              </tr>
-                              <tr>
-                                <td>:only-child</td>
-                                <td>p:only-child</td>
-                              </tr>
-                              <tr>
-                                <td>:optional</td>
-                                <td>input:optional</td>
-                              </tr>
-                              <tr>
-                                <td>:out-of-range</td>
-                                <td>input:out-of-range</td>
-                              </tr>
-                              <tr>
-                                <td>::placeholder</td>
-                                <td>input::placeholder</td>
-                              </tr>
-                              <tr>
-                                <td>:read-only</td>
-                                <td>input:read-only</td>
-                              </tr>
-                              <tr>
-                                <td>:read-write</td>
-                                <td>input:read-write</td>
-                              </tr>
-                              <tr>
-                                <td>:required</td>
-                                <td>input:required</td>
-                              </tr>
-                              <tr>
-                                <td>:root</td>
-                                <td>:root</td>
-                              </tr>
-                              <tr>
-                                <td>::selection</td>
-                                <td>::selection</td>
-                              </tr>
-                              <tr>
-                                <td>:target</td>
-                                <td>#news:target</td>
-                              </tr>
-                              <tr>
-                                <td>:valid</td>
-                                <td>input:valid</td>
-                              </tr>
-                              <tr>
-                                <td>:visited</td>
-                                <td>a:visited</td>
-                              </tr>
-                          </table>     
-                          <a href="https://www.w3schools.com/cssref/css_selectors.php">Source</a>                     
-                    </div>
                     <div style="flex: 1; text-align: right; width: 100%">
                         
                         <textarea id="html-editor" contenteditable="true">
@@ -466,199 +225,7 @@
                         <small>As you type on the left, it will render html on the right. Javascript will not work</small>
             </div>
             <div class="tab-content" id="regex-tab">
-                <div style="display: flex;">
-                    <div
-                        style="flex: .4;background-color: lightgray; border-radius: 10px; margin: 10px; height: 400px; overflow: auto;">
-                        <!-- <h3>Advanced Examples</h3> -->
-                        <table>
-                            <caption>
-                                <h3>Basic</h3>
-                            </caption>
-                            <tr>
-                                <th>Item</th>
-                                <th>Description</th>
-                                <th>Example</th>
-                            </tr>
-                            <tr>
-                                <td>.</td>
-                                <td><i>Any single character</i></td>
-                                <td>. <i>matches</i> 'g', '5', '_'</td>
-                            </tr>
-                            <tr>
-                                <td>\d</td>
-                                <td><i>Any number [0-9]</i></td>
-                                <td>\d <i>matches</i> '0', '4', '8'</td>
-                            </tr>
-                            <tr>
-                                <td>\D</td>
-                                <td><i>NOT any number [0-9]</i></td>
-                                <td>\D <i>matches</i> ':', '_', 'h'</td>
-                            </tr>
-                            <tr>
-                                <td>\s</td>
-                                <td><i>Whitespace</i></td>
-                                <td>\s <i>matches</i> ' ', newlines</td>
-                            </tr>
-                            <tr>
-                                <td>\S</td>
-                                <td><i>NOT whitespace</i></td>
-                                <td>\S <i>matches</i> ':', '0', 'h'</td>
-                            </tr>
-                            <tr>
-                                <td>\w</td>
-                                <td><i>ASCII letter, digit or underscore</i></td>
-                                <td><i>Newline</i></td>
-                            </tr>
-                            <tr>
-                                <td>\W</td>
-                                <td><i>NOT ASCII, digit, underscore</i></td>
-                                <td>\W <i>matches</i> '*', '-', '+', '=', ')'</td>
-                            </tr>
-                        </table>
-                        <table>
-                            <caption>
-                                <h3>Qualifers</h3>
-                            </caption>
-                            <tr>
-                                <th>Item</th>
-                                <th>Description</th>
-                                <th>Example</th>
-                            </tr>
-                            <tr>
-                                <td>*</td>
-                                <td><i>Zero or more times</i></td>
-                                <td>f* <i>matches</i> '', 'f', 'ffff'</td>
-                            </tr>
-                            <tr>
-                                <td>?</td>
-                                <td><i>Once or None</i></td>
-                                <td>f? <i>matches</i> '', 'f'</td>
-                            </tr>
-                            <tr>
-                                <td>?</td>
-                                <td><i>Once or None</i></td>
-                                <td>f? <i>matches</i> '', 'f'</td>
-                            </tr>
-                            <tr>
-                                <td>+</td>
-                                <td><i>One or more times</i></td>
-                                <td>f+ <i>matches</i> 'f', 'ffff'</td>
-                            </tr>
-                            <tr>
-                                <td>{3}</td>
-                                <td><i>3 times</i></td>
-                                <td>f{3} <i>matches</i> 'fff'</td>
-                            </tr>
-                            <tr>
-                                <td>{2, 4}</td>
-                                <td><i>2, 3, or 4 times</i></td>
-                                <td>f{2, 4} <i>matches</i> 'ff', 'fff', 'ffff'</td>
-                            </tr>
-                            <tr>
-                                <td>{2,}</td>
-                                <td><i>2, or more times</i></td>
-                                <td>f{2,} <i>matches</i> 'ff', 'fffff'</td>
-                            </tr>
-                        </table>
-                        <table>
-                            <caption>
-                                <h3>Other</h3>
-                            </caption>
-                            <tr>
-                                <th>Item</th>
-                                <th>Description</th>
-                                <th>Example</th>
-                            </tr>
-                            <tr>
-                                <td>$</td>
-                                <td><i>End of line</i></td>
-                                <td>f$ <i>matches</i> 'f', but not 'fb'</td>
-                            </tr>
-                            <tr>
-                                <td>^</td>
-                                <td><i>Start of line</i></td>
-                                <td>^f <i>matches</i> 'fb', but not 'bf'</td>
-                            </tr>
-                            <tr>
-                                <td>\n</td>
-                                <td><i>Newline</i></td>
-                                <td></td>
-                            </tr>
-                            <tr>
-                                <td>\</td>
-                                <td><i>Escape character</i></td>
-                                <td>\. <i>matches</i> '.', not any character</td>
-                            </tr>
-                            <tr>
-                                <td>[]</td>
-                                <td><i>Any character in brackets</i></td>
-                                <td>[ghf] <i>matches</i> 'g', 'h', 'f'</td>
-                            </tr>
-                            <tr>
-                                <td>[a-z]</td>
-                                <td><i>Any character in range</i></td>
-                                <td>[a-c] <i>matches</i> 'a', 'b', 'c'</td>
-                            </tr>
-                            <tr>
-                                <td>[^a-z]</td>
-                                <td><i>Not any character in range</i></td>
-                                <td>[^a-c] <i>matches</i> 'z', not 'a'</td>
-                            </tr>
-                            <tr>
-                                <td>(?=...)</td>
-                                <td><i>Positive lookahead</i></td>
-                                <td></td>
-                            </tr>
-                            <tr>
-                                <td>(?<=...)< /td>
-                                <td><i>Positive lookbehind</i></td>
-                                <td></td>
-                            </tr>
-                            <tr>
-                                <td>(?!...)</td>
-                                <td><i>Negative lookahead</i></td>
-                                <td></td>
-                            </tr>
-                            <tr>
-                                <td>(?=...)</td>
-                                <td><i>Negative lookbehind</i></td>
-                                <td></td>
-                            </tr>
-                        </table>
-
-                        <table>
-                            <caption>
-                                <h3>Advanced Examples</h3>
-                            </caption>
-                            <tr>
-                                <th>Pattern</th>
-                                <th>Matches</th>
-                                <th>Fails</th>
-                            </tr>
-                            <tr>
-                                <td>^(?:(?!(\w)(\w)\2\1).)+$</td>
-                                <td>effusive</td>
-                                <td>labba</td>
-                            </tr>
-                            <tr>
-                                <td>^"[^"]+$</td>
-                                <td>"effusive" OR "23:."</td>
-                                <td>'effusive'</td>
-                            </tr>
-                            <tr>
-                                <td>(?<!"(?=Tarzan"))Tarzan< /td>
-                                <td>Tarzan</td>
-                                <td>"Tarzan"</td>
-                            </tr>
-                            <tr>
-                                <td>^(?!(xx+)\1+$)</td>
-                                <td><i>Matches prime numbers of 'x'</i></td>
-                                <td><i>Non-prime counts</i></td>
-                            </tr>
-                        </table>
-                        <a href="https://www.rexegg.com/regex-quickstart.html">Source</a>
-                    </div>
-                  
+                <div style="display: flex;">                  
                     <div style="flex: 1; text-align: right;">
                       <hr>
                         <div class="subtabs">
@@ -714,7 +281,7 @@
             </div>
             <div class="tab-content" id="page-notes-supertab">
               <hr>
-              <div class="tabs">
+              <div class="subtabs">
                 <button id="page-notes-tab-button" class="subtab-button hidden" data-tab="page-notes-tab">
                   Page Note
                 </button>
@@ -748,7 +315,11 @@
                 <span class="hidden" id="page-note-id"></span>
                 <br />
                 <textarea id="page-notes-textarea" style="width: 70vw; height: 70vh;"></textarea>
-                <p id="page-notes-saved-at" style="color: grey;"></p>
+                <div style="display: flex; align-items: center;">
+                  <input id="page-notes-expiring-checkbox" type="checkbox"/>
+                  <label for="page-notes-expiring-checkbox">Expiring </label>
+                  <p hover-text="When checked, the page note expires after 60 days without views or edits."> &nbsp;(i)</p>
+                </div>
                 <br />
                 <small>CTRL+; to paste current date/time, CTRL+: to past current URL. Supports most of <a target="_blank" href="https://github.com/Ionaru/easy-markdown-editor?tab=readme-ov-file#keyboard-shortcuts">these</a> and <a target="_blank" href="https://codemirror.net/5/doc/manual.html#commands">these.</a></small>
               </div>

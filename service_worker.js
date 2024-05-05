@@ -2,11 +2,58 @@ console.log("service_worker.js")
 importScripts('crypto-js.min.js');
 importScripts('util.js');
 
+let encryptPageNotes = false
+getSetting("encrypt-page-notes").then((value)=> {
+  encryptPageNotes = value
+});
+
+async function _save_page_note(id, note, title, url_pattern) {
+  if (encryptPageNotes) {
+      note = await encrypt(note)
+  } 
+  const noteData = {
+      note: note,
+      title: title,
+      url_pattern: url_pattern,
+      id: id
+  };
+  store(id, noteData)
+  console.log(`Note saved with ID: ${id}`);
+}
+
+const defaultPageNotes = [
+  {text:"css_selectors.txt", id:"mde_css_selectors", url_pattern:"chrome-extension:", title:"HTML/CSS Selectors"}, 
+  {text:"bash.txt", id:"mde_bash", url_pattern:"", title:"Bash"}, 
+  {text:"chrome_keyboard.txt", id:"mde_chrome_keyboard", url_pattern:"", title:"Chrome Keyboard Shortcuts"}, 
+  {text:"git.txt", id:"mde_git", url_pattern:"", title:"git"}, 
+  {text:"regex.txt", id:"mde_regex", url_pattern:"chrome-extension:", title:"Regex"}, 
+  {text:"country_codes.txt", id:"mde_country_codes", url_pattern:"", title:"Country Codes"}, 
+  {text:"linux_keyboard.txt", id:"mde_linux_keyboard", url_pattern:"", title:"Linux Keyboard"}, 
+  {text:"linux_term.txt", id:"mde_linux_term", url_pattern:"", title:"Linux Terminal"}, 
+  {text:"nmap.txt", id:"mde_nmap", url_pattern:"", title:"NMAP"}, 
+  {text:"powershell.txt", id:"mde_powershell", url_pattern:"", title:"Powershell"}, 
+  {text:"sql.txt", id:"mde_sql", url_pattern:"", title:"SQL"}, 
+  {text:"us_states.txt", id:"mde_us_states", url_pattern:"", title:"US States"}, 
+  {text:"windows_cmd.txt", id:"mde_cmd", url_pattern:"", title:"Windows CMD"}, 
+  {text:"windows_keyboard.txt", id:"mde_windows_keyboard", url_pattern:"", title:"Windows Keyboard Shortcuts"}
+ ]
+
+ async function storeDefaultPageNotes() {
+  for (let item of defaultPageNotes) {
+    fetch("references/" + item.text)
+      .then(response => response.text())
+      .then(data => {
+        _save_page_note(item.id, data, item.title, item.url_pattern)
+      })
+  }
+}
+
 // Open options page on install or update
 chrome.runtime.onInstalled.addListener(function(details) {
     if (details.reason === 'install' || details.reason === 'update') {
       chrome.tabs.create({ url: 'options.html' });
     }
+    storeDefaultPageNotes()
 });
 
 

@@ -50,12 +50,39 @@ function get_default_title(url) {
 
 // https://github.com/Ionaru/easy-markdown-editor?tab=readme-ov-file#install-easymde
 
-const easyMDE = new EasyMDE(
-    {
-        element: document.getElementById('page-notes-textarea'), 
-        ...defaultPageNoteConfig
-    }
-);
+const viewPortWidth = window.innerWidth;
+let pageNoteConfigOverwrite = {
+    ...defaultPageNoteConfig,
+    ...{
+        element: document.getElementById('page-notes-textarea')
+        }
+}
+
+if (viewPortWidth > 500 && viewPortWidth < 901) {
+    pageNoteConfigOverwrite["toolbar"] = ["bold", "italic", "strikethrough", "heading", "code", "quote", "ordered-list", "unordered-list", "clean-block", "horizontal-rule", "undo", "redo", "link", "image", "preview", "side-by-side", "fullscreen", "guide", "table"]
+} else if( viewPortWidth > 900) {
+    pageNoteConfigOverwrite["toolbar"] = ["bold", "italic", "strikethrough", "heading", "heading-1", "heading-2", "heading-3", "code", "quote", "ordered-list", "unordered-list", "clean-block", "horizontal-rule", "undo", "redo", "link", "image", "preview", "side-by-side", "fullscreen", "guide", "table"]
+} else {
+    pageNoteConfigOverwrite["toolbar"].push(
+        {
+            name: "OpenInTab",
+            action: (editor) => {
+                const pageNoteId = idElement.value
+                const url = chrome.runtime.getURL('options.html') + '#' + pageNoteId;
+                chrome.tabs.create({ url: url });
+            },
+            className: '<i class="fa-regular fa-window-maximize"></i>',
+            text: "O",
+            title: "Open in Tab",
+            attributes: { // for custom attributes
+                id: "open-in-tab",
+                // "data-value": "custom value" // HTML5 data-* attributes need to be enclosed in quotation marks ("") because of the dash (-) in its name.
+            }
+        },
+    )
+}
+
+const easyMDE = new EasyMDE(pageNoteConfigOverwrite);
 
 //////////////
 // ELEMENTS //
@@ -65,7 +92,8 @@ const urlPatternElement = document.getElementById("url-pattern");
 const titleElement = document.getElementById("page-notes-title");
 const idElement = document.getElementById("page-note-id");
 const pageNotesTabButton = document.getElementById("page-notes-tab-button")
-const savedAtIndicator = document. querySelector(".autosave")//getElementById("page-notes-saved-at")
+const savedAtIndicator = document.querySelector(".autosave")//getElementById("page-notes-saved-at")
+const expiringCheckbox = document.getElementById("page-notes-expiring-checkbox")
 
 let encryptPageNotes = false
 getSetting("encrypt-page-notes").then((value) => {
@@ -75,11 +103,44 @@ getSetting("encrypt-page-notes").then((value) => {
 let displayFullTable = false
 let thoroughSearch = false
 
+////////////////
+// EXPIRATION //
+////////////////
+
+function noteIsExpired(note) {
+    if (!note.lastOpened) {
+        // Non-Expiring Notes
+        return false; 
+    }
+    const expiryDuration = 60 * (24 * 60 * 60 * 1000); // 60 days in milliseconds
+    const lastOpenedTime = new Date(note.lastOpened).getTime();
+    const currentTime = Date.now();
+    return (currentTime - lastOpenedTime > expiryDuration);
+}
+
+async function deleteExpiredNotes() {
+    const results = await chrome.storage.sync.get();
+    for (let key in results) {
+        let note = results[key];
+        if (key.startsWith("mde_")) {
+            if (noteIsExpired(note)) {
+                delete_page_note(key)
+            }
+        }
+    }
+}
+
+// Run the deleteExpiredNotes function every 100 times this is called
+const randomNumber = Math.floor(Math.random() * 60) + 1;
+if (randomNumber === 50) {
+    deleteExpiredNotes()
+} 
+
 //////////
 // SAVE //
 //////////
 
-async function _save_page_note(id, note, title, url_pattern) {
+async function _save_page_note(id, note, title, url_pattern, expiring) {
     if (encryptPageNotes) {
         note = await encrypt(note)
     } 
@@ -87,8 +148,11 @@ async function _save_page_note(id, note, title, url_pattern) {
         note: note,
         title: title,
         url_pattern: url_pattern,
-        id: id
+        id: id,
     };
+    if (expiring) {
+        noteData["lastOpened"] = new Date().toISOString()
+    }
     store(id, noteData)
     console.log(`Note saved with ID: ${id}`);
 }
@@ -105,18 +169,27 @@ async function save_page_note() {
     const title = titleElement.value;
     const id = idElement.value;
     const note = await easyMDE.value();
-    _save_page_note(id, note, title, url)
+    const expiring = expiringCheckbox.checked;
+    _save_page_note(id, note, title, url, expiring)
     savedAtBanner()
 }
 
 let saveTimeout;
 
-easyMDE.codemirror.on("change", () => {
+function saveNoteTimeOut() {
     clearTimeout(saveTimeout);
     saveTimeout = setTimeout(() => {
         save_page_note();
-    }, 1500); // 2000 milliseconds = 2 seconds
-});
+    }, 1500);
+}
+
+easyMDE.codemirror.on("change", saveNoteTimeOut);
+
+titleElement.addEventListener("change",  saveNoteTimeOut)
+
+urlPatternElement.addEventListener("change",  saveNoteTimeOut)
+
+expiringCheckbox.addEventListener("change", saveNoteTimeOut)
 
 /////////
 // GET //
@@ -137,10 +210,18 @@ async function open_page_note(id) {
 
     console.log(page_note)
 
+    // Set Values
     easyMDE.value(page_note.note);
     urlPatternElement.value = page_note.url_pattern;
     titleElement.value = page_note.title;
     idElement.value = id;
+    if (page_note.lastOpened) {
+        expiringCheckbox.checked = true
+    } else {
+        expiringCheckbox.checked = false
+    }
+
+    // Set Visibility
     pageNotesTabButton.classList.remove("hidden");
     pageNotesTabButton.click();
     easyMDE.codemirror.refresh()
@@ -218,9 +299,11 @@ async function get_matching_page_notes(url) {
     for (key in results) {
         let result = results[key]
         if (key.startsWith("mde_")) {
-            if (new RegExp(result.url_pattern).test(url)) {
-                result["id"] = key
-                matchingNotes.push(result);
+            if (result.url_pattern != "") {
+                if (new RegExp(result.url_pattern).test(url)) {
+                    result["id"] = key
+                    matchingNotes.push(result);
+                }
             }
         }
     }
@@ -313,6 +396,7 @@ async function newPageNote() {
     pageNotesTabButton.classList.remove("hidden")
     document.getElementById("new-page-notes-tab-button").classList.remove("active")
     pageNotesTabButton.classList.add("active")
+    expiringCheckbox.checked = true
 }
 
 document.getElementById("new-page-notes-tab-button").addEventListener("click", newPageNote)
@@ -320,6 +404,37 @@ document.getElementById("new-page-notes-tab-button").addEventListener("click", n
 /////////////////////////
 // Additional Features //
 /////////////////////////
+
+
+async function downloadPageNote() {    
+    function destroyClickedElement(event) {
+        document.body.removeChild(event.target);
+    } 
+    var textToWrite = easyMDE.value()
+    
+    // preserving line breaks
+    var textToWrite = textToWrite.replace(/\n/g, "\r\n");
+    var textFileAsBlob = new Blob([textToWrite], {type:'text/plain'});
+    
+    // filename to save as
+    var fileNameToSaveAs = "pn_" + titleElement.value.replace(/[\\/:*?"<>|]/g, "") + ".txt";
+    
+    var downloadLink = document.createElement("a");
+    downloadLink.download = fileNameToSaveAs;
+    
+    // hidden link title name
+    downloadLink.innerHTML = "Download";
+    
+    window.URL = window.URL || window.webkitURL;
+    
+    downloadLink.href = window.URL.createObjectURL(textFileAsBlob);
+    
+    downloadLink.onclick = destroyClickedElement;
+    downloadLink.style.display = "none";
+    document.body.appendChild(downloadLink);
+    downloadLink.click();
+}
+
 
 document.querySelector(".EasyMDEContainer").addEventListener('keydown', async function(event) {
     if (event.ctrlKey && event.key === ';') {
@@ -335,5 +450,11 @@ document.querySelector(".EasyMDEContainer").addEventListener('keydown', async fu
         let url = await getCurrentURL()
         url = "[title](" + url + ")";
         insertTextAtCursor(url);
+   } else if (event.ctrlKey && event.key === "s") {
+        event.preventDefault()
+        downloadPageNote()
    }
 });
+
+
+

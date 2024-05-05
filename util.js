@@ -264,5 +264,5 @@ const defaultPageNoteConfig = {
     },
     lineNumbers: false,
     // uploadImage: true, 
-    toolbar: ["bold", "italic", "code", "quote", "link", "image", "preview", "side-by-side", "fullscreen", "guide", "table"]
+    toolbar: ["code", "quote", "link", "image", "preview", "side-by-side", "fullscreen", "guide", "table"]
 }
