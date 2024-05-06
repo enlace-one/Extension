@@ -8,70 +8,7 @@
   <link rel="stylesheet" href="/third_party/easymde.min.css">
   <link rel="stylesheet" href="/third_party/highlight.min.css">
   <style>
-    .toggle {
-      width: 30px;
-      height: 15px;
-      position: relative;
-      display: inline-block;
-    }
-
-.toggle input { 
-  display: none;
-}
-
-.toggle span {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: #ccc;
-  cursor: pointer;
-  transition: .4s;
-  border-radius: 15px;
-}
-
-.toggle span:before {
-  content: "";
-  position: absolute;
-  width: 50%;
-  height: 100%;
-  background-color: grey;
-  transition: .4s;
-  border-radius: 15px;
-}
-
-.toggle input:checked + span {
-  background-color: #2196F3;
-}
-
-.toggle input:checked + span:before {
-  transform: translateX(100%);
-}
-
-table, th, td {
-  border: 1px solid #ddd;
-}
-
-th, td {
-  padding: 8px;
-  /* text-align: left; */
-}
-
-tr:nth-child(even) {
-  background-color: #f2f2f2;
-}
-
-.onHoverChange:hover {
-  background-color: #535353;
-}
-
-.cm-spell-error {
-  text-decoration: underline;
-  text-decoration-color: rgb(247, 165, 165); 
-  text-decoration-thickness: 1px; 
-  background-color: white !important;
-}
+    
 
 </style>
 
@@ -129,12 +66,15 @@ tr:nth-child(even) {
       </div>
       <div class="tab-content" id="page-notes-tab">
         <label>Title</label>
-        <input id="page-notes-title" rows="3" style="width: 70vw;" />
+        <input class="pretty-text-box" id="page-notes-title" rows="3" style="width: 70vw;" />
         <br>
         <br>
         <label>URL Pattern</label>
-        <textarea id="url-pattern" rows="1" style="width: 70vw;" ></textarea>
-        <span class="hidden" id="page-note-id"></span>
+        <div class="input-group">
+          <textarea id="url-pattern" rows="1" style="padding: 6px; width: calc(100% - 50px); border: 1px solid #ccc; border-radius: 4px;" ></textarea>
+          <button hover-text="Adds the default pattern from the current URL to this page note's pattern." id="add-current-url">+</button>
+          <span class="hidden" id="page-note-id"></span>
+        </div>
         <br />
         <textarea id="page-notes-textarea" style="width: 70vw; height: 70vh;"></textarea>
         <div style="display: flex; align-items: center;">
@@ -150,7 +90,7 @@ tr:nth-child(even) {
     </div>
   </div>
 
-  <script src="crypto-js.min.js"></script>
+  <script src="/third_party/crypto-js.min.js"></script>
   <script src="util.js"></script>
   <script src="standard.js"></script>
   <script src="page-notes.js"></script>

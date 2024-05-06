@@ -121,11 +121,23 @@ async function runOnUnlock() {
     showhide("unlocked-div");
     document.getElementById("password").value = "";
 
-    // In your app
-    navigator.serviceWorker.controller.postMessage({
-        action: 'appStateChanged',
-        isUnlocked: true
-    });
+    // Send message to service worker
+    if (navigator.serviceWorker && navigator.serviceWorker.controller) {
+        navigator.serviceWorker.controller.postMessage({
+            action: 'appStateChanged',
+            isUnlocked: true
+        });
+    } else {
+        console.log("Service worker controller is not available.");
+        navigator.serviceWorker.ready.then(function(registration) {
+            registration.active.postMessage({
+                action: 'appStateChanged',
+                isUnlocked: true
+            });
+        }).catch(function(error) {
+            console.error("Failed to send message to service worker:", error);
+        });
+    }
 }
 
 async function setPassword(key) {

@@ -52,6 +52,13 @@ chrome.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
     }
 });
 
+document.getElementById("add-current-url").addEventListener("click", async function () {
+    const url = await get_current_url()
+    let url_pattern = await get_default_pattern(url)
+    url_pattern = urlPatternElement.value + "|" + url_pattern
+    urlPatternElement.value = url_pattern
+})
+
 //////////////////////////////////
 // Open this in the options page//
 //////////////////////////////////

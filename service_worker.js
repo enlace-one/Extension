@@ -1,5 +1,5 @@
 console.log("service_worker.js")
-importScripts('crypto-js.min.js');
+importScripts('/third_party/crypto-js.min.js');
 importScripts('util.js');
 
 let encryptPageNotes = false
@@ -38,7 +38,7 @@ const defaultPageNotes = [
   {text:"windows_keyboard.txt", id:"mde_windows_keyboard", url_pattern:"", title:"Windows Keyboard Shortcuts"}
  ]
 
- async function storeDefaultPageNotes() {
+ async function _storeDefaultPageNotes() {
   for (let item of defaultPageNotes) {
     fetch("references/" + item.text)
       .then(response => response.text())
@@ -46,6 +46,18 @@ const defaultPageNotes = [
         _save_page_note(item.id, data, item.title, item.url_pattern)
       })
   }
+}
+
+async function storeDefaultPageNotes() {
+  self.addEventListener('message', async (event) => {
+      if (event.data.action === 'appStateChanged') {
+          if (event.data.isUnlocked) {
+            if (! await isLocked()) {
+              setTimeout(_storeDefaultPageNotes, 3000);
+            }
+          }
+        }
+    });
 }
 
 // Open options page on install or update

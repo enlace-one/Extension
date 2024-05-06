@@ -538,9 +538,13 @@ document.getElementById("save_settings").addEventListener("click", async functio
             await storeSetting(key, element.value)
         }
     }
-    const pageNoteJsonValue = JSON.parse(pageNoteJson.value)
-    store("page-note-json", pageNoteJsonValue)
-    showNotification("Saved")
+    try {
+        const pageNoteJsonValue = JSON.parse(pageNoteJson.value)
+        store("page-note-json", pageNoteJsonValue)
+        showNotification("Saved")
+    } catch (e) {
+        alert(`Error saving JSON ${e}`)
+    }
 });
 
 document.getElementById("reset-settings").addEventListener("click", function (){
@@ -739,6 +743,9 @@ async function updateUi() {
 
 if (isUserScriptsAvailable()) {
     document.querySelector('.scriptName[data-tab="script-tab"]').classList.remove("hidden")
+    document.querySelector('.regexName[data-tab="regex-tab"]').classList.remove("hidden")
+    document.querySelector('.htmlName[data-tab="html-tab"]').classList.remove("hidden")
+    document.querySelector(".page-note-settings").classList.remove("hidden")
     updateUi()
 }
     
@@ -810,3 +817,8 @@ document.addEventListener("DOMContentLoaded", function() {
     }
 
 });
+
+
+document.getElementById("delete-expired-page-note-button").addEventListener("click", function () {
+    showNotification("Deleted expired page notes")
+})
