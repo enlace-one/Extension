@@ -297,4 +297,7 @@ const defaultPageNoteConfig = {
     "guide",
     "table",
   ],
+  status: [{
+    className: "expiring",
+}, "lines", "words", "autosave"],
 };

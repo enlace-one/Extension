@@ -41,6 +41,29 @@ function get_default_title(url) {
   return title;
 }
 
+function noteIsExpired(note) {
+  if (!note.lastOpened) {
+    // Non-Expiring Notes
+    return false;
+  }
+  const expiryDuration = 60 * (24 * 60 * 60 * 1000); // 60 days in milliseconds
+  const lastOpenedTime = new Date(note.lastOpened).getTime();
+  const currentTime = Date.now();
+  return currentTime - lastOpenedTime > expiryDuration;
+}
+
+async function deleteExpiredNotes() {
+  const results = await chrome.storage.sync.get();
+  for (let key in results) {
+    let note = results[key];
+    if (key.startsWith("mde_")) {
+      if (noteIsExpired(note)) {
+        delete_page_note(key);
+      }
+    }
+  }
+}
+
 /////////////
 // Easymde //
 /////////////
@@ -52,6 +75,7 @@ let easyMDE;
 let pageNoteConfigOverwrite;
 let openInPreview; //= pageNoteConfigOverwrite.openInPreview;
 let openInFullScreen; // = pageNoteConfigOverwrite.openInFullScreen;
+let expiringCheckbox;
 
 async function getEasyMDE() {
   let customPageNoteJson = {};
@@ -142,6 +166,19 @@ async function getEasyMDE() {
     easyMDE = new EasyMDE(pageNoteConfigOverwrite);
     easyMDE.codemirror.on("change", saveNoteTimeOut);
 
+    // EXPIRATION
+    expiringSpan = document.querySelector(".expiring:not(.checkbox-added)");
+    expiringSpan.classList.add("checkbox-added");
+    expiringSpan.innerHTML = `<div style="display: flex; align-items: center;">
+      <input id="page-notes-expiring-checkbox" type="checkbox"/>
+      <label for="page-notes-expiring-checkbox">Expiring </label>
+      <p hover-text="When checked, the page note expires after 60 days without views or edits.">&nbsp; (i)</p>
+    </div>`;
+    expiringCheckbox = document.getElementById(
+      "page-notes-expiring-checkbox"
+    );
+    
+
     openInPreview = pageNoteConfigOverwrite.openInPreview;
     openInFullScreen = pageNoteConfigOverwrite.openInFullScreen;
 
@@ -174,6 +211,8 @@ async function getEasyMDE() {
           downloadPageNote();
         }
       });
+
+    // END of easyMDE def.
   });
 }
 
@@ -188,9 +227,6 @@ const titleElement = document.getElementById("page-notes-title");
 const idElement = document.getElementById("page-note-id");
 const pageNotesTabButton = document.getElementById("page-notes-tab-button");
 const savedAtIndicator = document.querySelector(".autosave"); //getElementById("page-notes-saved-at")
-const expiringCheckbox = document.getElementById(
-  "page-notes-expiring-checkbox"
-);
 
 let encryptPageNotes = false;
 getSetting("encrypt-page-notes").then((value) => {
@@ -203,29 +239,6 @@ let thoroughSearch = false;
 ////////////////
 // EXPIRATION //
 ////////////////
-
-function noteIsExpired(note) {
-  if (!note.lastOpened) {
-    // Non-Expiring Notes
-    return false;
-  }
-  const expiryDuration = 60 * (24 * 60 * 60 * 1000); // 60 days in milliseconds
-  const lastOpenedTime = new Date(note.lastOpened).getTime();
-  const currentTime = Date.now();
-  return currentTime - lastOpenedTime > expiryDuration;
-}
-
-async function deleteExpiredNotes() {
-  const results = await chrome.storage.sync.get();
-  for (let key in results) {
-    let note = results[key];
-    if (key.startsWith("mde_")) {
-      if (noteIsExpired(note)) {
-        delete_page_note(key);
-      }
-    }
-  }
-}
 
 // Run the deleteExpiredNotes function every 100 times this is called
 const randomNumber = Math.floor(Math.random() * 60) + 1;
@@ -284,8 +297,6 @@ titleElement.addEventListener("change", saveNoteTimeOut);
 
 urlPatternElement.addEventListener("change", saveNoteTimeOut);
 
-expiringCheckbox.addEventListener("change", saveNoteTimeOut);
-
 /////////
 // GET //
 /////////
@@ -310,11 +321,14 @@ async function open_page_note(id) {
   urlPatternElement.value = page_note.url_pattern;
   titleElement.value = page_note.title;
   idElement.value = id;
-  if (page_note.lastOpened) {
-    expiringCheckbox.checked = true;
-  } else {
-    expiringCheckbox.checked = false;
-  }
+
+  setTimeout(function () {
+    if (page_note.lastOpened) {
+      expiringCheckbox.checked = true;
+    } else {
+      expiringCheckbox.checked = false;
+    }
+  }, 1000);
 
   // Set Visibility
   pageNotesTabButton.classList.remove("hidden");
@@ -415,14 +429,6 @@ async function get_matching_page_notes(url) {
     }
   }
 
-  // for (const id in notes) {
-  //     const note = notes[id];
-  //     // Assuming url_pattern in note is a regex or specific string to match URLs
-  //     if (new RegExp(note.url_pattern).test(url)) {
-  //         matchingNotes.push(note);
-  //     }
-  // }
-
   return matchingNotes;
 }
 
@@ -443,21 +449,21 @@ async function makePageNoteTable(page_notes, table) {
   page_notes.forEach((note, index) => {
     const row = table.insertRow();
     const titleCell = row.insertCell();
-    const titleP = document.createElement("p")
-    titleP.classList.add("truncate")
+    const titleP = document.createElement("p");
+    titleP.classList.add("truncate");
 
     if (encryptPageNotes || displayFullTable) {
       const urlCell = row.insertCell();
-      const urlP = document.createElement("p")
-      urlP.classList.add("truncate")
+      const urlP = document.createElement("p");
+      urlP.classList.add("truncate");
       urlP.textContent = note.url_pattern;
       urlCell.insertBefore(urlP, urlCell.firstChild);
     }
 
     if (!encryptPageNotes) {
       const noteCell = row.insertCell();
-      const noteP = document.createElement("p")
-      noteP.classList.add("truncate")
+      const noteP = document.createElement("p");
+      noteP.classList.add("truncate");
       noteP.textContent = truncateText(note.note, 30);
       noteCell.insertBefore(noteP, noteCell.firstChild);
     }
@@ -560,11 +566,13 @@ function addCodeCopyButtons() {
   setTimeout(function () {
     var code_blocks = document.querySelectorAll("code:not(.copy_btn_added)");
     code_blocks.forEach(function (code_block) {
-      code_block.classList.add("copy_btn_added")
+      code_block.classList.add("copy_btn_added");
       var copyBtn = document.createElement("button");
-      
-      copyBtn.innerHTML = '<img style="height: 5px;" src="images/copy.svg" alt="Icon"></img>'
-      copyBtn.style = "float: right; margin-left: 10px; font-size: 8px; padding: 1px; vertical-align: top;";
+
+      copyBtn.innerHTML =
+        '<img style="height: 5px;" src="images/copy.svg" alt="Icon"></img>';
+      copyBtn.style =
+        "float: right; margin-left: 10px; font-size: 8px; padding: 1px; vertical-align: top;";
       code_block.parentNode.insertBefore(copyBtn, code_block.nextSibling); // Insert the button after the code block
 
       copyBtn.addEventListener("click", function () {
@@ -577,7 +585,6 @@ function addCodeCopyButtons() {
     });
     addCodeCopyButtons();
   }, 2000);
-  
 }
 
 addCodeCopyButtons();

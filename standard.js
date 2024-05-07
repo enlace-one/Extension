@@ -4,7 +4,7 @@
 // Set Variables
 const variables = {
     extensionName: "Enlace Assistant",
-    clipboardName: "Clipboard",
+    clipboardName: "Clipbox",
     snippetsName: "Snippets",
     pageNotesName: "Page Notes",
     settingsName: "Settings",
