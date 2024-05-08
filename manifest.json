@@ -1,5 +1,5 @@
 {
-  "name": "Enlace Assistant",
+  "name": "Page Notes",
   "description": "A collection of helpful tools running locally",
   "version": "3.0",
   "manifest_version": 3,
@@ -15,7 +15,7 @@
   "background": {
     "service_worker": "service_worker.js"
   },
-  "permissions": ["userScripts", "contextMenus", "identity", "webRequest", "storage", "offscreen", "clipboardWrite","clipboardRead", "sidePanel", "tabs", "contentSettings"],
+  "permissions": ["scripting", "userScripts", "contextMenus", "identity", "webRequest", "storage", "offscreen", "clipboardWrite","clipboardRead", "sidePanel", "tabs", "contentSettings"],
   "host_permissions": [
     "*://*/*"
   ],

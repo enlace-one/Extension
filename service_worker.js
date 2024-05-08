@@ -106,6 +106,17 @@ chrome.commands.onCommand.addListener(async (command) => {
             //           });
             //     } 
             // });
+
+            try {
+              chrome.runtime.sendMessage({
+                type: 'open-side-panel',
+                target: 'sidepanel',
+                data: true
+              });
+            } catch {
+              // No action needed, listener not set up yet.
+            }
+
             chrome.sidePanel.open({ tabId: tab.id });
           });
     } else if (command.startsWith("copy-value")) {

@@ -69,3 +69,48 @@ document.getElementById("add-current-url").addEventListener("click", async funct
 //     chrome.tabs.create({ url: url });
 
 // });
+
+async function quickEdit() {
+    const previewIsActive = easyMDE.isPreviewActive();
+    if (previewIsActive) {
+        easyMDE.togglePreview();
+    }
+    easyMDE.codemirror.focus();
+    save_page_note();
+    easyMDE.codemirror.focus();
+}
+
+chrome.runtime.onMessage.addListener(
+    function(request, sender, sendResponse) {
+        console.log(request, sender) 
+        if (request.type === "open-side-panel") {
+            quickEdit();
+        }
+});
+
+chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
+    var tab = tabs[0];
+    if (tab && tab.id) {
+        chrome.scripting.executeScript({
+            target: { tabId: tab.id },
+            function: async function () {
+                console.log("Executing custom script");
+                document.addEventListener("keydown", async function (event) {
+                    console.log("keydown observed")
+                    if (event.altKey && event.key === "s") {
+                        const previewIsActive = easyMDE.isPreviewActive();
+                        if (previewIsActive) {
+                            easyMDE.togglePreview();
+                        }
+                    }
+                });
+            },
+        }).then(() => {
+            console.log("Script injected successfully");
+        }).catch((error) => {
+            console.log("Error injecting script: ", error);
+        });
+    } else {
+        console.log("Error: No active tab found or tab.id is undefined");
+    }
+});

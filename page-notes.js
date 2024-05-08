@@ -76,6 +76,7 @@ let pageNoteConfigOverwrite;
 let openInPreview; //= pageNoteConfigOverwrite.openInPreview;
 let openInFullScreen; // = pageNoteConfigOverwrite.openInFullScreen;
 let expiringCheckbox;
+let savedAtIndicator;
 
 async function getEasyMDE() {
   let customPageNoteJson = {};
@@ -92,6 +93,26 @@ async function getEasyMDE() {
         element: document.getElementById("page-notes-textarea"), // Overwrite what needs to be there
       },
     };
+
+    pageNoteConfigOverwrite["status"].unshift({
+      className: "expiring",
+  })
+    pageNoteConfigOverwrite["status"].push("autosave")
+    pageNoteConfigOverwrite["status"].push({
+      className: "Characters",
+      defaultValue: (el) => {
+          el.setAttribute('data-characters', 0);
+      },
+      onUpdate: (el) => {
+          const characters = easyMDE.value().length
+          if (characters > 7500) {
+            el.classList.add("red-text")
+          } else {
+            el.classList.remove("red-text")
+          }
+          el.innerHTML = `${characters}/7500`;
+      },
+  })
 
     console.log(pageNoteConfigOverwrite);
 
@@ -177,6 +198,7 @@ async function getEasyMDE() {
     expiringCheckbox = document.getElementById(
       "page-notes-expiring-checkbox"
     );
+    savedAtIndicator = document.querySelector(".autosave");
     
 
     openInPreview = pageNoteConfigOverwrite.openInPreview;
@@ -218,19 +240,35 @@ async function getEasyMDE() {
 
 getEasyMDE();
 
-//////////////
-// ELEMENTS //
-//////////////
+///////////////
+// VARIABLES //
+///////////////
 
 const urlPatternElement = document.getElementById("url-pattern");
 const titleElement = document.getElementById("page-notes-title");
 const idElement = document.getElementById("page-note-id");
 const pageNotesTabButton = document.getElementById("page-notes-tab-button");
-const savedAtIndicator = document.querySelector(".autosave"); //getElementById("page-notes-saved-at")
+
+let maxPageNotesTitleChar;
+getSetting("max-title-char-page-notes").then((value)=> maxPageNotesTitleChar = value)
+let maxPageNotesURLChar;
+getSetting("max-key-char-page-notes").then((value)=> maxPageNotesURLChar = value)
+let maxPageNotesNoteChar;
+getSetting("max-value-char-page-notes").then((value)=> maxPageNotesNoteChar = value)
+
 
 let encryptPageNotes = false;
 getSetting("encrypt-page-notes").then((value) => {
   encryptPageNotes = value;
+
+  // Adjust max size if encryption is applied.
+  if (value) {
+    setTimeout(function () {
+      maxPageNotesNoteChar = maxPageNotesNoteChar/3
+      maxPageNotesTitleChar = maxPageNotesTitleChar/3
+      maxPageNotesURLChar = maxPageNotesURLChar/3
+    }, 500)
+  }
 });
 
 let displayFullTable = false;
@@ -254,6 +292,20 @@ async function _save_page_note(id, note, title, url_pattern, expiring) {
   if (encryptPageNotes) {
     note = await encrypt(note);
   }
+
+  if (note.length > maxPageNotesNoteChar) {
+    showNotification(`Error: Note is too long. ${note.length} is larger than max setting: ${maxPageNotesNoteChar}`)
+    return
+  }
+  if (title.length > maxPageNotesTitleChar) {
+    showNotification(`Error: Title is too long. ${title.length} is larger than max setting: ${maxPageNotesTitleChar}`)
+    return
+  }
+  if (url_pattern.length > maxPageNotesURLChar) {
+    showNotification(`Error: URL pattern is too long. ${url_pattern.length} is larger than max setting: ${maxPageNotesURLChar}`)
+    return
+  }
+  
   const noteData = {
     note: note,
     title: title,

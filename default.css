@@ -266,3 +266,12 @@ tr:nth-child(even) {
   overflow: hidden; /* Hide any overflowing content */
   text-overflow: ellipsis; /* Display ellipsis (...) for truncated text */
 }
+
+
+.red-text {
+  color: red; 
+}
+
+.autosave {
+  color: green;
+}

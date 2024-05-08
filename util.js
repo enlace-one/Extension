@@ -165,8 +165,9 @@ default_settings = {
   "max-char-clipboard": 1000,
   "max-key-char-snippets": 50,
   "max-value-char-snippets": 1000,
-  "max-key-char-page-notes": 200,
-  "max-value-char-page-notes": 3000,
+  "max-key-char-page-notes": 350,
+  "max-value-char-page-notes": 7500,
+  "max-title-char-page-notes": 350,
   "encryption-algorithm": "AES",
   "last-open-ref-file": "css_selectors.txt",
 };
@@ -297,7 +298,5 @@ const defaultPageNoteConfig = {
     "guide",
     "table",
   ],
-  status: [{
-    className: "expiring",
-}, "lines", "words", "autosave"],
+  status: ["lines", "words"],
 };
