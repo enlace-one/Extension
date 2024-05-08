@@ -67,18 +67,18 @@
       <div id="unlocked-div" class="hidden">
         <div class="tabs">
           <button
-            class="tab-button active snippetsName"
+            class="tab-button hidden snippetsName"
             data-tab="snippets-tab"
           >
             Snippets
           </button>
-          <button class="tab-button clipboardName" data-tab="e-clip">
+          <button class="tab-button active clipboardName" data-tab="e-clip">
             e-Clip
           </button>
           <input type="button" value="Lock" id="lock-button" />
         </div>
-        <div class="tab-content" id="e-clip">
-          <h2 class="clipboardName">e-Clip</h2>
+        <div class="tab-content active" id="e-clip">
+          <!-- <h2 class="clipboardName">e-Clip</h2> -->
           <div id="copy-div">
             <br />
             <label id="copy-value-1-label"
@@ -161,7 +161,7 @@
             (i)
           </p>
         </div>
-        <div class="tab-content active" id="snippets-tab">
+        <div class="tab-content" id="snippets-tab">
           <h2 class="snippetsName">Snippets</h2>
           <div>
             <label for="search">Search:</label>
