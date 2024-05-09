@@ -394,6 +394,9 @@ async function open_page_note(id) {
   if (openInPreview) {
     easyMDE.togglePreview();
   }
+
+  // Set Focus
+  easyMDE.codemirror.focus();
 }
 
 ////////////

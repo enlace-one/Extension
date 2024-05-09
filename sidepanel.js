@@ -5,6 +5,7 @@
 // Page Notes//
 ///////////////
 
+const pnHelpButton = document.getElementById("page-notes-help-tab-button")
 
 async function setActiveURL(url) {
     const table = document.getElementById("page-notes-matching-url-table");
@@ -55,6 +56,16 @@ chrome.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
 document.getElementById("add-current-url").addEventListener("click", async function () {
     const url = await get_current_url()
     let url_pattern = await get_default_pattern(url)
+    url_pattern = url_pattern.substring(0, maxPageNotesURLChar);
+    url_pattern = urlPatternElement.value + "|" + url_pattern
+    urlPatternElement.value = url_pattern
+})
+
+document.getElementById("add-current-domain").addEventListener("click", async function () {
+    const url = await get_current_url()
+    let domain = await get_default_title(url)
+    let url_pattern = await get_default_pattern(domain)
+    url_pattern = url_pattern.substring(0, maxPageNotesURLChar);
     url_pattern = urlPatternElement.value + "|" + url_pattern
     urlPatternElement.value = url_pattern
 })
@@ -88,29 +99,21 @@ chrome.runtime.onMessage.addListener(
         }
 });
 
-chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
-    var tab = tabs[0];
-    if (tab && tab.id) {
-        chrome.scripting.executeScript({
-            target: { tabId: tab.id },
-            function: async function () {
-                console.log("Executing custom script");
-                document.addEventListener("keydown", async function (event) {
-                    console.log("keydown observed")
-                    if (event.altKey && event.key === "s") {
-                        const previewIsActive = easyMDE.isPreviewActive();
-                        if (previewIsActive) {
-                            easyMDE.togglePreview();
-                        }
-                    }
-                });
-            },
-        }).then(() => {
-            console.log("Script injected successfully");
-        }).catch((error) => {
-            console.log("Error injecting script: ", error);
-        });
-    } else {
-        console.log("Error: No active tab found or tab.id is undefined");
+
+document.addEventListener("keydown", function(event) {
+    if (event.ctrlKey && event.key === "?") {
+        console.log("Help button clicked")
+        pnHelpButton.click()
+        if (easyMDE.isFullscreenActive()){
+            easyMDE.toggleFullScreen
+        }
+        for (const [key, value] of Object.entries(pageNoteConfigOverwrite["shortcuts"])) {
+            const element = document.getElementById("kbs_" + key);
+            if (element) {
+                element.innerText = value;
+            } else {
+                console.log(`Element with ID ${key} not found.`);
+            }
+        }
     }
-});
+})

@@ -8,13 +8,13 @@
   <link rel="stylesheet" href="/third_party/easymde.min.css">
   <link rel="stylesheet" href="/third_party/highlight.min.css">
   <style>
-    
-
-</style>
 
 
-<script src="/third_party/easymde.min.js"></script>
-<script src="/third_party/highlight.min.js"></script>
+  </style>
+
+
+  <script src="/third_party/easymde.min.js"></script>
+  <script src="/third_party/highlight.min.js"></script>
 
 
 </head>
@@ -46,7 +46,143 @@
         <button id="open-page-notes-tab-button" class="tab-button active" data-tab="open-page-notes-tab">
           Open <span id="page-notes-indicator"></span>
         </button>
+        <button id="page-notes-help-tab-button" class="tab-button hidden" data-tab="page-notes-help-tab">
+          Help
+        </button>
         <input type="button" value="Lock" id="lock-button" />
+      </div>
+      <div class="tab-content" id="page-notes-help-tab">
+        <h2>Help Page</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>Shortcut</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td id="">Ctrl-;</td>
+              <td>pasteCurrentDateTime</td>
+            </tr>
+            <tr>
+              <td id="">Ctrl-;</td>
+              <td>pasteCurrentURL</td>
+            </tr>
+            <tr>
+              <td id="kbs_toggleBlockquote">Ctrl-'</td>
+              <td>toggleBlockquote</td>
+            </tr>
+            <tr>
+              <td id="kbs_toggleBold">Ctrl-B</td>
+              <td>toggleBold</td>
+            </tr>
+            <tr>
+              <td id="kbs_cleanBlock">Ctrl-E</td>
+              <td>cleanBlock</td>
+            </tr>
+            <tr>
+              <td id="kbs_toggleHeadingSmaller">Ctrl-H</td>
+              <td>toggleHeadingSmaller</td>
+            </tr>
+            <tr>
+              <td id="kbs_toggleItalic">Ctrl-I</td>
+              <td>toggleItalic</td>
+            </tr>
+            <tr>
+              <td id="kbs_drawLink">Ctrl-K</td>
+              <td>drawLink</td>
+            </tr>
+            <tr>
+              <td id="kbs_toggleUnorderedList">Ctrl-L</td>
+              <td>toggleUnorderedList</td>
+            </tr>
+            <tr>
+              <td id="kbs_togglePreview">Ctrl-P</td>
+              <td>togglePreview</td>
+            </tr>
+            <tr>
+              <td id="kbs_toggleCodeBlock">Ctrl-Alt-C</td>
+              <td>toggleCodeBlock</td>
+            </tr>
+            <tr>
+              <td id="kbs_drawImage">Ctrl-Alt-I</td>
+              <td>drawImage</td>
+            </tr>
+            <tr>
+              <td id="kbs_toggleOrderedList">Ctrl-Alt-L</td>
+              <td>toggleOrderedList</td>
+            </tr>
+            <tr>
+              <td id="kbs_toggleHeadingBigger">Shift-Ctrl-H</td>
+              <td>toggleHeadingBigger</td>
+            </tr>
+            <tr>
+              <td id="kbs_toggleSideBySide">F9</td>
+              <td>toggleSideBySide</td>
+            </tr>
+            <tr>
+              <td id="kbs_toggleFullScreen">F11</td>
+              <td>toggleFullScreen</td>
+            </tr>
+            <tr>
+              <td id="kbs_toggleHeading1">Ctrl-Alt-1</td>
+              <td>toggleHeading1</td>
+            </tr>
+            <tr>
+              <td id="kbs_toggleHeading2">Ctrl-Alt-2</td>
+              <td>toggleHeading2</td>
+            </tr>
+            <tr>
+              <td id="kbs_toggleHeading3">Ctrl-Alt-3</td>
+              <td>toggleHeading3</td>
+            </tr>
+            <tr>
+              <td id="kbs_toggleHeading4">Ctrl-Alt-4</td>
+              <td>toggleHeading4</td>
+            </tr>
+            <tr>
+              <td id="kbs_toggleHeading5">Ctrl-Alt-5</td>
+              <td>toggleHeading5</td>
+            </tr>
+            <tr>
+              <td id="kbs_toggleHeading6">Ctrl-Alt-6</td>
+              <td>toggleHeading6</td>
+            </tr>
+            <tr>
+              <td id="kbs_selectAll">Ctrl-A</td>
+              <td>selectAll hujhui</td>
+            </tr>
+            <tr>
+              <td id="kbs_deleteLine">Ctrl-D</td>
+              <td>deleteLine</td>
+            </tr>
+            <tr>
+              <td id="kbs_undo">Ctrl-Z</td>
+              <td>undo</td>
+            </tr>
+            <tr>
+              <td id="kbs_redo">Ctrl-Shft-Z or Ctrl-Y</td>
+              <td>redo</td>
+            </tr>
+            <tr>
+              <td id="kbs_undoSelection">Ctrl-U</td>
+              <td>undoSelection</td>
+            </tr>
+            <tr>
+              <td id="kbs_redoSelection">Alt-U</td>
+              <td>redoSelection</td>
+            </tr>
+            <tr>
+              <td id="kbs_goLineStart">Alt-Left</td>
+              <td>goLineStart</td>
+            </tr>
+            <tr>
+              <td id="kbs_goLineEnd">Alt-Right</td>
+              <td>goLineEnd</td>
+            </tr>
+          </tbody>
+        </table>        
       </div>
       <div class="tab-content active" id="open-page-notes-tab">
         <div id="page-notes-matching-url">
@@ -56,7 +192,8 @@
         </div>
         <hr style="margin:10px">
         <!-- <h3>Search</h3> -->
-        <input id="page-notes-search" placeholder="Search..." style="margin-bottom: 10px; padding: 8px; border: 1px solid #ccc; border-radius: 4px; width: calc(100% - 20px);">
+        <input id="page-notes-search" placeholder="Search..."
+          style="margin-bottom: 10px; padding: 8px; border: 1px solid #ccc; border-radius: 4px; width: calc(100% - 20px);">
         <br>
         <p class="hidden" id="no-search-results-page-notes">None found</p>
         <div id="page-notes-search-results">
@@ -71,17 +208,23 @@
         <br>
         <label>URL Pattern</label>
         <div class="input-group">
-          <textarea id="url-pattern" rows="1" style="padding: 6px; width: calc(100% - 50px); border: 1px solid #ccc; border-radius: 4px;" ></textarea>
-          <button hover-text="Adds the default pattern from the current URL to this page note's pattern." id="add-current-url">+</button>
+          <textarea id="url-pattern" rows="1"
+            style="padding: 6px; width: calc(100% - 50px); border: 1px solid #ccc; border-radius: 4px;"></textarea>
+          <button
+            hover-text="Adds the default pattern from the current URL (https://google.com/search) to this page note's pattern."
+            id="add-current-url">+u</button>
+          <button
+            hover-text="Adds the default pattern from the current domain (google.com) to this page note's pattern."
+            id="add-current-domain">+d</button>
           <span class="hidden" id="page-note-id"></span>
         </div>
         <br />
         <textarea id="page-notes-textarea" style="width: 70vw; height: 70vh;"></textarea>
-        
+
         <!-- <br />
         <a id="open-page-note-in-options">Open this note in a new tab</a> -->
-        <br/>
-        <small>CTRL+; to paste current date/time, CTRL+: to past current URL. Supports most of <a target="_blank" href="https://github.com/Ionaru/easy-markdown-editor?tab=readme-ov-file#keyboard-shortcuts">these</a> and <a target="_blank" href="https://codemirror.net/5/doc/manual.html#commands">these.</a></small>
+        <br />
+        <small>Ctrl-? for help page.</small>
       </div>
     </div>
   </div>

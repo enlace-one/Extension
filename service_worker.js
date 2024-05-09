@@ -35,7 +35,8 @@ const defaultPageNotes = [
   {text:"sql.txt", id:"mde_sql", url_pattern:"", title:"SQL"}, 
   {text:"us_states.txt", id:"mde_us_states", url_pattern:"", title:"US States"}, 
   {text:"windows_cmd.txt", id:"mde_cmd", url_pattern:"", title:"Windows CMD"}, 
-  {text:"windows_keyboard.txt", id:"mde_windows_keyboard", url_pattern:"", title:"Windows Keyboard Shortcuts"}
+  {text:"windows_keyboard.txt", id:"mde_windows_keyboard", url_pattern:"", title:"Windows Keyboard Shortcuts"},
+  {text:"keyboard_nav.txt", id:"mde_keyboard_nav", url_pattern:"", title:"Keyboard Navigation Basics"}
  ]
 
  async function _storeDefaultPageNotes() {
