@@ -24,6 +24,8 @@ async function setActiveURL(url) {
 
     if (page_notes.length === 1 &&  pageNotesTabButton.classList.contains("hidden")) {
         open_page_note(page_notes[0].id)
+    } else {
+        document.getElementById("page-notes-search").focus()
     }
 }
 

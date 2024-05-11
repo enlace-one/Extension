@@ -64,6 +64,12 @@ async function deleteExpiredNotes() {
   }
 }
 
+function replaceAndSelect(newText) {
+  easyMDE.codemirror.replaceSelection(newText); // Replace the selected text with the new text
+  var cursor = easyMDE.codemirror.getCursor(); // Get the current cursor position
+  easyMDE.codemirror.setSelection(cursor, {line: cursor.line, ch: cursor.ch - newText.length}); // Select the newly inserted text
+}
+
 /////////////
 // Easymde //
 /////////////
@@ -96,23 +102,23 @@ async function getEasyMDE() {
 
     pageNoteConfigOverwrite["status"].unshift({
       className: "expiring",
-  })
-    pageNoteConfigOverwrite["status"].push("autosave")
+    });
+    pageNoteConfigOverwrite["status"].push("autosave");
     pageNoteConfigOverwrite["status"].push({
       className: "Characters",
       defaultValue: (el) => {
-          el.setAttribute('data-characters', 0);
+        el.setAttribute("data-characters", 0);
       },
       onUpdate: (el) => {
-          const characters = easyMDE.value().length
-          if (characters > 7500) {
-            el.classList.add("red-text")
-          } else {
-            el.classList.remove("red-text")
-          }
-          el.innerHTML = `${characters}/7500`;
+        const characters = easyMDE.value().length;
+        if (characters > 7500) {
+          el.classList.add("red-text");
+        } else {
+          el.classList.remove("red-text");
+        }
+        el.innerHTML = `${characters}/7500`;
       },
-  })
+    });
 
     console.log(pageNoteConfigOverwrite);
 
@@ -168,7 +174,8 @@ async function getEasyMDE() {
         name: "OpenInTab",
         action: (editor) => {
           const pageNoteId = idElement.value;
-          const url = chrome.runtime.getURL("options.html") + "?pageNote=" + pageNoteId;
+          const url =
+            chrome.runtime.getURL("options.html") + "?pageNote=" + pageNoteId;
           chrome.tabs.create({ url: url });
         },
         className: '<i class="fa-regular fa-window-maximize"></i>',
@@ -186,11 +193,11 @@ async function getEasyMDE() {
       name: "ESC",
       action: (editor) => {
         // Get current selection
-        const selectedText = easyMDE.codemirror.getSelection()
+        const selectedText = easyMDE.codemirror.getSelection();
         // Escape markdown syntax like * and starting #
-        const escapedText = selectedText.replace(/([*_#])/g, '\\$1');
+        const escapedText = selectedText.replace(/([*_#])/g, "\\$1");
         // Replace that selection
-        easyMDE.codemirror.replaceSelection(escapedText)
+        easyMDE.codemirror.replaceSelection(escapedText);
       },
       className: '<i class="fa-regular fa-window-maximize"></i>',
       text: "ESC",
@@ -200,7 +207,7 @@ async function getEasyMDE() {
         id: "escape-markdown",
         // "data-value": "custom value" // HTML5 data-* attributes need to be enclosed in quotation marks ("") because of the dash (-) in its name.
       },
-    })
+    });
 
     console.log(pageNoteConfigOverwrite);
 
@@ -215,11 +222,8 @@ async function getEasyMDE() {
       <label for="page-notes-expiring-checkbox">Expiring </label>
       <p hover-text="When checked, the page note expires after 60 days without views or edits.">&nbsp; (i)</p>
     </div>`;
-    expiringCheckbox = document.getElementById(
-      "page-notes-expiring-checkbox"
-    );
+    expiringCheckbox = document.getElementById("page-notes-expiring-checkbox");
     savedAtIndicator = document.querySelector(".autosave");
-    
 
     openInPreview = pageNoteConfigOverwrite.openInPreview;
     openInFullScreen = pageNoteConfigOverwrite.openInFullScreen;
@@ -251,6 +255,29 @@ async function getEasyMDE() {
         } else if (event.ctrlKey && event.key === "s") {
           event.preventDefault();
           downloadPageNote();
+        } else if (event.shiftKey && event.key === "F3") {
+          event.preventDefault();
+          const selection = easyMDE.codemirror.getSelection();
+          // Cycle through capital
+          const currentCase = determineCase(selection);
+
+          let newCaseText;
+          switch (currentCase) {
+            case "lower":
+              newCaseText = selection.toUpperCase();
+              break;
+            case "upper":
+              newCaseText = toTitleCase(selection);
+              break;
+            case "title":
+              newCaseText = selection.toLowerCase();
+              break;
+            default:
+              newCaseText = selection.toUpperCase(); // Default to uppercase if undetermined
+          }
+
+          replaceAndSelect(newCaseText)
+          //easyMDE.codemirror.replaceSelection(newCaseText);
         }
       });
 
@@ -270,12 +297,17 @@ const idElement = document.getElementById("page-note-id");
 const pageNotesTabButton = document.getElementById("page-notes-tab-button");
 
 let maxPageNotesTitleChar;
-getSetting("max-title-char-page-notes").then((value)=> maxPageNotesTitleChar = value)
+getSetting("max-title-char-page-notes").then(
+  (value) => (maxPageNotesTitleChar = value)
+);
 let maxPageNotesURLChar;
-getSetting("max-key-char-page-notes").then((value)=> maxPageNotesURLChar = value)
+getSetting("max-key-char-page-notes").then(
+  (value) => (maxPageNotesURLChar = value)
+);
 let maxPageNotesNoteChar;
-getSetting("max-value-char-page-notes").then((value)=> maxPageNotesNoteChar = value)
-
+getSetting("max-value-char-page-notes").then(
+  (value) => (maxPageNotesNoteChar = value)
+);
 
 let encryptPageNotes = false;
 getSetting("encrypt-page-notes").then((value) => {
@@ -284,10 +316,10 @@ getSetting("encrypt-page-notes").then((value) => {
   // Adjust max size if encryption is applied.
   if (value) {
     setTimeout(function () {
-      maxPageNotesNoteChar = maxPageNotesNoteChar/3
-      maxPageNotesTitleChar = maxPageNotesTitleChar/3
-      maxPageNotesURLChar = maxPageNotesURLChar/3
-    }, 500)
+      maxPageNotesNoteChar = maxPageNotesNoteChar / 3;
+      maxPageNotesTitleChar = maxPageNotesTitleChar / 3;
+      maxPageNotesURLChar = maxPageNotesURLChar / 3;
+    }, 500);
   }
 });
 
@@ -314,18 +346,24 @@ async function _save_page_note(id, note, title, url_pattern, expiring) {
   }
 
   if (note.length > maxPageNotesNoteChar) {
-    showNotification(`Error: Note is too long. ${note.length} is larger than max setting: ${maxPageNotesNoteChar}`)
-    return
+    showNotification(
+      `Error: Note is too long. ${note.length} is larger than max setting: ${maxPageNotesNoteChar}`, 3
+    );
+    return;
   }
   if (title.length > maxPageNotesTitleChar) {
-    showNotification(`Error: Title is too long. ${title.length} is larger than max setting: ${maxPageNotesTitleChar}`)
-    return
+    showNotification(
+      `Error: Title is too long. ${title.length} is larger than max setting: ${maxPageNotesTitleChar}`, 3
+    );
+    return;
   }
   if (url_pattern.length > maxPageNotesURLChar) {
-    showNotification(`Error: URL pattern is too long. ${url_pattern.length} is larger than max setting: ${maxPageNotesURLChar}`)
-    return
+    showNotification(
+      `Error: URL pattern is too long. ${url_pattern.length} is larger than max setting: ${maxPageNotesURLChar}`
+    );
+    return;
   }
-  
+
   const noteData = {
     note: note,
     title: title,
@@ -383,8 +421,8 @@ async function get_page_note(id) {
 
 function addPageNoteIdToUrl(pageNoteId) {
   const url = new URL(window.location.href);
-  url.searchParams.set('pageNote', pageNoteId);
-  window.history.pushState({}, '', url);
+  url.searchParams.set("pageNote", pageNoteId);
+  window.history.pushState({}, "", url);
 }
 
 async function open_page_note(id) {
@@ -400,7 +438,7 @@ async function open_page_note(id) {
   titleElement.value = page_note.title;
   idElement.value = id;
   // Add the page_note_id to the url as paramter pageNote=
-  addPageNoteIdToUrl(id)
+  addPageNoteIdToUrl(id);
 
   setTimeout(function () {
     if (page_note.lastOpened) {

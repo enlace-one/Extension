@@ -1,7 +1,7 @@
 {
   "name": "Page Notes",
   "description": "A collection of helpful tools running locally",
-  "version": "4.1",
+  "version": "4.2",
   "manifest_version": 3,
   "icons": {"1": "ea_128.png"},
   "action": {

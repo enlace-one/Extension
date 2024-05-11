@@ -230,7 +230,7 @@ async function generateRandomAlphaNumeric(length) {
   return result;
 }
 
-function showNotification(message) {
+function showNotification(message, seconds=1) {
   const notification = document.createElement("div");
   notification.classList.add("tooltiptext");
   notification.style = "visibility: visible; opacity: 1; display: block;";
@@ -239,7 +239,7 @@ function showNotification(message) {
 
   setTimeout(function () {
     document.body.removeChild(notification);
-  }, 1000);
+  }, seconds*1000);
 }
 
 function truncateText(text, maxLength) {
@@ -299,3 +299,17 @@ const defaultPageNoteConfig = {
   ],
   status: [], // "lines", "words"
 };
+
+
+function determineCase(text) {
+  if (text === text.toLowerCase()) return 'lower';
+  if (text === text.toUpperCase()) return 'upper';
+  if (text === toTitleCase(text)) return 'title';
+  return 'mixed';
+}
+
+function toTitleCase(text) {
+  return text.replace(/\w\S*/g, function(txt) {
+    return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
+  });
+}
