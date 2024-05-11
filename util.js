@@ -289,8 +289,6 @@ const defaultPageNoteConfig = {
   openInFullScreen: true,
   // uploadImage: true,
   toolbar: [
-    "code",
-    "quote",
     "link",
     "image",
     "preview",

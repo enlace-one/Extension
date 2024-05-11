@@ -164,7 +164,7 @@ async function getEasyMDE() {
         "table",
       ];
     } else {
-      pageNoteConfigOverwrite["toolbar"].push({
+      pageNoteConfigOverwrite["toolbar"].unshift({
         name: "OpenInTab",
         action: (editor) => {
           const pageNoteId = idElement.value;
@@ -181,6 +181,26 @@ async function getEasyMDE() {
         },
       });
     }
+
+    pageNoteConfigOverwrite["toolbar"].unshift({
+      name: "ESC",
+      action: (editor) => {
+        // Get current selection
+        const selectedText = easyMDE.codemirror.getSelection()
+        // Escape markdown syntax like * and starting #
+        const escapedText = selectedText.replace(/([*_#])/g, '\\$1');
+        // Replace that selection
+        easyMDE.codemirror.replaceSelection(escapedText)
+      },
+      className: '<i class="fa-regular fa-window-maximize"></i>',
+      text: "ESC",
+      title: "Escape Markdown Syntax",
+      attributes: {
+        // for custom attributes
+        id: "escape-markdown",
+        // "data-value": "custom value" // HTML5 data-* attributes need to be enclosed in quotation marks ("") because of the dash (-) in its name.
+      },
+    })
 
     console.log(pageNoteConfigOverwrite);
 
@@ -361,6 +381,12 @@ async function get_page_note(id) {
   return page_note;
 }
 
+function addPageNoteIdToUrl(pageNoteId) {
+  const url = new URL(window.location.href);
+  url.searchParams.set('pageNote', pageNoteId);
+  window.history.pushState({}, '', url);
+}
+
 async function open_page_note(id) {
   console.log(`Opening page note ${id}`);
 
@@ -373,6 +399,8 @@ async function open_page_note(id) {
   urlPatternElement.value = page_note.url_pattern;
   titleElement.value = page_note.title;
   idElement.value = id;
+  // Add the page_note_id to the url as paramter pageNote=
+  addPageNoteIdToUrl(id)
 
   setTimeout(function () {
     if (page_note.lastOpened) {

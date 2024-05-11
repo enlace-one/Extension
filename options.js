@@ -860,3 +860,16 @@ document.addEventListener("keydown", function(event) {
 document.getElementById("delete-expired-page-note-button").addEventListener("click", function () {
     showNotification("Deleted expired page notes")
 })
+
+document.getElementById("open-url-pattern").addEventListener("click", function() {
+    let url = urlPatternElement.value;
+    url = url.split("|")[0];
+
+    // Assuming the URL is regex escaped, we need to unescape it
+    // This is a basic example and might need to be adjusted based on specific escape rules
+    url = url.replace(/\\([.*+?^${}()|\[\]\/\\])/g, '$1');
+
+    // Open the URL in a new tab
+    // window.open(url, '_blank');
+    chrome.tabs.create({ url: url });
+});
