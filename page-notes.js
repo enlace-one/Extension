@@ -168,7 +168,7 @@ async function getEasyMDE() {
         name: "OpenInTab",
         action: (editor) => {
           const pageNoteId = idElement.value;
-          const url = chrome.runtime.getURL("options.html") + "#" + pageNoteId;
+          const url = chrome.runtime.getURL("options.html") + "?pageNote=" + pageNoteId;
           chrome.tabs.create({ url: url });
         },
         className: '<i class="fa-regular fa-window-maximize"></i>',

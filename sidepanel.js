@@ -96,24 +96,30 @@ chrome.runtime.onMessage.addListener(
         console.log(request, sender) 
         if (request.type === "open-side-panel") {
             quickEdit();
+        } else if (request.type === "open-key-board-shortcuts") {
+            openKeyBoardShortcuts()
         }
 });
+
+function openKeyBoardShortcuts() {
+    console.log("Help button clicked")
+    pnHelpButton.click()
+    if (easyMDE.isFullscreenActive()){
+        easyMDE.toggleFullScreen
+    }
+    for (const [key, value] of Object.entries(pageNoteConfigOverwrite["shortcuts"])) {
+        const element = document.getElementById("kbs_" + key);
+        if (element) {
+            element.innerText = value;
+        } else {
+            console.log(`Element with ID ${key} not found.`);
+        }
+    }
+}
 
 
 document.addEventListener("keydown", function(event) {
     if (event.ctrlKey && event.key === "?") {
-        console.log("Help button clicked")
-        pnHelpButton.click()
-        if (easyMDE.isFullscreenActive()){
-            easyMDE.toggleFullScreen
-        }
-        for (const [key, value] of Object.entries(pageNoteConfigOverwrite["shortcuts"])) {
-            const element = document.getElementById("kbs_" + key);
-            if (element) {
-                element.innerText = value;
-            } else {
-                console.log(`Element with ID ${key} not found.`);
-            }
-        }
+        openKeyBoardShortcuts()
     }
 })

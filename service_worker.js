@@ -108,6 +108,8 @@ chrome.commands.onCommand.addListener(async (command) => {
             //     } 
             // });
 
+            // When the sidepanel is open, this is used to bring 
+            // it into focus and turn off preview
             try {
               chrome.runtime.sendMessage({
                 type: 'open-side-panel',

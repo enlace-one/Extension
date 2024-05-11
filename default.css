@@ -117,6 +117,7 @@ input[type="checkbox"] {
   visibility: visible;
   opacity: 1;
   display: block;
+  z-index: 1000;
 }
 
 .hidden {

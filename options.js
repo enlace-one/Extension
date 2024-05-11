@@ -807,16 +807,54 @@ document.getElementById("script-editor").addEventListener("keydown", async funct
 // });
 
 
-document.addEventListener("DOMContentLoaded", function() {
-    // If # in url, then get the value of it 
-    if (window.location.hash) {
-        var hashValue = window.location.hash.substring(1); // Removes the '#' from the beginning
-        console.log("hash:", hashValue)
-        document.getElementById("page-notes-super-tab").click()
-        open_page_note(hashValue)
-    }
+// document.addEventListener("DOMContentLoaded", function() {
+//     // If # in url, then get the value of it 
+//     if (window.location.hash) {
+//         var hashValue = window.location.hash.substring(1); // Removes the '#' from the beginning
+//         console.log("hash:", hashValue)
+//         document.getElementById("page-notes-super-tab").click()
+//         open_page_note(hashValue)
+//     }
 
+// });
+
+document.addEventListener("DOMContentLoaded", function() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const paramName = "pageNote"; 
+    if (urlParams.has(paramName)) {
+        var paramValue = urlParams.get(paramName);
+        console.log("Parameter value:", paramValue);
+        document.getElementById("page-notes-super-tab").click();
+        open_page_note(paramValue);
+    }
 });
+
+// Create a function to open the sidebar and add "?page=KeyboardShortcuts" to the url 
+function openSidePanelToKeyBoardShortcuts () {
+    chrome.tabs.query({ active: true, currentWindow: true }, ([tab]) => {
+        chrome.sidePanel.open({ tabId: tab.id });
+
+        setTimeout(function() {
+            try {
+                chrome.runtime.sendMessage({
+                    type: 'open-key-board-shortcuts',
+                    target: 'sidepanel',
+                    data: true
+                });
+            } catch (e) {
+                console.log("failed to open keyboard shortcuts", e)
+            }
+        }, 100)
+    });
+}
+
+
+document.addEventListener("keydown", function(event) {
+    if (event.ctrlKey && event.key === "?") {
+        console.log("opening side panel")
+        openSidePanelToKeyBoardShortcuts()
+    }
+})
 
 
 document.getElementById("delete-expired-page-note-button").addEventListener("click", function () {

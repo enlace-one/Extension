@@ -279,6 +279,7 @@ const defaultPageNoteConfig = {
     toggleUnorderedList: "Ctrl-.",
   },
   autofocus: true,
+  maxHeight: "50vh",
   spellChecker: false,
   renderingConfig: {
     codeSyntaxHighlighting: true,
@@ -298,5 +299,5 @@ const defaultPageNoteConfig = {
     "guide",
     "table",
   ],
-  status: ["lines", "words"],
+  status: [], // "lines", "words"
 };
