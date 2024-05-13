@@ -476,12 +476,12 @@ document.addEventListener("DOMContentLoaded", function () {
         // document.getElementById("page-notes-space").innerText = pageNoteBytes
         //console.log("Size of data in bytes (of 102400): " + bytes);
 
-        try {
-            var snippetsBytes = JSON.stringify(result["snippet-data"]).length * 2; // Multiply by 2 to account for UTF-16 encoding
-            document.getElementById("snippets-space").innerText = snippetsBytes
-        } catch (error) {
-            console.log("No snippets found")
-        }
+        // try {
+        //     var snippetsBytes = JSON.stringify(result["snippet-data"]).length * 2; // Multiply by 2 to account for UTF-16 encoding
+        //     document.getElementById("snippets-space").innerText = snippetsBytes
+        // } catch (error) {
+        //     console.log("No snippets found")
+        // }
     });
 });
 
@@ -551,9 +551,9 @@ document.getElementById("reset-settings").addEventListener("click", function (){
     store("enlace-settings", {})
 })
 
-document.getElementById("reset-snippets").addEventListener("click", function (){
-    store("snippet-data", {})
-})
+// document.getElementById("reset-snippets").addEventListener("click", function (){
+//     store("snippet-data", {})
+// })
 
 async function deleteAllPageNotes() {
     results = await chrome.storage.sync.get()
@@ -639,11 +639,28 @@ addRowButton.addEventListener('click', function() {
 // Replacer //
 //////////////
 
+const replacerFind = document.getElementById("replacer-find")
+const replacerReplaceWith = document.getElementById("replacer-replace-with")
+const replacerInput = document.getElementById("replacer-input")
+const replacerOutput = document.getElementById("replacer-output")
+
+document.getElementById("replacer-switch").addEventListener("click", function() {
+    const input = replacerInput.value
+    replacerInput.value = replacerOutput.value
+    replacerOutput.value = input
+})
+
+document.getElementById("replacer-regex-switch").addEventListener("click", function() {
+    const find = replacerFind.value
+    replacerFind.value = replacerReplaceWith.value
+    replacerReplaceWith.value = find
+})
+
 document.getElementById("runReplacer").addEventListener("click", function () {
-    const find = document.getElementById("replacer-find").value
-    const replaceWith = document.getElementById("replacer-replace-with").value
-    const input = document.getElementById("replacer-input").value
-    const output = document.getElementById("replacer-output")
+    const find = replacerFind.value
+    const replaceWith = replacerReplaceWith.value
+    const input = replacerInput.value
+    const output = replacerOutput
     let countReplaced = 0;
 
     // Replace all instaces of "find" with "replaceWith" in 

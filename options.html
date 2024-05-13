@@ -204,21 +204,26 @@
                         <table id="replacerTable">
                             <tr>
                                 <th>Find</th>
+                                <th></th>
                                 <th>Replace With</th>
                             </tr>
                             <tr>
                                 <td><textarea id="replacer-find" rows="1"></textarea></td>
+                                <td style="width: 82px"><input type="button" id="replacer-regex-switch" value="&lt; Switch &gt;"/></td>
                                 <td><textarea id="replacer-replace-with" rows="1"></textarea></td>
                             </tr>
                         </table>
                         <input type="button" id="runReplacer" value="Replace" />
 
-                        <textarea id="replacer-input" rows="5" placeholder="input"></textarea>
-                        <textarea id="replacer-output" rows="5" placeholder="output"></textarea>
+                        <textarea id="replacer-input" rows="5" class="copy-block" placeholder="input"></textarea>
+                        <input id="replacer-switch" type="button" style="display: block;
+                        margin: 10px auto; /* Center the button */
+                        padding: 8px 16px;" value="^ Switch v"/>
+                        <textarea id="replacer-output" rows="5" class="copy-block" placeholder="output"></textarea>
                     </div>
                     <div class="subtab-content active" id="regex-subtab">
                         <h1 class="regexTesterName">Regex Tester</h1>
-                        <textarea id="regexCode" rows="5" placeholder="h.llo"></textarea>
+                        <textarea id="regexCode" class="copy-block"  rows="5" placeholder="h.llo"></textarea>
                         <br />
                         <small>Press "Enter" to run</small>
                         <!-- <button id="runButton">Run</button> -->
@@ -235,7 +240,7 @@
                                 <td>X</td>
                             </tr>
                         </table>
-                        <button id="addRowButton">Add Row</button>
+                        <input type="button" id="addRowButton" style="margin-bottom: 10px; padding: 8px; width: 100%;" value="Add Row"/>
                         <br>
                         <small>Items on the left will show green when they match, items on the right will show green
                             when they don't match</small>

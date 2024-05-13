@@ -283,3 +283,30 @@ chrome.commands.getAll(function(commands) {
         });
     });
 });
+
+
+var copy_blocks = document.querySelectorAll(".copy-block");
+copy_blocks.forEach(function(copy_block) {
+
+    var copyBtn = document.createElement("button");
+    // copyBtn.textContent = "Copy";
+    // copyBtn.style = "margin-left: 10px;"
+    // copy_block.parentNode.insertBefore(copyBtn, copy_block.nextSibling); // Insert the button after the copy block
+
+    copyBtn.innerHTML =
+    '<img style="height: 15px;" src="images/copy.svg" alt="Icon"></img>';
+    copyBtn.style =
+    "float: right; margin-left: 10px; font-size: 15px; padding: 1px; vertical-align: top;";
+    copy_block.parentNode.insertBefore(copyBtn, copy_block.nextSibling); // Insert the button after the code block
+
+    copyBtn.addEventListener("click", function () {
+    var content = copy_block.innerText + copy_block.value;
+    navigator.clipboard
+        .writeText(content)
+        .then(() => {
+            console.log("Content copied!")
+            showNotification("Content Copied")
+        })
+        .catch((err) => console.error("Failed to copy content: ", err));
+    });
+});
