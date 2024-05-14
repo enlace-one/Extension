@@ -67,7 +67,10 @@ async function deleteExpiredNotes() {
 function replaceAndSelect(newText) {
   easyMDE.codemirror.replaceSelection(newText); // Replace the selected text with the new text
   var cursor = easyMDE.codemirror.getCursor(); // Get the current cursor position
-  easyMDE.codemirror.setSelection(cursor, {line: cursor.line, ch: cursor.ch - newText.length}); // Select the newly inserted text
+  easyMDE.codemirror.setSelection(cursor, {
+    line: cursor.line,
+    ch: cursor.ch - newText.length,
+  }); // Select the newly inserted text
 }
 
 /////////////
@@ -276,7 +279,7 @@ async function getEasyMDE() {
               newCaseText = selection.toUpperCase(); // Default to uppercase if undetermined
           }
 
-          replaceAndSelect(newCaseText)
+          replaceAndSelect(newCaseText);
           //easyMDE.codemirror.replaceSelection(newCaseText);
         }
       });
@@ -295,6 +298,10 @@ const urlPatternElement = document.getElementById("url-pattern");
 const titleElement = document.getElementById("page-notes-title");
 const idElement = document.getElementById("page-note-id");
 const pageNotesTabButton = document.getElementById("page-notes-tab-button");
+const openPageNoteButton = document.getElementById(
+  "open-page-notes-tab-button"
+);
+const pageNotesSearchInput = document.getElementById("page-notes-search");
 
 let maxPageNotesTitleChar;
 getSetting("max-title-char-page-notes").then(
@@ -347,13 +354,14 @@ async function _save_page_note(id, note, title, url_pattern, expiring) {
 
   if (note.length > maxPageNotesNoteChar) {
     showNotification(
-      `Error: Note is too long. ${note.length} is larger than max setting: ${maxPageNotesNoteChar}`, 3
+      `Error: Note is too long. ${note.length} is larger than max setting: ${maxPageNotesNoteChar}`,
+      3
     );
     return;
   }
   if (title.length > maxPageNotesTitleChar) {
     showNotification(
-      `Error: Title is too long. ${title.length} is larger than max setting: ${maxPageNotesTitleChar}`, 3
+      `Error: Title is too long. ${title.length} is larger than max setting: ${maxPageNotesTitleChar}`
     );
     return;
   }
@@ -425,6 +433,28 @@ function addPageNoteIdToUrl(pageNoteId) {
   window.history.pushState({}, "", url);
 }
 
+async function updateRecentPageNotes(currentNoteId) {
+  let recentPageNotes = await get("recent_page_notes") || [];
+  
+  // Check if the current note is already in the recent list
+  const noteIndex = recentPageNotes.indexOf(currentNoteId);
+  
+  if (noteIndex !== -1) {
+    return
+  }
+  
+  // Add the current note to the beginning of the list
+  recentPageNotes.unshift(currentNoteId);
+  
+  // Keep only the last 5 notes
+  if (recentPageNotes.length > 5) {
+    recentPageNotes.pop();
+  }
+  
+  // Save the updated list back to storage
+  await store("recent_page_notes", recentPageNotes);
+}
+
 async function open_page_note(id) {
   console.log(`Opening page note ${id}`);
 
@@ -463,6 +493,8 @@ async function open_page_note(id) {
 
   // Set Focus
   easyMDE.codemirror.focus();
+
+  updateRecentPageNotes(id)
 }
 
 ////////////
@@ -709,3 +741,46 @@ function addCodeCopyButtons() {
 }
 
 addCodeCopyButtons();
+
+// Focus on search when clicking "open"
+openPageNoteButton.addEventListener(
+  "click",
+  function () {
+    setTimeout(function () {
+      pageNotesSearchInput.focus();
+    }, 50)
+  }
+);
+
+// Focus on page note when clicking "page note"
+pageNotesTabButton.addEventListener("click",
+function () {
+  setTimeout(function () {
+    easyMDE.codemirror.focus();
+  }, 50)
+})
+
+
+
+// Recent page notes
+const recentPageNotesTable = document.getElementById("recent-page-notes-table");
+const recentPageNotesNoneFound = document.getElementById("recent-page-notes")
+
+async function getRecentPageNotes() {
+    const recentPageNotes = await get("recent_page_notes")
+    if (recentPageNotes.length > 0) {
+        recentPageNotesNoneFound.classList.add("hidden");
+        const notesDetails = [];
+        for (const pn of recentPageNotes) {
+            try {
+                const pageNote = await get_page_note(pn);
+                notesDetails.push(pageNote);
+            } catch (error) {
+                console.error("Failed to get page note:", error);
+            }
+        }
+        makePageNoteTable(notesDetails, recentPageNotesTable);
+    }
+}
+
+getRecentPageNotes()

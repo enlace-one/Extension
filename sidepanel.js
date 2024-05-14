@@ -22,11 +22,15 @@ async function setActiveURL(url) {
         document.getElementById("no-matching-page-notes").classList.remove("hidden")
     }
 
-    if (page_notes.length === 1 &&  pageNotesTabButton.classList.contains("hidden")) {
-        open_page_note(page_notes[0].id)
-    } else {
-        document.getElementById("page-notes-search").focus()
-    }
+    // Sidepanel would have to be in focus... 
+    // if (page_notes.length === 1 &&  pageNotesTabButton.classList.contains("hidden")) {
+    //     open_page_note(page_notes[0].id)
+    // } else {
+    //     setTimeout(function () {
+    //         document.getElementById("page-notes-search").click()
+    //         document.getElementById("page-notes-search").focus()
+    //     }, 1000)
+    // } 
 }
 
 async function getCurrentURL() {
@@ -125,3 +129,5 @@ document.addEventListener("keydown", function(event) {
         openKeyBoardShortcuts()
     }
 })
+
+

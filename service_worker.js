@@ -145,11 +145,15 @@ chrome.commands.onCommand.addListener(async (command) => {
   
     // Now that we have an offscreen document, we can dispatch the
     // message.
-    chrome.runtime.sendMessage({
-      type: 'copy-data-to-clipboard',
-      target: 'offscreen-doc',
-      data: value
-    });
+    try {
+        chrome.runtime.sendMessage({
+        type: 'copy-data-to-clipboard',
+        target: 'offscreen-doc',
+        data: value
+      });
+    } catch {
+      console.log("Recieving end is not established yet")
+    }
   }
   
   // Solution 2 – Once extension service workers can use the Clipboard API,
