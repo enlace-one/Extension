@@ -51,9 +51,9 @@ async function store(key, value) {
     console.log("Value is set for " + key);
   });
 }
-async function get(key) {
+async function get(key, defaultValue = null) {
   return chrome.storage.sync.get([key]).then((result) => {
-    return result[key];
+    return result[key] !== undefined ? result[key] : defaultValue;
   });
 }
 

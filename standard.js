@@ -274,8 +274,8 @@ document.addEventListener('DOMContentLoaded', function () {
 // Add Keyboard Shortcuts
 chrome.commands.getAll(function(commands) {
     commands.forEach(function(command) {
-        console.log('Command: ' + command.name);
-        console.log('Shortcut: ' + command.shortcut);
+        // console.log('Command: ' + command.name);
+        // console.log('Shortcut: ' + command.shortcut);
         Array.from(document.getElementsByClassName(command.name)).forEach(element => {
             if (element && command.shortcut) {
                 element.innerHTML = command.shortcut

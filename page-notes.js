@@ -670,10 +670,7 @@ async function newPageNote() {
   easyMDE.value("");
   idElement.value = id;
   pageNotesTabButton.classList.remove("hidden");
-  document
-    .getElementById("new-page-notes-tab-button")
-    .classList.remove("active");
-  pageNotesTabButton.classList.add("active");
+  pageNotesTabButton.click();
   expiringCheckbox.checked = true;
 }
 
@@ -767,7 +764,7 @@ const recentPageNotesTable = document.getElementById("recent-page-notes-table");
 const recentPageNotesNoneFound = document.getElementById("recent-page-notes")
 
 async function getRecentPageNotes() {
-    const recentPageNotes = await get("recent_page_notes")
+    const recentPageNotes = await get("recent_page_notes", [])
     if (recentPageNotes.length > 0) {
         recentPageNotesNoneFound.classList.add("hidden");
         const notesDetails = [];

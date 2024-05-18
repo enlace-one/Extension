@@ -49,16 +49,16 @@ const defaultPageNotes = [
   }
 }
 
+let hasRun = false;
 async function storeDefaultPageNotes() {
   self.addEventListener('message', async (event) => {
-      if (event.data.action === 'appStateChanged') {
-          if (event.data.isUnlocked) {
-            if (! await isLocked()) {
-              setTimeout(_storeDefaultPageNotes, 3000);
-            }
-          }
-        }
-    });
+    if (event.data.action === 'appStateChanged' && event.data.isUnlocked && !hasRun) {
+      if (!await isLocked()) {
+        setTimeout(_storeDefaultPageNotes, 3000);
+        hasRun = true; // Set the flag to true after running
+      }
+    }
+  });
 }
 
 // Open options page on install or update
@@ -68,15 +68,6 @@ chrome.runtime.onInstalled.addListener(function(details) {
     }
     storeDefaultPageNotes()
 });
-
-
-// Options the options page on keyboard shortcut
-chrome.commands.onCommand.addListener(function(command) {
-    if (command === "open-extension-tab") {
-      chrome.runtime.openOptionsPage();
-    }
-  });
-
 
 async function get_clipboard_command_value(command) {
   if (await getSetting("encrypt-clipboard") === true) {
@@ -98,20 +89,16 @@ chrome.commands.onCommand.addListener(async (command) => {
             // // Didn't work because you have about .1 seconds to
             // // open the side panel on user input
 
-            // const tabId = tab.id
-            // chrome.sidePanel.getOptions({ tabId: tab.id }, (options) => {
-            //     if (options.enabled) {                    
-            //         chrome.sidePanel.setOptions({
-            //             tabId,
-            //             enabled: false
-            //           });
-            //     } 
-            // });
+            chrome.sidePanel.getOptions({ tabId: tab.id }, (options) => {
+                if (options.enabled) {                    
+                    console.log("Sidepanel already open")
+                } 
+            });
 
             // When the sidepanel is open, this is used to bring 
             // it into focus and turn off preview
             try {
-              chrome.runtime.sendMessage({
+              chrome.tabs.sendMessage({
                 type: 'open-side-panel',
                 target: 'sidepanel',
                 data: true
@@ -120,7 +107,11 @@ chrome.commands.onCommand.addListener(async (command) => {
               // No action needed, listener not set up yet.
             }
 
-            chrome.sidePanel.open({ tabId: tab.id });
+            try {
+              chrome.sidePanel.open({ tabId: tab.id });
+            } catch {
+              console.log("Failed to open the side panel.")
+            }
           });
     } else if (command.startsWith("copy-value")) {
         await addToClipboard(await get_clipboard_command_value(command))
@@ -408,18 +399,25 @@ async function convertSmartValues(string) {
 // Page Notes Context Menu //
 /////////////////////////////
 
-chrome.runtime.onConnect.addListener(function (port) {
-  if (port.name === 'mySidepanel') {
-    chrome.contextMenus.create({
-      id: "add-to-page-note",
-      title: "Add to page note",
-      contexts: ["selection"]
-    })
-    port.onDisconnect.addListener(async () => {
-      chrome.contextMenus.remove(
-        "add-to-page-note"
-      )
-    });
-  }
-});
 
+// chrome.runtime.onConnect.addListener(function (port) {
+//   if (port.name === 'mySidepanel') {
+//     try {
+//       chrome.contextMenus.create({
+//         id: "add-to-page-note",
+//         title: "Add to page note",
+//         contexts: ["selection"]
+//       });
+//     } catch (error) {
+//       console.error("Failed to create context menu:", error);
+//     }
+
+//     port.onDisconnect.addListener(async () => {
+//       try {
+//         await chrome.contextMenus.remove("add-to-page-note");
+//       } catch (error) {
+//         console.error("Failed to remove context menu:", error);
+//       }
+//     });
+//   }
+// });
