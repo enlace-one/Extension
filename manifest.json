@@ -1,7 +1,7 @@
 {
   "name": "Page Notes",
-  "description": "A collection of helpful tools running locally",
-  "version": "4.2",
+  "description": "Make markdown notes tied to URL patterns and other helpful tools.",
+  "version": "4.3",
   "manifest_version": 3,
   "icons": {"1": "ea_128.png"},
   "action": {
@@ -30,10 +30,6 @@
       "global": true
     },
     "copy-value-2": {
-      "suggested_key": {
-        "default": "Ctrl+Shift+9",
-        "mac": "Command+Shift+9"
-      },
       "description": "Copies value 2"
     },
     "copy-value-3": {
