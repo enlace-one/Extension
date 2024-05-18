@@ -36,7 +36,11 @@ const defaultPageNotes = [
   {text:"us_states.txt", id:"mde_us_states", url_pattern:"", title:"US States"}, 
   {text:"windows_cmd.txt", id:"mde_cmd", url_pattern:"", title:"Windows CMD"}, 
   {text:"windows_keyboard.txt", id:"mde_windows_keyboard", url_pattern:"", title:"Windows Keyboard Shortcuts"},
-  {text:"keyboard_nav.txt", id:"mde_keyboard_nav", url_pattern:"", title:"Keyboard Navigation Basics"}
+  {text:"keyboard_nav.txt", id:"mde_keyboard_nav", url_pattern:"", title:"Keyboard Navigation Basics"},
+  {text:"confluence_keyboard.txt", id:"mde_confluence_keyboard", url_pattern:"confluence", title:"Confluence Keyboard Shortcuts"},
+  {text:"github_keyboard.txt", id:"mde_github_keyboard", url_pattern:"github\.com", title:"GitHub Keyboard Shortcuts"},
+  {text:"loop_keyboard.txt", id:"mde_loop_keyboard", url_pattern:"loop", title:"Microsoft Loop Keyboard Shortcuts"},
+  {text:"jira_keyboard.txt", id:"mde_jira_keyboard", url_pattern:"jira", title:"Jira Keyboard shortcuts"},
  ]
 
  async function _storeDefaultPageNotes() {
