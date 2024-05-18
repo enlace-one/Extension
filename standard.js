@@ -225,7 +225,39 @@ document.addEventListener("DOMContentLoaded", function () {
 });
 
 
-// Handle subtab switching
+// // Handle subtab switching
+// document.addEventListener("DOMContentLoaded", function () {
+//     // Get all tab buttons
+//     const tabButtons = document.querySelectorAll(".subtab-button");
+
+//     // Add click event listener to each tab button
+//     tabButtons.forEach(function (button) {
+//         button.addEventListener("click", function () {
+//             // Get the subtab group ie: group="regex"
+
+//             // Remove 'active' class from all tab buttons in that group
+//             tabButtons.forEach(function (btn) {
+//                 btn.classList.remove("active");
+//             });
+
+//             // Add 'active' class to the clicked tab button
+//             button.classList.add("active");
+
+//             // Get the ID of the tab to show
+//             const tabId = button.getAttribute("data-tab");
+
+//             // Hide all tab contents of that group
+//             const tabContents = document.querySelectorAll(".subtab-content");
+//             tabContents.forEach(function (content) {
+//                 content.classList.remove("active");
+//             });
+
+//             // Show the tab content with the corresponding ID
+//             const tabContentToShow = document.getElementById(tabId);
+//             tabContentToShow.classList.add("active");
+//         });
+//     });
+// });
 document.addEventListener("DOMContentLoaded", function () {
     // Get all tab buttons
     const tabButtons = document.querySelectorAll(".subtab-button");
@@ -233,8 +265,14 @@ document.addEventListener("DOMContentLoaded", function () {
     // Add click event listener to each tab button
     tabButtons.forEach(function (button) {
         button.addEventListener("click", function () {
-            // Remove 'active' class from all tab buttons
-            tabButtons.forEach(function (btn) {
+            // Get the subtab group from the clicked button
+            const group = button.getAttribute("group");
+
+            // Filter tab buttons by group
+            const groupButtons = document.querySelectorAll(`.subtab-button[group="${group}"]`);
+
+            // Remove 'active' class from all tab buttons in that group
+            groupButtons.forEach(function (btn) {
                 btn.classList.remove("active");
             });
 
@@ -244,9 +282,11 @@ document.addEventListener("DOMContentLoaded", function () {
             // Get the ID of the tab to show
             const tabId = button.getAttribute("data-tab");
 
-            // Hide all tab contents
-            const tabContents = document.querySelectorAll(".subtab-content");
-            tabContents.forEach(function (content) {
+            // Filter tab contents by group
+            const groupContents = document.querySelectorAll(`.subtab-content[group="${group}"]`);
+
+            // Hide all tab contents of that group
+            groupContents.forEach(function (content) {
                 content.classList.remove("active");
             });
 

@@ -192,14 +192,14 @@
                 <div style="flex: 1; text-align: right;">
                     <hr>
                     <div class="subtabs">
-                        <button class="subtab-button regexTesterName active" data-tab="regex-subtab">
+                        <button class="subtab-button regexTesterName active" group="regex" data-tab="regex-subtab">
                             Regex Tester
                         </button>
-                        <button class="subtab-button replacerName" data-tab="replacer-subtab">
+                        <button class="subtab-button replacerName" group="regex" data-tab="replacer-subtab">
                             Re-placer
                         </button>
                     </div>
-                    <div class="subtab-content" id="replacer-subtab">
+                    <div class="subtab-content" group="regex"  id="replacer-subtab">
                         <h1 class="replacerName">Re-placer</h1>
                         <table id="replacerTable">
                             <tr>
@@ -221,7 +221,7 @@
                         padding: 8px 16px;" value="^ Switch v"/>
                         <textarea id="replacer-output" rows="5" class="copy-block" placeholder="output"></textarea>
                     </div>
-                    <div class="subtab-content active" id="regex-subtab">
+                    <div class="subtab-content active" group="regex" id="regex-subtab">
                         <h1 class="regexTesterName">Regex Tester</h1>
                         <textarea id="regexCode" class="copy-block"  rows="5" placeholder="h.llo"></textarea>
                         <br />
@@ -250,17 +250,17 @@
             <div class="tab-content" id="page-notes-supertab">
                 <hr>
                 <div class="subtabs">
-                    <button id="page-notes-tab-button" class="subtab-button hidden" data-tab="page-notes-tab">
+                    <button id="page-notes-tab-button" group="page-notes" class="subtab-button hidden" data-tab="page-notes-tab">
                         Page Note
                     </button>
-                    <button id="new-page-notes-tab-button" class="subtab-button" data-tab="page-notes-tab">
+                    <button id="new-page-notes-tab-button" group="page-notes" class="subtab-button" data-tab="page-notes-tab">
                         New
                     </button>
-                    <button id="open-page-notes-tab-button" class="subtab-button active" data-tab="open-page-notes-tab">
+                    <button id="open-page-notes-tab-button" group="page-notes" class="subtab-button active" data-tab="open-page-notes-tab">
                         Open <span id="page-notes-indicator"></span>
                     </button>
                 </div>
-                <div class="subtab-content active" id="open-page-notes-tab">
+                <div class="subtab-content active" group="page-notes" id="open-page-notes-tab">
                     <!-- <h3>Search</h3> -->
                     <input id="page-notes-search" placeholder="Search..."
                         style="margin-bottom: 10px; padding: 8px; border: 1px solid #ccc; border-radius: 4px; width: 50%;">
@@ -281,7 +281,7 @@
                     </div>
                     <!-- <small class="m-3">Press "Enter" to search.</small> -->
                 </div>
-                <div class="subtab-content" id="page-notes-tab">
+                <div class="subtab-content" group="page-notes" id="page-notes-tab">
                     <label>Title</label>
                     <input class="pretty-text-box" id="page-notes-title" style="width: 80vw;" />
                     <br>
