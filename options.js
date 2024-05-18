@@ -3,6 +3,7 @@
 ////////////////
 displayFullTable = true
 thoroughSearch = true
+thisIsOptionsView = true
 
 // //////////////////
 // // GOOGLE DRVIE //

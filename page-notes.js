@@ -79,6 +79,7 @@ function replaceAndSelect(newText) {
 
 // https://github.com/Ionaru/easy-markdown-editor?tab=readme-ov-file#install-easymde
 
+let thisIsOptionsView = false;
 const viewPortWidth = window.innerWidth;
 let easyMDE;
 let pageNoteConfigOverwrite;
@@ -428,9 +429,11 @@ async function get_page_note(id) {
 }
 
 function addPageNoteIdToUrl(pageNoteId) {
-  const url = new URL(window.location.href);
-  url.searchParams.set("pageNote", pageNoteId);
-  window.history.pushState({}, "", url);
+  if (thisIsOptionsView) {
+    const url = new URL(window.location.href);
+    url.searchParams.set("pageNote", pageNoteId);
+    window.history.pushState({}, "", url);
+  }
 }
 
 async function updateRecentPageNotes(currentNoteId) {
@@ -647,17 +650,21 @@ async function makePageNoteTable(page_notes, table) {
 // Put default url pattern
 // Put default title
 
-async function get_current_url() {
-  const [tab] = await chrome.tabs.query({
-    active: true,
-    lastFocusedWindow: true,
-  });
-  return tab.url;
+
+
+async function getCurrentURL() {
+  const [tab] = await chrome.tabs.query({ active: true, lastFocusedWindow: true });
+  let url = tab.url;
+  // Strip trailing slash if it exists
+  if (url.endsWith('/')) {
+    url = url.slice(0, -1);
+  }
+  return url;
 }
 
 async function newPageNote() {
   console.log("Generating new page note");
-  const url = await get_current_url();
+  const url = await getCurrentURL();
   const url_pattern = await get_default_pattern(url);
   const title = await get_default_title(url);
 

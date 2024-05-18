@@ -35,29 +35,27 @@ async function setActiveURL(url) {
     // } 
 }
 
-async function getCurrentURL() {
-    const [tab] = await chrome.tabs.query({ active: true, lastFocusedWindow: true });
-    return tab.url
-}
 
-// document.addEventListener("DOMContentLoaded", async function () {
-//     url = await getCurrentURL()
-//     console.log("======= dom tab url", url)
-//     setActiveURL(url);
-// });
+document.addEventListener("DOMContentLoaded", async function () {
+    url = await getCurrentURL()
+    console.log("======= dom tab url", url)
+    setActiveURL(url);
+});
         
 chrome.tabs.onActivated.addListener(async (activeInfo) => {
     const tab = await chrome.tabs.get(activeInfo.tabId);
     if (tab.active) {
+        url = await getCurrentURL()
         console.log("======= active tab url", tab.url);
-        setActiveURL(tab.url);
+        setActiveURL(url);
     }
 });
 
 chrome.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
     if (tab.active) {
+        url = await getCurrentURL()
         console.log("======= updated tab url", tab.url);
-        setActiveURL(tab.url);
+        setActiveURL(url);
     }
 });
 
