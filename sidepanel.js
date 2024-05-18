@@ -7,7 +7,7 @@
 
 const pnHelpButton = document.getElementById("page-notes-help-tab-button")
 
-async function setActiveURL(url) {
+async function setActiveURL(url, autoOpen=false) {
     const table = document.getElementById("page-notes-matching-url-table");
     table.innerHTML = "";
 
@@ -23,8 +23,8 @@ async function setActiveURL(url) {
     }
 
     
-    if (page_notes.length === 1 && pageNotesTabButton.classList.contains("hidden")) {
-        open_page_note(page_notes[0].id)
+    if (page_notes.length === 1 && pageNotesTabButton.classList.contains("hidden") && autoOpen) {
+        open_page_note(page_notes[0].id, inPreview=true)
     } 
     // Sidepanel would have to be in focus... 
     // else {
@@ -39,7 +39,7 @@ async function setActiveURL(url) {
 document.addEventListener("DOMContentLoaded", async function () {
     url = await getCurrentURL()
     console.log("======= dom tab url", url)
-    setActiveURL(url);
+    setActiveURL(url, autoOpen=true);
 });
         
 chrome.tabs.onActivated.addListener(async (activeInfo) => {

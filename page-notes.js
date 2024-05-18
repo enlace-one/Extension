@@ -96,11 +96,22 @@ async function getEasyMDE() {
       customPageNoteJson = value;
     }
 
+  function customMarkdownParser(plainText) {
+    return plainText.replace(/\{\{ TABLE_OF_CONTENTS \}\}/g, '<div class="page-note-table-of-contents"></div>');
+  }
+
     pageNoteConfigOverwrite = {
       ...defaultPageNoteConfig, // start with the default in case custom deletes some
       ...customPageNoteJson, // Make any custom edits
       ...{
         element: document.getElementById("page-notes-textarea"), // Overwrite what needs to be there
+        //previewRender: (plainText) => customMarkdownParser(plainText),
+        renderingConfig: {
+          sanitizerFunction: (renderedHTML) => {
+              // Using DOMPurify and only allowing <b> tags
+              return customMarkdownParser(renderedHTML)
+          },
+      },
       },
     };
 
@@ -172,6 +183,20 @@ async function getEasyMDE() {
         "fullscreen",
         "guide",
         "table",
+        {
+          name: "TOC",
+          action: (editor) => {
+            insertTextAtCursor("{{ TABLE_OF_CONTENTS }}");
+          },
+          className: '<i class="fa-regular fa-window-maximize"></i>',
+          text: "TOC",
+          title: "Table of Contents",
+          attributes: {
+            // for custom attributes
+            id: "table-of-contents",
+            // "data-value": "custom value" // HTML5 data-* attributes need to be enclosed in quotation marks ("") because of the dash (-) in its name.
+          },
+        }
       ];
     } else {
       pageNoteConfigOverwrite["toolbar"].unshift({
@@ -458,7 +483,7 @@ async function updateRecentPageNotes(currentNoteId) {
   await store("recent_page_notes", recentPageNotes);
 }
 
-async function open_page_note(id) {
+async function open_page_note(id, inPreview=false) {
   console.log(`Opening page note ${id}`);
 
   const page_note = await get_page_note(id);
@@ -487,11 +512,13 @@ async function open_page_note(id) {
   easyMDE.codemirror.refresh();
 
   // Set options
-  if (openInFullScreen) {
-    easyMDE.toggleFullScreen();
-  }
-  if (openInPreview) {
-    easyMDE.togglePreview();
+  if (inPreview) {
+    if (openInFullScreen) {
+      easyMDE.toggleFullScreen();
+    }
+    if (openInPreview) {
+      easyMDE.togglePreview();
+    }
   }
 
   // Set Focus
@@ -749,6 +776,27 @@ function addCodeCopyButtons() {
 }
 
 addCodeCopyButtons();
+
+
+function addTOC() {
+  setTimeout(function () {
+    var TOC = document.querySelector(".page-note-table-of-contents:not(.done-already)");
+    if (TOC) {
+      TOC.classList.add("done-already");
+      var headers = document.querySelectorAll(".CodeMirror h1, .CodeMirror h2, .CodeMirror h3");
+      var tocHTML = "<ul>";
+      headers.forEach(function(header) {
+        var tag = header.tagName.toLowerCase();
+        var spacing = (tag === 'h2') ? '&nbsp;&nbsp;' : (tag === 'h3' ? '&nbsp;&nbsp;&nbsp;&nbsp;' : '');
+        tocHTML += `<li class="${tag}">${spacing}<a href="#${header.textContent}">${header.textContent}</a></li>`;
+      });
+      tocHTML += "</ul>";
+      TOC.innerHTML = tocHTML;
+    }
+    addTOC();
+  }, 2000);
+}
+addTOC();
 
 // Focus on search when clicking "open"
 openPageNoteButton.addEventListener(
