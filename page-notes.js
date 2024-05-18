@@ -8,6 +8,15 @@ function insertTextAtCursor(text) {
   easyMDE.codemirror.setCursor({ line: pos.line, ch: pos.ch + text.length });
 }
 
+function insertTextAtStartOfLine(text) {
+  const pos = easyMDE.codemirror.getCursor();
+  const startPos = { line: pos.line, ch: 0 }; // Set ch to 0 to move to the start of the line
+  easyMDE.codemirror.setSelection(startPos, startPos);
+  easyMDE.codemirror.replaceSelection(text);
+  // Optionally, move the cursor to the end of the inserted text
+  easyMDE.codemirror.setCursor({ line: pos.line, ch: text.length });
+}
+
 ////////////////
 // Page notes //
 ////////////////
@@ -97,7 +106,9 @@ async function getEasyMDE() {
     }
 
   function customMarkdownParser(plainText) {
-    return plainText.replace(/\{\{ TABLE_OF_CONTENTS \}\}/g, '<div class="page-note-table-of-contents"></div>');
+    plainText = plainText.replace(/\{\{ TABLE_OF_CONTENTS \}\}/g, '<div class="page-note-table-of-contents"></div>');
+    // plainText = plainText.replace(/\[\]/g, '');
+    return plainText
   }
 
     pageNoteConfigOverwrite = {
@@ -111,6 +122,7 @@ async function getEasyMDE() {
               // Using DOMPurify and only allowing <b> tags
               return customMarkdownParser(renderedHTML)
           },
+        taskLists: true,  // Enable task lists
       },
       },
     };
@@ -184,6 +196,20 @@ async function getEasyMDE() {
         "guide",
         "table",
         {
+          name: "task-list",
+          action: (editor) => {
+            insertTextAtStartOfLine("- [ ] ");
+          },
+          className: '<i class="fa-regular fa-window-maximize"></i>',
+          text: "[]",
+          title: "Task List",
+          attributes: {
+            // for custom attributes
+            id: "task-list",
+            // "data-value": "custom value" // HTML5 data-* attributes need to be enclosed in quotation marks ("") because of the dash (-) in its name.
+          },
+        },
+        {
           name: "TOC",
           action: (editor) => {
             insertTextAtCursor("{{ TABLE_OF_CONTENTS }}");
@@ -224,7 +250,7 @@ async function getEasyMDE() {
         // Get current selection
         const selectedText = easyMDE.codemirror.getSelection();
         // Escape markdown syntax like * and starting #
-        const escapedText = selectedText.replace(/([*_#])/g, "\\$1");
+        const escapedText = selectedText.replace(/([*_#\-\[\]])/g, "\\$1");
         // Replace that selection
         easyMDE.codemirror.replaceSelection(escapedText);
       },
@@ -776,10 +802,19 @@ function addCodeCopyButtons() {
 }
 
 addCodeCopyButtons();
-
+function enableCheckboxes() {
+  const checkboxes = document.querySelectorAll('.editor-preview input[type="checkbox"]');
+  checkboxes.forEach(checkbox => {
+      checkbox.disabled = false;
+  });
+}
 
 function addTOC() {
   setTimeout(function () {
+    // Enable checkboxes 
+    enableCheckboxes()
+
+    // TOC
     var TOC = document.querySelector(".page-note-table-of-contents:not(.done-already)");
     if (TOC) {
       TOC.classList.add("done-already");
@@ -788,7 +823,7 @@ function addTOC() {
       headers.forEach(function(header) {
         var tag = header.tagName.toLowerCase();
         var spacing = (tag === 'h2') ? '&nbsp;&nbsp;' : (tag === 'h3' ? '&nbsp;&nbsp;&nbsp;&nbsp;' : '');
-        tocHTML += `<li class="${tag}">${spacing}<a href="#${header.textContent}">${header.textContent}</a></li>`;
+        tocHTML += `<li class="${tag}">${spacing}<a href="#${header.id}">${header.textContent}</a></li>`;
       });
       tocHTML += "</ul>";
       TOC.innerHTML = tocHTML;

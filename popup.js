@@ -19,9 +19,8 @@ chrome.commands.getAll(function(commands) {
 
 onStartSpecific()
 
-// Store new keys and set value. Select "Search" input box.
-document.addEventListener("EnlaceUnlocked", async function() {
-    console.log("triggered unlock stuff ")
+function addClipboardComponenets() {
+  console.log("triggered unlock stuff ")
     const copy_html = '<button id="copy-{ID}" style="width: 8vw;"><img style="width: 100%; height: auto;" src="images/copy.svg" alt="Icon"></button>'
     const paste_html = '<button id="paste-{ID}" style="width: 8vw;"><img style="width: 100%; height: auto;" src="images/paste.svg" alt="Icon"></button>'
 
@@ -69,8 +68,19 @@ document.addEventListener("EnlaceUnlocked", async function() {
 
     });
 
+}
 
+// Store new keys and set value. Select "Search" input box.
+document.addEventListener("EnlaceUnlocked", async function() {
+    addClipboardComponenets()
 });
+
+// This is to combat the trouble with loading sometimes seen in edge
+isLocked().then((value) => {
+ if (! value) {
+    addClipboardComponenets()
+ }
+})
 
 
 
