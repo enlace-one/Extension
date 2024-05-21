@@ -19,7 +19,13 @@ chrome.commands.getAll(function(commands) {
 
 onStartSpecific()
 
+let clipboardComponentsAdded = false
+
 function addClipboardComponenets() {
+  if (clipboardComponentsAdded) {
+    return
+  }
+  clipboardComponentsAdded = true
   console.log("triggered unlock stuff ")
     const copy_html = '<button id="copy-{ID}" style="width: 8vw;"><img style="width: 100%; height: auto;" src="images/copy.svg" alt="Icon"></button>'
     const paste_html = '<button id="paste-{ID}" style="width: 8vw;"><img style="width: 100%; height: auto;" src="images/paste.svg" alt="Icon"></button>'
