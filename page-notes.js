@@ -656,6 +656,12 @@ async function makePageNoteTable(page_notes, table) {
     table.innerHTML = "<tr><th>Title</th><th>Note</th><th></th></tr>";
   }
   page_notes.forEach((note, index) => {
+    try {
+      note.title;
+    } catch {
+      return
+    }
+
     const row = table.insertRow();
     const titleCell = row.insertCell();
     const titleP = document.createElement("p");
@@ -673,7 +679,11 @@ async function makePageNoteTable(page_notes, table) {
       const noteCell = row.insertCell();
       const noteP = document.createElement("p");
       noteP.classList.add("truncate");
-      noteP.textContent = truncateText(note.note, 30);
+      try {
+        noteP.textContent = truncateText(note.note, 30);
+      } catch {
+        // Note was not saved
+      }
       noteCell.insertBefore(noteP, noteCell.firstChild);
     }
 

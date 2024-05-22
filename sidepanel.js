@@ -131,3 +131,89 @@ document.addEventListener("keydown", function(event) {
 })
 
 
+///////////////////////
+// REGEX PAGE SEARCH //
+///////////////////////
+
+function highlightPatternMatches(regexInput) {
+    console.log("Regex search running")
+    const regex = new RegExp(regexInput, 'gi');
+    const bodyText = document.body.innerHTML;
+    
+    
+    // // Clear previous highlights
+    // document.body.innerHTML = document.body.innerHTML.replace(/<span class="highlight">(.*?)<\/span>/g, '$1');
+
+    let match;
+    let matchesFound = 0;
+    let highlightedText = bodyText;
+    let matches = [];
+    
+    while ((match = regex.exec(bodyText)) !== null) {
+        matchesFound++;
+        // const highlightedMatch = `<span class="highlight">${match[0]}</span>`;
+        // highlightedText = highlightedText.replace(match[0], highlightedMatch);
+        matches.add(match[0])
+    }
+    // document.body.innerHTML = "<style>.highlight {background-color: yellow; font-weight: bold;}</style>" + highlightedText;
+    return matches
+}
+
+document.getElementById('regex-search').addEventListener('keydown', async (event) => {
+    if (event.key === "Enter") {
+        event.preventDefault();
+        console.log("searching regex")
+        
+        const regexInput = document.getElementById('regex-search').value;
+        const resultsContainer = document.getElementById('regex-search-results');
+        let matches;
+        
+        // chrome.scripting.executeScript({
+        //     target: {tabId: tab.id},
+        //     function: highlightPatternMatches,
+        //     args: [regexInput]
+        // })
+
+        let [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+
+        matches = await chrome.scripting.executeScript({
+            target: {tabId: tab.id},
+            function: highlightPatternMatches,
+            args: [regexInput]
+        })
+        console.log("matches", matches)
+
+        for (const match of matches) {
+            resultsContainer.value = resultsContainer.value + match.innerText
+            console.log(match, match.innerHTML)
+        }
+
+        
+
+        // Display results
+        // resultsContainer.innerHTML = `Found ${matchesFound} match(es)`;
+    }
+});
+
+
+
+// EDGE SPECIFIC
+if (navigator.userAgent.includes("Edge")) {
+    // Zoom in/out since not supported in Edge
+    // Add event listener to detect key presses
+    document.addEventListener('keydown', function(event) {
+        if (event.ctrlKey) {
+        if (event.key === '+') {
+            // Zoom in logic
+            document.body.style.zoom = parseFloat(getComputedStyle(document.body).zoom) + 0.1;
+            console.log("in")
+        } else if (event.key === '-') {
+            // Zoom out logic
+            document.body.style.zoom = parseFloat(getComputedStyle(document.body).zoom) - 0.1;
+            console.log("out")
+        }
+        }
+    });
+}
+
+
