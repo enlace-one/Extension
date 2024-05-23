@@ -170,6 +170,7 @@ default_settings = {
   "max-title-char-page-notes": 350,
   "encryption-algorithm": "AES",
   "last-open-ref-file": "css_selectors.txt",
+  "zoomSetting": 1,
 };
 
 async function getSetting(setting_name) {

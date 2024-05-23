@@ -135,83 +135,114 @@ document.addEventListener("keydown", function(event) {
 // REGEX PAGE SEARCH //
 ///////////////////////
 
-function highlightPatternMatches(regexInput) {
-    console.log("Regex search running")
-    const regex = new RegExp(regexInput, 'gi');
-    const bodyText = document.body.innerHTML;
-    
-    
-    // // Clear previous highlights
-    // document.body.innerHTML = document.body.innerHTML.replace(/<span class="highlight">(.*?)<\/span>/g, '$1');
 
-    let match;
-    let matchesFound = 0;
-    let highlightedText = bodyText;
-    let matches = [];
-    
-    while ((match = regex.exec(bodyText)) !== null) {
-        matchesFound++;
-        // const highlightedMatch = `<span class="highlight">${match[0]}</span>`;
-        // highlightedText = highlightedText.replace(match[0], highlightedMatch);
-        matches.add(match[0])
-    }
-    // document.body.innerHTML = "<style>.highlight {background-color: yellow; font-weight: bold;}</style>" + highlightedText;
-    return matches
-}
+// function highlightPatternMatches(regexInput) {
+//     let marks = []; 
 
-document.getElementById('regex-search').addEventListener('keydown', async (event) => {
-    if (event.key === "Enter") {
-        event.preventDefault();
-        console.log("searching regex")
+//     function findMatchAndRecurse(element, regex) {
+//         if (element.childNodes.length > 0) {
+//             for (var i = 0; i < element.childNodes.length; i++) {
+//                 findMatchAndRecurse(element.childNodes[i], regex);
+//             }
+//         }
+
+//         var str = element.nodeValue;
+
+//         if (str == null) {
+//             return;
+//         }
+
+//         var matches = str.match(regex);
+//         var parent = element.parentNode;
+
+//         if (matches !== null) {
+//             var pos = 0;
+//             var mark;
+//             for (var i = 0; i < matches.length; i++) {
+//                 var index = str.indexOf(matches[i], pos);
+//                 var before = document.createTextNode(str.substring(pos, index));
+//                 pos = index + matches[i].length;
+
+//                 if (element.parentNode == parent) {
+//                     parent.replaceChild(before, element);
+//                 } else {
+//                     parent.insertBefore(before, mark.nextSibling);
+//                 }
+
+//                 mark = document.createElement('mark');
+//                 mark.appendChild(document.createTextNode(matches[i]));
+//                 parent.insertBefore(mark, before.nextSibling);
+//                 marks.push(mark);
+//             }
+//             var after = document.createTextNode(str.substring(pos));
+//             parent.insertBefore(after, mark.nextSibling);
+//         }
+//     }
+
+//     console.log(`Regex search running for regex "${regexInput}"`);
+//     const regex = new RegExp(regexInput, 'gi');
+//     const body = document.body;
+
+//     findMatchAndRecurse(body, regex);
+
+//     return marks.length;
+// }
+
+
+// document.getElementById('regex-search').addEventListener('keydown', async (event) => {
+//     if (event.key === "Enter") {
+//         event.preventDefault();
+//         console.log("searching regex")
         
-        const regexInput = document.getElementById('regex-search').value;
-        const resultsContainer = document.getElementById('regex-search-results');
-        let matches;
-        
-        // chrome.scripting.executeScript({
-        //     target: {tabId: tab.id},
-        //     function: highlightPatternMatches,
-        //     args: [regexInput]
-        // })
+//         const regexInput = document.getElementById('regex-search').value;
+//         const resultsContainer = document.getElementById('regex-search-results');
+//         let matches;
 
-        let [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+//         let [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
 
-        matches = await chrome.scripting.executeScript({
-            target: {tabId: tab.id},
-            function: highlightPatternMatches,
-            args: [regexInput]
-        })
-        console.log("matches", matches)
+//         matches = await chrome.scripting.executeScript({
+//             target: {tabId: tab.id},
+//             function: highlightPatternMatches,
+//             args: [regexInput]
+//         })
+//         console.log("matches", matches)
 
-        for (const match of matches) {
-            resultsContainer.value = resultsContainer.value + match.innerText
-            console.log(match, match.innerHTML)
-        }
+//         for (const match of matches) {
+//             resultsContainer.value = resultsContainer.value + match.innerText
+//             console.log(match, match.innerHTML)
+//         }
+//     }
+// });
 
-        
-
-        // Display results
-        // resultsContainer.innerHTML = `Found ${matchesFound} match(es)`;
-    }
-});
-
+///////////
+// OTHER //
+///////////
 
 
 // EDGE SPECIFIC
-if (navigator.userAgent.includes("Edge")) {
+if (navigator.userAgent.includes("Edg")) {
+    console.log("Edge settings running")
     // Zoom in/out since not supported in Edge
     // Add event listener to detect key presses
+    customZoom()
+}
+
+async function customZoom() {
+    zoomSetting = await getSetting("zoomSetting", 1)
+    document.body.style.zoom = zoomSetting
+
     document.addEventListener('keydown', function(event) {
         if (event.ctrlKey) {
-        if (event.key === '+') {
-            // Zoom in logic
-            document.body.style.zoom = parseFloat(getComputedStyle(document.body).zoom) + 0.1;
-            console.log("in")
-        } else if (event.key === '-') {
-            // Zoom out logic
-            document.body.style.zoom = parseFloat(getComputedStyle(document.body).zoom) - 0.1;
-            console.log("out")
-        }
+            if (event.key === '+') {
+                // Zoom in logic
+                document.body.style.zoom = parseFloat(getComputedStyle(document.body).zoom) + 0.1;
+                console.log("in")
+            } else if (event.key === '-') {
+                // Zoom out logic
+                document.body.style.zoom = parseFloat(getComputedStyle(document.body).zoom) - 0.1;
+                console.log("out")
+            }
+            storeSetting("zoomSetting", parseFloat(getComputedStyle(document.body).zoom))
         }
     });
 }

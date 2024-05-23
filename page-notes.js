@@ -413,13 +413,13 @@ async function _save_page_note(id, note, title, url_pattern, expiring) {
   }
   if (title.length > maxPageNotesTitleChar) {
     showNotification(
-      `Error: Title is too long. ${title.length} is larger than max setting: ${maxPageNotesTitleChar}`
+      `Error: Title is too long. ${title.length} is larger than max setting: ${maxPageNotesTitleChar}`, 3
     );
     return;
   }
   if (url_pattern.length > maxPageNotesURLChar) {
     showNotification(
-      `Error: URL pattern is too long. ${url_pattern.length} is larger than max setting: ${maxPageNotesURLChar}`
+      `Error: URL pattern is too long. ${url_pattern.length} is larger than max setting: ${maxPageNotesURLChar}`, 3
     );
     return;
   }

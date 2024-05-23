@@ -1,7 +1,7 @@
 {
   "name": "Page Notes",
   "description": "Make markdown notes tied to URL patterns and other helpful tools.",
-  "version": "4.3",
+  "version": "4.4",
   "manifest_version": 3,
   "icons": {"1": "ea_128.png"},
   "action": {
