@@ -1,0 +1,8 @@
+
+mark {
+    background-color: rgb(133, 133, 100); /* Adjust highlighting style as needed */
+}
+
+mark.highlighted {
+    background-color: yellow; /* Adjust highlighting style as needed */
+}

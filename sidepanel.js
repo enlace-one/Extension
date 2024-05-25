@@ -138,6 +138,7 @@ document.addEventListener("keydown", function(event) {
 
 // function highlightPatternMatches(regexInput) {
 //     let marks = []; 
+//     let matched_text = [];
 
 //     function findMatchAndRecurse(element, regex) {
 //         if (element.childNodes.length > 0) {
@@ -149,33 +150,68 @@ document.addEventListener("keydown", function(event) {
 //         var str = element.nodeValue;
 
 //         if (str == null) {
+//             // console.log(`${element} has no text -- Search for ${regex}`)
 //             return;
 //         }
 
 //         var matches = str.match(regex);
-//         var parent = element.parentNode;
+//         // var parent = element.parentNode;
 
 //         if (matches !== null) {
-//             var pos = 0;
-//             var mark;
-//             for (var i = 0; i < matches.length; i++) {
-//                 var index = str.indexOf(matches[i], pos);
-//                 var before = document.createTextNode(str.substring(pos, index));
-//                 pos = index + matches[i].length;
+//             // console.log(`${element} HAS A MATCH -- Search for ${regex}`)
+//             // // for match in matches
+//             // for (var i = 0; i < matches.length; i++) {
+                
+//             // }
 
-//                 if (element.parentNode == parent) {
-//                     parent.replaceChild(before, element);
-//                 } else {
-//                     parent.insertBefore(before, mark.nextSibling);
+//             const parent = element.parentNode;
+//                 const originalText = element.nodeValue;
+//                 let pos = 0;
+//                 let mark;
+
+//                 for (let i = 0; i < matches.length; i++) {
+//                     const { match, index } = matches[i];
+
+//                     const before = document.createTextNode(originalText.substring(pos, index));
+//                     pos = index + match.length;
+
+//                     if (element.parentNode === parent) {
+//                         parent.replaceChild(before, element);
+//                     } else {
+//                         parent.insertBefore(before, mark.nextSibling);
+//                     }
+
+//                     mark = document.createElement('mark');
+//                     mark.appendChild(document.createTextNode(match));
+//                     parent.insertBefore(mark, before.nextSibling);
+//                     marks.push(mark);
 //                 }
 
-//                 mark = document.createElement('mark');
-//                 mark.appendChild(document.createTextNode(matches[i]));
-//                 parent.insertBefore(mark, before.nextSibling);
-//                 marks.push(mark);
-//             }
-//             var after = document.createTextNode(str.substring(pos));
-//             parent.insertBefore(after, mark.nextSibling);
+//                 const after = document.createTextNode(originalText.substring(pos));
+//                 parent.insertBefore(after, mark.nextSibling);
+
+//             // var pos = 0;
+//             // var mark;
+//             // for (var i = 0; i < matches.length; i++) {
+//             //     var index = str.indexOf(matches[i], pos);
+//             //     var before = document.createTextNode(str.substring(pos, index));
+//             //     pos = index + matches[i].length;
+
+//             //     if (element.parentNode == parent) {
+//             //         parent.replaceChild(before, element);
+//             //     } else {
+//             //         parent.insertBefore(before, mark.nextSibling);
+//             //     }
+
+//             //     mark = document.createElement('mark');
+//             //     mark.appendChild(document.createTextNode(matches[i]));
+//             //     parent.insertBefore(mark, before.nextSibling);
+//             //     marks.push(mark);
+//             // }
+//             // var after = document.createTextNode(str.substring(pos));
+//             // parent.insertBefore(after, mark.nextSibling);
+//         } else {
+//             // console.log(`${element} has no match -- Search for ${regex}`)
 //         }
 //     }
 
@@ -188,31 +224,203 @@ document.addEventListener("keydown", function(event) {
 //     return marks.length;
 // }
 
+function highlightPatternMatches(regexInput) {
+    function clearPreviousMarks() {
+        const marks = document.querySelectorAll('mark');
+        marks.forEach(mark => {
+            const parent = mark.parentNode;
+            parent.replaceChild(document.createTextNode(mark.textContent), mark);
+            parent.normalize(); // Combine adjacent text nodes
+        });
+    }
+    function isVisible(element) {
+        const rect = element.getBoundingClientRect();
+        const style = getComputedStyle(element);
+    
+        // Check if the element is visible and not covered up by other elements
+        return (
+            rect.width > 0 &&
+            rect.height > 0 &&
+            style.display !== 'none' &&
+            style.visibility !== 'hidden' &&
+            style.opacity !== '0' &&
+            element === document.elementFromPoint(rect.left + rect.width / 2, rect.top + rect.height / 2)
+        );
+    }
+    
 
-// document.getElementById('regex-search').addEventListener('keydown', async (event) => {
-//     if (event.key === "Enter") {
-//         event.preventDefault();
-//         console.log("searching regex")
-        
-//         const regexInput = document.getElementById('regex-search').value;
-//         const resultsContainer = document.getElementById('regex-search-results');
-//         let matches;
+    clearPreviousMarks(); // Clear any previous highlights
 
-//         let [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+    let matches = [];
 
-//         matches = await chrome.scripting.executeScript({
+    function findMatchAndRecurse(element, regex) {
+        if (element.childNodes.length > 0) {
+            for (let i = 0; i < element.childNodes.length; i++) {
+                findMatchAndRecurse(element.childNodes[i], regex);
+            }
+        }
+
+        if (element.nodeType === Node.TEXT_NODE && isVisible(element.parentNode)) {
+            const str = element.nodeValue;
+            if (str == null) {
+                return;
+            }
+
+            const parent = element.parentNode;
+            const originalText = element.nodeValue;
+            const regexMatches = [...originalText.matchAll(regex)];
+
+            if (regexMatches.length > 0) {
+                let lastIndex = 0;
+                const fragment = document.createDocumentFragment();
+                let accum = Math.floor(Math.random() * 9000) + 1;
+
+                regexMatches.forEach(match => {
+                    accum += 1
+                    const matchText = match[0];
+                    const matchIndex = match.index;
+
+                    if (matchIndex > lastIndex) {
+                        fragment.appendChild(document.createTextNode(originalText.substring(lastIndex, matchIndex)));
+                    }
+
+                    const mark = document.createElement('mark');
+                    mark.appendChild(document.createTextNode(matchText));
+                    mark.id = `mark_${accum}`
+                    fragment.appendChild(mark);
+
+                    lastIndex = matchIndex + matchText.length;
+                });
+
+                if (lastIndex < originalText.length) {
+                    fragment.appendChild(document.createTextNode(originalText.substring(lastIndex)));
+                }
+
+                parent.replaceChild(fragment, element);
+
+            }
+        }
+
+    }
+
+    console.log(`Regex search running for regex "${regexInput}"`);
+    const regex = new RegExp(regexInput, 'gi');
+    const body = document.body;
+
+    findMatchAndRecurse(body, regex);
+
+    // After replacement, get the bounding rects of the newly created marks
+    const newMarks = document.querySelectorAll('mark');
+    newMarks.forEach(newMark => {
+        if (isVisible(newMark)) {
+            const rect = newMark.getBoundingClientRect();
+            matches.push({
+                text: newMark.textContent,
+                position: {
+                    top: rect.top + window.scrollY,
+                    left: rect.left + window.scrollX,
+                    width: rect.width,
+                    height: rect.height
+                },
+                id: newMark.id
+            });
+        }
+    });
+
+    return matches;
+}
+
+
+
+
+
+// async function _getMainTabDocument() {
+//     return document.body
+// }
+
+// async function getMainTabDocument() {
+//     let [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+//     return await chrome.scripting.executeScript({
 //             target: {tabId: tab.id},
-//             function: highlightPatternMatches,
-//             args: [regexInput]
+//             function: _getMainTabDocument,
+//             args: []
 //         })
-//         console.log("matches", matches)
+// }
+function highlightElement(position, id) {
+    console.log(id)
+    window.scrollTo({
+        top: position.top - 100, // Adjust offset as needed
+        behavior: 'smooth'
+    });
+    element = document.getElementById(id)
+    document.querySelectorAll('mark.highlighted').forEach(mark => {
+        mark.classList.remove('highlighted');
+    });
+    element.classList.add('highlighted');
+    // const element = document.elementFromPoint(position.left, position.top);
+    // if (element && element.tagName === 'MARK') {
+    //     document.querySelectorAll('mark.highlighted').forEach(mark => {
+    //         mark.classList.remove('highlighted');
+    //     });
+    //     element.classList.add('highlighted');
+        
+    // } else {
+    //     console.error('No matching element found or element is not a <mark>.');
+    // }
+}
 
-//         for (const match of matches) {
-//             resultsContainer.value = resultsContainer.value + match.innerText
-//             console.log(match, match.innerHTML)
-//         }
-//     }
-// });
+
+document.getElementById('regex-search').addEventListener('keydown', async (event) => {
+    if (event.key === "Enter") {
+        event.preventDefault();
+        console.log("searching regex")
+        
+        const regexInput = document.getElementById('regex-search').value;
+        const resultsContainer = document.getElementById('regex-search-results');
+        let matches;
+
+        let [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+
+        chrome.scripting.executeScript({
+            target: { tabId: tab.id },
+            function: highlightPatternMatches,
+            args: [regexInput]
+        }, (results) => {
+            const matches = results[0].result;
+    
+            // Clear previous results
+            resultsContainer.innerHTML = '';
+    
+            // Check if matches is iterable
+            if (Array.isArray(matches)) {
+                // Display matches
+                matches.forEach((match, index) => {
+                    const matchElement = document.createElement('div');
+                    matchElement.innerText = `Match ${index + 1}: ${match.text}`;
+                    matchElement.classList.add('match-item');
+                    matchElement.dataset.position = JSON.stringify(match.position);
+                    
+                    // Add click event listener to each match item
+                    
+                    matchElement.addEventListener('click', () => {
+                        chrome.scripting.executeScript({
+                            target: { tabId: tab.id },
+                            function: highlightElement,
+                            args: [match.position, match.id]
+                        });
+                    });
+                    resultsContainer.appendChild(matchElement);
+                });              
+            } else {
+                console.error('Matches is not iterable:', matches);
+            }
+        });
+        // for (const match of matches) {
+        //     resultsContainer.value = resultsContainer.value + match.innerText
+        //     console.log(match, match.innerHTML)
+        // }
+    }
+});
 
 ///////////
 // OTHER //

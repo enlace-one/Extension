@@ -16,9 +16,15 @@
     "service_worker": "service_worker.js"
   },
   "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEApAcbRPVqO1FqtGVYD7hUF3z9/7ERkATnv7jyO/27RhNN/n7HBtie5VacGbexQFXFUydIZzRU1BTwldDhPKQLQWGq+Tfg84amiyAJQKfyU5at2vGxy6u8NurchsJpmigaq4MWhCr6+8fFb/NLcJZ7rzsNf+P4vhJywbEI6WDLtlJlXYbLa4H7OnnAnivNe7evUtxmDSvohRtpGDYIam3k/dUl66MY4KTOUjqCuUN0+iwB9pRGB6VOD1i6VdGN7FR6eCjV/z8uK/fpEMPGeIb0w/s4mab4j39bm6Z+s7QBByurv/2nMZW0zMBEhLRKAfrS9s7/v4fMoMD4DSvZU09U/wIDAQAB", 
-  "permissions": ["userScripts", "contextMenus", "storage", "offscreen", "clipboardWrite","clipboardRead", "sidePanel", "tabs", "scripting"],
+  "permissions": ["contentScripts", "userScripts", "contextMenus", "storage", "offscreen", "clipboardWrite","clipboardRead", "sidePanel", "tabs", "scripting"],
   "host_permissions": [
     "*://*/*"
+  ],
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "css": ["content-script.css"]
+    }
   ],
     "commands": {
     "copy-value-1": {
