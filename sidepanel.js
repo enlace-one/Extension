@@ -224,7 +224,7 @@ document.addEventListener("keydown", function(event) {
 //     return marks.length;
 // }
 
-function highlightPatternMatches(regexInput) {
+function highlightPatternMatches(regexInput, inclusiveSearch=false) {
     function clearPreviousMarks() {
         const marks = document.querySelectorAll('mark');
         marks.forEach(mark => {
@@ -238,14 +238,22 @@ function highlightPatternMatches(regexInput) {
         const style = getComputedStyle(element);
     
         // Check if the element is visible and not covered up by other elements
-        return (
+        if (inclusiveSearch) {
+            return (
+                rect.width > 0 &&
+                rect.height > 0 &&
+                style.display !== 'none' &&
+                style.visibility !== 'hidden' &&
+                style.opacity !== '0'
+            );
+        } else {return (
             rect.width > 0 &&
             rect.height > 0 &&
             style.display !== 'none' &&
             style.visibility !== 'hidden' &&
             style.opacity !== '0' &&
             element === document.elementFromPoint(rect.left + rect.width / 2, rect.top + rect.height / 2)
-        );
+        );}
     }
     
 
@@ -369,6 +377,22 @@ function highlightElement(position, id) {
     // }
 }
 
+const inclusiveSearch = document.getElementById("regex-inclusive");
+const back = document.getElementById("regex-search-back")
+const next = document.getElementById("regex-search-next")
+back.addEventListener("click", async function () {
+    const last = document.querySelector(".match-item.bold");
+    // Get the row before "last"
+    const previousRow = last.previousElementSibling;
+    if (previousRow) {previousRow.click()}
+})
+next.addEventListener("click", async function () {
+    const last = document.querySelector(".match-item.bold");
+    // Get the row after "last"
+    const nextRow = last.nextElementSibling;
+    if (nextRow) {nextRow.click()}
+})
+
 
 document.getElementById('regex-search').addEventListener('keydown', async (event) => {
     if (event.key === "Enter") {
@@ -376,7 +400,7 @@ document.getElementById('regex-search').addEventListener('keydown', async (event
         console.log("searching regex")
         
         const regexInput = document.getElementById('regex-search').value;
-        const resultsContainer = document.getElementById('regex-search-results');
+        const resultsTable = document.getElementById('regex-search-results');
         let matches;
 
         let [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
@@ -384,43 +408,62 @@ document.getElementById('regex-search').addEventListener('keydown', async (event
         chrome.scripting.executeScript({
             target: { tabId: tab.id },
             function: highlightPatternMatches,
-            args: [regexInput]
+            args: [regexInput, inclusiveSearch.checked]
         }, (results) => {
             const matches = results[0].result;
-    
-            // Clear previous results
-            resultsContainer.innerHTML = '';
+
+            const rows = resultsTable.querySelectorAll('tr');
+            // Iterate over each row
+            rows.forEach(row => {
+                // Check if the row does not have the class "permanent"
+                if (!row.classList.contains('permanent')) {
+                    // Remove the row
+                    row.remove();
+                }
+            });
     
             // Check if matches is iterable
             if (Array.isArray(matches)) {
                 // Display matches
                 matches.forEach((match, index) => {
-                    const matchElement = document.createElement('div');
-                    matchElement.innerText = `Match ${index + 1}: ${match.text}`;
+                    const matchElement = resultsTable.insertRow();
+                    const cellOne = matchElement.insertCell();
+                    cellOne.innerText = `${index + 1}`
+                    const cellTwo = matchElement.insertCell();
+                    cellTwo.innerText = `${match.text}`
                     matchElement.classList.add('match-item');
+                    
                     matchElement.dataset.position = JSON.stringify(match.position);
                     
                     // Add click event listener to each match item
                     
                     matchElement.addEventListener('click', () => {
+                        const last = document.querySelector(".match-item.bold");
+                        if (last !== null) {
+                            last.classList.remove("bold");
+                        }
+                        matchElement.classList.add("bold")
                         chrome.scripting.executeScript({
                             target: { tabId: tab.id },
                             function: highlightElement,
                             args: [match.position, match.id]
                         });
                     });
-                    resultsContainer.appendChild(matchElement);
+                    if (index == 0) {matchElement.click()}
+                    // resultsContainer.appendChild(matchElement);
                 });              
             } else {
                 console.error('Matches is not iterable:', matches);
             }
         });
-        // for (const match of matches) {
-        //     resultsContainer.value = resultsContainer.value + match.innerText
-        //     console.log(match, match.innerHTML)
-        // }
     }
+    
 });
+
+/////////
+// TOC //
+/////////
+
 
 ///////////
 // OTHER //

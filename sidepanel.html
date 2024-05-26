@@ -56,8 +56,21 @@
       </div>
       <div class="tab-content" id="developer-tab">
         <h2>Regex Page Search</h2>
-        <input type="text" id="regex-search" placeholder="Enter regex to search...">
-        <div id="regex-search-results"></div>
+        <input class="pretty-text-box" type="text" id="regex-search" placeholder="Enter regex to search...">
+        
+        <div style="display: flex;align-items: center;">
+          <input id="regex-inclusive" type="checkbox"/><label> Edge on Inclusive</label>
+        </div>
+        <table id="regex-search-results">
+          <tr class="permanent">
+            <td><input id="regex-search-back" type="button" value="Back"></td>
+            <td><input id="regex-search-next" type="button" value="Next"></td>
+          </tr>
+          <tr class="permanent">
+            <th>Match #</th>
+            <th>Match Text</th>
+          </tr>
+        </table>
 
       </div>
       <div class="tab-content" id="page-notes-help-tab">
