@@ -350,6 +350,7 @@ const urlPatternElement = document.getElementById("url-pattern");
 const titleElement = document.getElementById("page-notes-title");
 const idElement = document.getElementById("page-note-id");
 const pageNotesTabButton = document.getElementById("page-notes-tab-button");
+const newPageNotesTabButton = document.getElementById("new-page-notes-tab-button")
 const openPageNoteButton = document.getElementById(
   "open-page-notes-tab-button"
 );
@@ -748,8 +749,7 @@ async function newPageNote() {
   expiringCheckbox.checked = true;
 }
 
-document
-  .getElementById("new-page-notes-tab-button")
+newPageNotesTabButton
   .addEventListener("click", newPageNote);
 
 /////////////////////////

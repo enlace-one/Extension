@@ -22,6 +22,8 @@ const variables = {
     webRequestsName: "Requests",
     referencesName: "References",
     scriptName: "Script",
+    regexSearchName: "re-Search",
+    tocName: "TOC", 
   }
   
 window.addEventListener("DOMContentLoaded", function() {

@@ -463,11 +463,90 @@ document.getElementById('regex-search').addEventListener('keydown', async (event
 /////////
 // TOC //
 /////////
+const tocArea = document.getElementById("toc-area")
+const tocTabButton = document.getElementById("toc-tab-button")
+
+function getTOC() {
+    const headers = document.querySelectorAll("H1, H2, H3");
+    let returnHtml = '<ol>';
+    let currentLevel = 1;
+
+    headers.forEach(function(header) {
+        if (!header.innerText) { return; }
+        let id = header.id || `TOC-ID-${currentLevel}`;
+        header.id = id;
+
+        const headerLevel = parseInt(header.tagName.replace(/\D/g, ''), 10);
+        if (headerLevel > currentLevel) {
+            returnHtml += "<ol>";
+        } else if (headerLevel < currentLevel) {
+            returnHtml += "</ol>".repeat(currentLevel - headerLevel);
+        }
+
+        returnHtml += `<li class='toc-${header.tagName.toLowerCase()} toc-element' id='${id}'>${header.innerText}</li>`;
+        currentLevel = headerLevel;
+    });
+
+    return returnHtml + "</ol>".repeat(currentLevel) + "</ol>";
+}
+
+async function _openTocElement(id) {
+    // currentURL = URL + `#${id}`
+    const currentURL = new URL(window.location.href);
+    currentURL.hash = id;
+    window.location.href = currentURL.href;
+}
+
+async function openTocElement(element) {
+    let [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+    chrome.scripting.executeScript({
+        target: { tabId: tab.id },
+        function: _openTocElement,
+        args: [element.id]
+    });
+}
+
+tocTabButton.addEventListener("click", async function() {
+    let [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+    chrome.scripting.executeScript({
+        target: { tabId: tab.id },
+        function: getTOC,
+        args: []
+    }, (results) => {
+        console.log(results)
+        tocArea.innerHTML = results[0].result;
+        document.querySelectorAll(".toc-element").forEach(async function (element) {
+            element.addEventListener("click", async function() {
+                openTocElement(element)
+            })
+        })
+    });
+});
+
 
 
 ///////////
 // OTHER //
 ///////////
+
+const switchButtons = document.querySelectorAll(".switch-button")
+const regexSearchTabButton = document.getElementById("regex-search-tab-button")
+const group1 = document.querySelector(".group1")
+const group2 = document.querySelector(".group2")
+
+switchButtons.forEach(async function (button) {
+    button.addEventListener("click", async function() {
+        if (button.classList.contains("group1")) {
+            group1.classList.add("hidden")
+            group2.classList.remove("hidden")
+            regexSearchTabButton.click()
+        } else {
+            group2.classList.add("hidden")
+            group1.classList.remove("hidden")
+            openPageNoteButton.click()
+        }
+    })
+})
 
 
 // EDGE SPECIFIC

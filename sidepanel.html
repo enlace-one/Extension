@@ -36,7 +36,7 @@
       </div>
     </div>
     <div id="unlocked-div" class="hidden">
-      <div class="tabs">
+      <div class="tabs group1">
         <button id="page-notes-tab-button" class="tab-button hidden" data-tab="page-notes-tab">
           Page Note
         </button>
@@ -49,12 +49,29 @@
         <button id="page-notes-help-tab-button" class="tab-button hidden" data-tab="page-notes-help-tab">
           Help
         </button>
-        <button id="developer-tab-button" class="tab-button " data-tab="developer-tab">
-          Dev
+        <button type="button" class="switch-button group1" >
+          <img style="width: 15px; height: auto;" src="images/rotate.svg" alt="Icon">
         </button>
-        <input type="button" value="Lock" id="lock-button" />
+        <input class="hidden" type="button" value="Lock" id="lock-button" />
       </div>
-      <div class="tab-content" id="developer-tab">
+      <div class="tabs group2 hidden">
+        <button id="regex-search-tab-button" class="tab-button regexSearchName" data-tab="regex-search-tab">
+          Re
+        </button>
+        <button id="toc-tab-button" class="tab-button tocName" data-tab="toc-tab">
+          Toc
+        </button>
+        <button type="button" class="switch-button group2" >
+          <img style="width: 15px; height: auto;" src="images/rotate.svg" alt="Icon">
+        </button>
+      </div>
+      <div class="tab-content" id="toc-tab">
+        <h2 class="tocName">TOC</h2>
+        <div id="toc-area">
+
+        </div>
+      </div>
+      <div class="tab-content" id="regex-search-tab">
         <h2>Regex Page Search</h2>
         <input class="pretty-text-box" type="text" id="regex-search" placeholder="Enter regex to search...">
         
@@ -236,7 +253,7 @@
       </div>
       <div class="tab-content" id="page-notes-tab">
         <label>Title</label>
-        <input class="pretty-text-box" id="page-notes-title" rows="3" style="width: 70vw;" />
+        <input class="pretty-text-box" id="page-notes-title" rows="3" style="width: 65vw;" />
         <br>
         <br>
         <label>URL Pattern</label>
