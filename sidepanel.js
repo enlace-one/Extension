@@ -62,7 +62,7 @@ chrome.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
 document.getElementById("add-current-url").addEventListener("click", async function () {
     const url = await get_current_url()
     let url_pattern = await get_default_pattern(url)
-    url_pattern = url_pattern.substring(0, maxPageNotesURLChar);
+    url_pattern = url_pattern.substring(0, maxPageNotesURLChar-1);
     url_pattern = urlPatternElement.value + "|" + url_pattern
     urlPatternElement.value = url_pattern
 })
@@ -71,7 +71,7 @@ document.getElementById("add-current-domain").addEventListener("click", async fu
     const url = await get_current_url()
     let domain = await get_default_title(url)
     let url_pattern = await get_default_pattern(domain)
-    url_pattern = url_pattern.substring(0, maxPageNotesURLChar);
+    url_pattern = url_pattern.substring(0, maxPageNotesURLChar-1);
     url_pattern = urlPatternElement.value + "|" + url_pattern
     urlPatternElement.value = url_pattern
 })

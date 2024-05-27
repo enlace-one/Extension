@@ -173,6 +173,11 @@ td {
   font-weight: bold;
 }
 
+/* TOC */
+ol {
+  padding-left: 10px
+}
+
 .input-group {
   display: flex;
   width: 70vw;
