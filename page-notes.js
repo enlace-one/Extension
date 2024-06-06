@@ -536,7 +536,6 @@ async function open_page_note(id, inPreview=false) {
   // Set Visibility
   pageNotesTabButton.classList.remove("hidden");
   pageNotesTabButton.click();
-  easyMDE.codemirror.refresh();
 
   // Set options
   if (inPreview) {
@@ -550,6 +549,9 @@ async function open_page_note(id, inPreview=false) {
 
   // Set Focus
   easyMDE.codemirror.focus();
+
+  // Refresh CodeMirror
+  easyMDE.codemirror.refresh();
 
   updateRecentPageNotes(id)
 }
