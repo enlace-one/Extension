@@ -40,20 +40,21 @@ function addClipboardComponenets() {
         } catch {
             console.log("No found value stored for " + element.getAttribute("key"))
         }
-        element.addEventListener("change", async function() {
-            console.log("triggered input onchange")
-             
-            navigator.serviceWorker.controller.postMessage({
-                action: 'appStateChanged',
-                hasChanged: true
-            });
-            if (await getSetting("encrypt-clipboard")) {
-                eStore(element.getAttribute("key"), element.value)
-            } else {
-                store(element.getAttribute("key"), element.value)
-            }
-            showNotification("Saved")
-        });
+        async function saveClipBoard() {
+          console.log("triggered input onchange")
+           
+          navigator.serviceWorker.controller.postMessage({
+              action: 'appStateChanged',
+              hasChanged: true
+          });
+          if (await getSetting("encrypt-clipboard")) {
+              eStore(element.getAttribute("key"), element.value)
+          } else {
+              store(element.getAttribute("key"), element.value)
+          }
+          showNotification("Saved")
+      }
+        element.addEventListener("change", saveClipBoard);
 
         // Add copy/paste button after the variable element
         const copyButton = copy_html.replace("{ID}", element.getAttribute("key"));
@@ -70,6 +71,7 @@ function addClipboardComponenets() {
             const text = await navigator.clipboard.readText();
             element.value = text;
             showNotification("Pasted");
+            saveClipBoard();
         });
 
     });
