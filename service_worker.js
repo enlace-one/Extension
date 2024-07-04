@@ -161,6 +161,15 @@ chrome.commands.onCommand.addListener(async (command) => {
 // Handle SmartValues like {{ month }}, {{ day }}, {{ date }}, {{ time }}, {{ year }}, {{ yy }}, {{ yyyy }}, {{ MM }}, {{ dd }}, {{ hh }}, {{ mm }}, {{ ss }}, {{ weekday }}
 // Does not matter if there is a space or not. Ex: {{month}} or {{ month }}
 async function convertSmartValues(string) {
+
+    // Possible fix to edge error 7/4/2024
+    if (typeof string !== 'string' && string !== undefined) {
+      string = string.toString();
+    } else if (string == undefined) {
+      console.log("Input is not defined")
+      1/0
+    }
+
     var date = new Date()
     var year = date.getFullYear()
     var month = date.getMonth() + 1
