@@ -44,12 +44,12 @@
 ## Insert Elements
 | Shortcut             | Action                     |
 | -------------------- | -------------------------- |
-| Ctrl + Shift + 1     | Insert a heading 1         |
-| Ctrl + Shift + 2     | Insert a heading 2         |
-| Ctrl + Shift + 3     | Insert a heading 3         |
-| Ctrl + Shift + 4     | Insert a heading 4         |
-| Ctrl + Shift + 5     | Insert a heading 5         |
-| Ctrl + Shift + 6     | Insert a heading 6         |
+| Ctrl + Alt + 1     | Insert a heading 1         |
+| Ctrl + Alt + 2     | Insert a heading 2         |
+| Ctrl + Alt + 3     | Insert a heading 3         |
+| Ctrl + Alt + 4     | Insert a heading 4         |
+| Ctrl + Alt + 5     | Insert a heading 5         |
+| Ctrl + Alt + 6     | Insert a heading 6         |
 | Ctrl + Alt + T       | Insert a table             |
 | Ctrl + Alt + L       | Insert a link              |
 | Ctrl + Alt + I       | Insert an image            |
