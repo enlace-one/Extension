@@ -24,6 +24,7 @@ const variables = {
     scriptName: "Script",
     regexSearchName: "re-Search",
     tocName: "TOC", 
+    webAppSecName: "WebAppSec"
   }
   
 window.addEventListener("DOMContentLoaded", function() {
@@ -352,3 +353,40 @@ copy_blocks.forEach(function(copy_block) {
         .catch((err) => console.error("Failed to copy content: ", err));
     });
 });
+
+async function copyTextContent(element) {
+    navigator.clipboard
+        .writeText(element.textContent)
+        .then(() => {
+            console.log("Content copied!")
+            showNotification("Content Copied")
+        })
+}
+async function copyValue(element) {
+    navigator.clipboard
+        .writeText(element.value)
+        .then(() => {
+            console.log("Content copied!")
+            showNotification("Content Copied")
+        })
+}
+async function pasteValue(element) {
+    const text = await navigator.clipboard.readText();
+    element.value = text;
+    showNotification("Pasted");
+}
+
+
+document.addEventListener("DOMContentLoaded", function () {
+    // Select all elements with the class 'copy-on-click'
+    const copyButtons = document.querySelectorAll('.copy-on-click');
+    
+    // Loop through each element and add a click event listener
+    copyButtons.forEach(button => {
+        button.addEventListener('click', function() {       
+            // Copy the text content of the clicked element to the clipboard
+            copyTextContent(this);
+        });
+    });
+});
+

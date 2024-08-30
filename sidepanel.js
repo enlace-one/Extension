@@ -524,6 +524,141 @@ tocTabButton.addEventListener("click", async function() {
 });
 
 
+///////////////
+// WebAppSec //
+///////////////
+
+// HTML encoding function
+function htmlEncode(str) {
+    var temp = document.createElement('div');
+    temp.textContent = str;
+    return temp.innerHTML;
+}
+
+// HTML decoding function
+function htmlDecode(str) {
+    var temp = document.createElement('div');
+    temp.innerHTML = str;
+    return temp.textContent;
+}
+
+// Function to execute code in the context of the current page's tab
+async function runFunctionOnPage(func) {
+    let [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+    chrome.scripting.executeScript({
+        target: { tabId: tab.id },
+        function: func,
+        args: []
+    }, (results) => {
+        console.log(results);
+    });
+}
+
+document.addEventListener("DOMContentLoaded", async function () {
+    document.getElementById("web-app-sec-html-val").addEventListener("click", async function () {
+        // Remove all the HTML input validations on the page
+        await runFunctionOnPage(removeHtmlValidations);
+    });
+
+    document.getElementById("web-app-sec-js-val").addEventListener("click", async function () {
+        // Remove all the JS input validations on the page
+        await runFunctionOnPage(removeJsValidations);
+    });
+
+    document.getElementById("web-app-sec-no-paste").addEventListener("click", async function () {
+        // Remove all the no-paste HTML input checks on the page
+        await runFunctionOnPage(removeNoPasteRestrictions);
+    });
+
+    const encoderElement = document.getElementById("web-app-sec-encoder");
+    const decoderElement = document.getElementById("web-app-sec-decoder");
+
+    async function webAppSecEncode() {
+        // Get the encoding type (HTML or URL) selected by the user
+        var encType = document.getElementById("web-app-sec-encoder-type").value;
+        
+        // Encode the textContent and set web-app-sec-decoder's text content as the encoded value
+        if (encType === "HTML") {
+            decoderElement.value = htmlEncode(encoderElement.value);
+        } else if (encType === "URL") {
+            decoderElement.value = encodeURIComponent(encoderElement.value);
+        }
+    }
+
+    async function webAppSecDecode() {
+        // Get the encoding type (HTML or URL) selected by the user
+        var encType = document.getElementById("web-app-sec-encoder-type").value;
+    
+        // Decode the textContent and set web-app-sec-encoder's text content as the decoded value
+        if (encType === "HTML") {
+            encoderElement.value = htmlDecode(decoderElement.value);
+        } else if (encType === "URL") {
+            encoderElement.value = decodeURIComponent(decoderElement.value);
+        }
+    }
+
+    encoderElement.addEventListener("input", webAppSecEncode);
+    
+    decoderElement.addEventListener("input", webAppSecDecode);
+
+    document.getElementById("web-app-sec-enc-cpy").addEventListener("click", async function () {
+        copyValue(encoderElement)
+    })
+    document.getElementById("web-app-sec-dec-cpy").addEventListener("click", async function () {
+        copyValue(decoderElement)
+    })
+    document.getElementById("web-app-sec-enc-pst").addEventListener("click", async function () {
+        pasteValue(encoderElement).then((value)=> {
+            webAppSecEncode()
+        })
+    })
+    document.getElementById("web-app-sec-dec-pst").addEventListener("click", async function () {
+        pasteValue(decoderElement).then((value)=> {
+            webAppSecDecode()
+        })
+        
+    })
+    
+});
+
+// Function to remove HTML validations like 'required', 'minlength', etc.
+function removeHtmlValidations() {
+    const inputs = document.querySelectorAll('input, textarea, select');
+    inputs.forEach(input => {
+        input.removeAttribute('required');
+        input.removeAttribute('minlength');
+        input.removeAttribute('maxlength');
+        input.removeAttribute('pattern');
+        input.removeAttribute('step');
+        input.removeAttribute('min');
+        input.removeAttribute('max');
+        if (input.tagName.toLowerCase() === 'input' && input.type === 'email') {
+            input.type = 'text';
+        }
+    });
+    console.log("HTML input validations removed.");
+}
+
+// Function to remove JavaScript validations by disabling event listeners related to validation
+function removeJsValidations() {
+    const inputs = document.querySelectorAll('input, textarea, select');
+    inputs.forEach(input => {
+        const clone = input.cloneNode(true);
+        input.parentNode.replaceChild(clone, input);
+    });
+    console.log("JavaScript input validations removed.");
+}
+
+// Function to remove 'no-paste' restrictions on input fields
+function removeNoPasteRestrictions() {
+    const inputs = document.querySelectorAll('input, textarea');
+    inputs.forEach(input => {
+        input.removeAttribute('onpaste');
+        input.onpaste = null;
+    });
+    console.log("No-paste restrictions removed.");
+}
+
 
 ///////////
 // OTHER //

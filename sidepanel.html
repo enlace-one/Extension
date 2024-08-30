@@ -5,13 +5,13 @@
   <title>My Sidepanel</title>
   <link rel="stylesheet" href="default.css">
   <meta charset="UTF-8">
-  
+
   <!-- Testing edge cursor issue 6/6 - reordered and swapped with cdn-->
   <!-- <link rel="stylesheet" href="/third_party/easymde.min.css"> -->
   <link rel="stylesheet" href="/third_party/highlight.min.css">
   <link rel="stylesheet" href="https://unpkg.com/easymde/dist/easymde.min.css">
   <!-- Next try removing highlight?  -->
-  
+
   <style>
 
 
@@ -54,7 +54,7 @@
         <button id="page-notes-help-tab-button" class="tab-button hidden" data-tab="page-notes-help-tab">
           Help
         </button>
-        <button type="button" class="switch-button group1" >
+        <button type="button" class="switch-button group1">
           <img style="width: 15px; height: auto;" src="images/rotate.svg" alt="Icon">
         </button>
         <input class="hidden" type="button" value="Lock" id="lock-button" />
@@ -66,7 +66,10 @@
         <button id="toc-tab-button" class="tab-button tocName" data-tab="toc-tab">
           Toc
         </button>
-        <button type="button" class="switch-button group2" >
+        <button id="web-app-sec-tab-button" class="tab-button webAppSecName" data-tab="web-app-sec-tab">
+          Toc
+        </button>
+        <button type="button" class="switch-button group2">
           <img style="width: 15px; height: auto;" src="images/rotate.svg" alt="Icon">
         </button>
       </div>
@@ -76,12 +79,77 @@
 
         </div>
       </div>
+      <div class="tab-content" id="web-app-sec-tab">
+        <h2>WebAppSec</h2>
+        <h3>Unsaved Note</h3>
+        <textarea></textarea>
+        <h3>Validation Bypasses</h3>
+        <table>
+          <tr>
+            <td>HTML Input Validation</td>
+            <td><input type="button" id="web-app-sec-html-val" value="Turn Off" /></td>
+          </tr>
+          <tr>
+            <td>JS Input Validation</td>
+            <td><input type="button" id="web-app-sec-js-val" value="Turn Off" /></td>
+          </tr>
+          <tr>
+            <td>No-Paste on Input Fields</td>
+            <td><input type="button" id="web-app-sec-no-paste" value="Turn Off" /></td>
+          </tr>
+        </table>
+        <h3>Encoder</h3>
+        <select id="web-app-sec-encoder-type">
+          <option>HTML</option>
+          <option>URL</option>
+        </select>
+        <br>
+        <div class="input-group"><textarea id="web-app-sec-encoder"></textarea><button id="web-app-sec-enc-cpy"
+            style="width: 8vw;"><img style="width: 100%; height: auto;" src="images/copy.svg"
+              alt="Icon"></button><button id="web-app-sec-enc-pst" style="width: 8vw;"><img
+              style="width: 100%; height: auto;" src="images/paste.svg" alt="Icon"></button>
+        </div>
+        <div class="input-group"><textarea id="web-app-sec-decoder"></textarea><button id="web-app-sec-dec-cpy"
+            style="width: 8vw;"><img style="width: 100%; height: auto;" src="images/copy.svg"
+              alt="Icon"></button><button id="web-app-sec-dec-pst" style="width: 8vw;"><img
+              style="width: 100%; height: auto;" src="images/paste.svg" alt="Icon"></button>
+        </div>
+        <h3>Common Testing Inputs</h3>
+        <table>
+          <tr>
+            <td class="copy-on-click">&lt;input autofocus onfocus=alert(1)&gt;</td>
+          </tr>
+          <tr>
+            <td class="copy-on-click">{{$on.constructor('alert(1)')()}}</td>
+          </tr>
+          <tr>
+            <td class="copy-on-click">&lt;img src=1 oNeRrOr=alert`1`&gt; </td>
+          </tr>
+          <tr>
+            <td class="copy-on-click">&lt;tr&gt;
+              &lt;td class="copy-on-click"&gt;&amp;lt;img src=1 oNeRrOr=alert`1`&amp;gt; &lt;/td&gt;
+            &lt;/tr&gt;</td>
+          </tr>
+          <tr>
+            <td class="copy-on-click">javascript:alert(1)</td>
+          </tr>
+          <tr>
+            <td class="copy-on-click">' Or '87' ='87</td>
+          </tr>
+          <tr>
+            <td class="copy-on-click">' UNION SELECT null FROM all_tables -- </td>
+          </tr>
+          <tr>
+            <td class="copy-on-click">' UNION SELECT null FROM dual -- </td>
+          </tr>
+        </table>
+      </div>
       <div class="tab-content" id="regex-search-tab">
         <h2>Regex Page Search</h2>
         <input class="pretty-text-box" type="text" id="regex-search" placeholder="Enter regex to search...">
-        
+
         <div style="display: flex;align-items: center;">
-          <input id="regex-inclusive" type="checkbox"/><label> Edge on Inclusive</label>
+          <input id="regex-inclusive" type="checkbox" /><label> Edge on Inclusive</label>
         </div>
         <table id="regex-search-results">
           <tr class="permanent">
@@ -230,7 +298,7 @@
               <td>goLineEnd</td>
             </tr>
           </tbody>
-        </table>        
+        </table>
       </div>
       <div class="tab-content active" id="open-page-notes-tab">
         <div id="page-notes-matching-url">
@@ -239,7 +307,7 @@
           <table id="page-notes-matching-url-table"></table>
         </div>
         <hr style="margin:10px">
-        
+
         <!-- <h3>Search</h3> -->
         <input id="page-notes-search" placeholder="Search..."
           style="margin-bottom: 10px; padding: 8px; border: 1px solid #ccc; border-radius: 4px; width: calc(100% - 20px);">
