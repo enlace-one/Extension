@@ -390,3 +390,20 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 });
 
+
+// Function to dispatch the custom 'tabsChanged' event
+function dispatchTabsChangedEvent(tab) {
+    const tabsChangedEvent = new CustomEvent('tabsChanged', { detail: { tab } });
+    document.dispatchEvent(tabsChangedEvent);
+}
+
+// Listen for tab activation and update events
+chrome.tabs.onActivated.addListener(async (activeInfo) => {
+    const tab = await chrome.tabs.get(activeInfo.tabId);
+    dispatchTabsChangedEvent(tab);  // Dispatch the custom event
+});
+
+chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
+    dispatchTabsChangedEvent(tab);  // Dispatch the custom event
+});
+

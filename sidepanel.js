@@ -554,20 +554,90 @@ async function runFunctionOnPage(func) {
     });
 }
 
+var webAppSecHtmlValContinuous = false;
+var webAppSecJsValContinuous = false;
+var webAppSecSampleDataContinuous = false;
+var webAppSecSelectOffContinuous = false;
+var webAppSecHiddenOffContinuous = false;
+var webAppSecNoPasteContinuous = false;
+
+document.addEventListener('tabsChanged', async (event) => {
+    const tab = event.detail.tab;
+    if (tab.active) {
+        if (webAppSecHtmlValContinuous) {
+            await runFunctionOnPage(removeHtmlValidations);
+        }
+        if (webAppSecJsValContinuous) {
+            await runFunctionOnPage(removeJsValidations);
+        }
+        if (webAppSecSampleDataContinuous) {
+            await runFunctionOnPage(fillWithSampleData);
+        }
+        if (webAppSecSelectOffContinuous) {
+            await runFunctionOnPage(replaceSelectElements);
+        }
+        if (webAppSecHiddenOffContinuous) {
+            await runFunctionOnPage(removeHiddenFields);
+        }
+        if (webAppSecNoPasteContinuous) {
+            await runFunctionOnPage(removeNoPasteRestrictions);
+        }
+    }
+});
+
 document.addEventListener("DOMContentLoaded", async function () {
     document.getElementById("web-app-sec-html-val").addEventListener("click", async function () {
-        // Remove all the HTML input validations on the page
         await runFunctionOnPage(removeHtmlValidations);
     });
 
+    document.getElementById("web-app-sec-html-val-ckbx").addEventListener("change", function () {
+        webAppSecHtmlValContinuous = this.checked;
+        runFunctionOnPage(removeHtmlValidations);
+    });
+
     document.getElementById("web-app-sec-js-val").addEventListener("click", async function () {
-        // Remove all the JS input validations on the page
         await runFunctionOnPage(removeJsValidations);
     });
 
+    document.getElementById("web-app-sec-js-val-ckbx").addEventListener("change", function () {
+        webAppSecJsValContinuous = this.checked;
+        runFunctionOnPage(removeJsValidations);
+    });
+
+    document.getElementById("web-app-sec-sample-data").addEventListener("click", async function () {
+        await runFunctionOnPage(fillWithSampleData);
+    });
+
+    document.getElementById("web-app-sec-sample-data-ckbx").addEventListener("change", function () {
+        webAppSecSampleDataContinuous = this.checked;
+        runFunctionOnPage(fillWithSampleData);
+    });
+
+    document.getElementById("web-app-sec-select-off").addEventListener("click", async function () {
+        await runFunctionOnPage(replaceSelectElements);
+    });
+
+    document.getElementById("web-app-sec-select-off-ckbx").addEventListener("change", function () {
+        webAppSecSelectOffContinuous = this.checked;
+        runFunctionOnPage(replaceSelectElements);
+    });
+
+    document.getElementById("web-app-sec-hidden-off").addEventListener("click", async function () {
+        await runFunctionOnPage(removeHiddenFields);
+    });
+
+    document.getElementById("web-app-sec-hidden-off-ckbx").addEventListener("change", function () {
+        webAppSecHiddenOffContinuous = this.checked;
+        runFunctionOnPage(removeHiddenFields);
+    });
+
     document.getElementById("web-app-sec-no-paste").addEventListener("click", async function () {
-        // Remove all the no-paste HTML input checks on the page
         await runFunctionOnPage(removeNoPasteRestrictions);
+    });
+
+    document.getElementById("web-app-sec-no-paste-ckbx").addEventListener("change", function () {
+        webAppSecNoPasteContinuous = this.checked;
+        runFunctionOnPage(removeNoPasteRestrictions);
     });
 
     const encoderElement = document.getElementById("web-app-sec-encoder");
@@ -601,6 +671,8 @@ document.addEventListener("DOMContentLoaded", async function () {
     
     decoderElement.addEventListener("input", webAppSecDecode);
 
+    document.getElementById("cookies-header").addEventListener("mouseover", loadCookies)
+
     document.getElementById("web-app-sec-enc-cpy").addEventListener("click", async function () {
         copyValue(encoderElement)
     })
@@ -621,10 +693,118 @@ document.addEventListener("DOMContentLoaded", async function () {
     
 });
 
+function fillWithSampleData() {
+    // Select all input, textarea, and select elements
+    const inputs = document.querySelectorAll('input, textarea, select');
+
+    inputs.forEach(input => {
+        if (input.tagName.toLowerCase() === 'textarea') {
+            // For textareas, fill with sample text
+            input.value = 'Sample text for textarea';
+        } else if (input.tagName.toLowerCase() === 'select') {
+            // For select elements, select the first option
+            if (input.options.length > 0) {
+                input.selectedIndex = 0; // Select the first option
+            }
+        } else if (input.tagName.toLowerCase() === 'input') {
+            // Handle different types of input elements
+            switch (input.type) {
+                case 'text':
+                    input.value = 'wiener';
+                    break;
+                case 'number':
+                    input.value = '123';
+                    break;
+                case 'email':
+                    input.value = 'sample@example.com';
+                    break;
+                case 'password':
+                    input.value = 'peter';
+                    break;
+                case 'checkbox':
+                case 'radio':
+                    input.checked = true; // Check all checkboxes and radio buttons
+                    break;
+                case 'date':
+                    input.value = '2024-01-01'; // Sample date
+                    break;
+                case 'url':
+                    input.value = 'https://example.com';
+                    break;
+                case 'tel':
+                    input.value = '+1234567890';
+                    break;
+                case 'range':
+                    input.value = input.max ? input.max : '50'; // Set to max or 50 if max is not defined
+                    break;
+                default:
+                    input.value = 'Sample data'; // Default for other input types
+            }
+        }
+    });
+
+    console.log("All inputs have been filled with sample data.");
+}
+
+function replaceSelectElements() {
+    // Find all select elements in the document
+    const selectElements = document.querySelectorAll('select');
+  
+    selectElements.forEach(select => {
+      // Get the selected value and name attribute of the select element
+      const selectedValue = select.value;
+      const selectName = select.name;
+  
+      // Create a new input element
+      const inputElement = document.createElement('input');
+      inputElement.type = 'text';
+      inputElement.value = selectedValue;
+      inputElement.name = selectName;
+  
+      // Replace the select element with the input element
+      select.parentNode.replaceChild(inputElement, select);
+    });
+    // Find all radio button groups by their name
+    const radioGroups = {};
+    const radioButtons = document.querySelectorAll('input[type="radio"]');
+
+    radioButtons.forEach(radio => {
+        // Group radio buttons by their name attribute
+        const name = radio.name;
+        if (!radioGroups[name]) {
+            radioGroups[name] = [];
+        }
+        radioGroups[name].push(radio);
+    });
+
+    // Replace each group of radio buttons
+    Object.keys(radioGroups).forEach(name => {
+        const radios = radioGroups[name];
+
+        // Find the checked radio button in the group
+        const checkedRadio = radios.find(radio => radio.checked);
+        const selectedValue = checkedRadio ? checkedRadio.value : '';
+
+        // Create a new input element for the group
+        const inputElement = document.createElement('input');
+        inputElement.type = 'text';
+        inputElement.value = selectedValue;
+        inputElement.name = name;
+
+        // Replace the first radio button with the input element
+        // and remove the rest from the DOM
+        if (radios.length > 0) {
+            radios[0].parentNode.replaceChild(inputElement, radios[0]);
+            radios.slice(1).forEach(radio => radio.remove());
+        }
+    });
+  }
+  
 // Function to remove HTML validations like 'required', 'minlength', etc.
 function removeHtmlValidations() {
     const inputs = document.querySelectorAll('input, textarea, select');
     inputs.forEach(input => {
+        // Remove various validation attributes
         input.removeAttribute('required');
         input.removeAttribute('minlength');
         input.removeAttribute('maxlength');
@@ -632,11 +812,29 @@ function removeHtmlValidations() {
         input.removeAttribute('step');
         input.removeAttribute('min');
         input.removeAttribute('max');
-        if (input.tagName.toLowerCase() === 'input' && input.type === 'email') {
+
+        // List of input types to be converted to text
+        const typesToConvert = ['email', 'color', 'date', 'datetime-local', 'number', 'range', 'tel', 'url', 'week', 'time'];
+
+        // Check if input is of a type that needs to be converted to text
+        if (input.tagName.toLowerCase() === 'input' && typesToConvert.includes(input.type)) {
             input.type = 'text';
         }
     });
     console.log("HTML input validations removed.");
+}
+
+function removeHiddenFields() {
+    const inputs = document.querySelectorAll('input, textarea, select');
+    inputs.forEach(input => {
+        if (input.style.display === "none") {
+            input.style.display = "block"
+        }
+        if (input.tagName.toLowerCase() === 'input' && input.type === 'hidden') {
+            input.type = 'text';
+        }
+    });
+    console.log("Hidden Fields Shown.");
 }
 
 // Function to remove JavaScript validations by disabling event listeners related to validation
@@ -659,6 +857,146 @@ function removeNoPasteRestrictions() {
     console.log("No-paste restrictions removed.");
 }
 
+function loadCookies() {
+    const site_only = true;
+    if (site_only) {
+        chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
+            const url = new URL(tabs[0].url);
+            const domain = url.hostname;
+            chrome.cookies.getAll({domain: domain}, function (cookies) {
+                displayCookies(cookies);
+            });
+        });
+    } else {
+        chrome.cookies.getAll({}, function (cookies) {
+            displayCookies(cookies);
+        });
+    }
+}
+
+
+function displayCookies(cookies) {
+    // Edit and Delete not working, need to style list items
+    const list = document.getElementById('cookie-list');
+    list.innerHTML = ''; // clear the list
+
+    for (let cookie of cookies) {
+        // Create a list item for each cookie
+        const listItem = document.createElement('li');
+        listItem.classList.add('cookie-item');
+
+        // Create a button to toggle the visibility of the cookie details
+        const toggleButton = document.createElement('button');
+        toggleButton.textContent = `${truncateString(cookie.name, 25)} - ${truncateString(cookie.value, 25)} ${truncateString(cookie.domain, 25)}`;
+        toggleButton.addEventListener('click', () => {
+            detailDiv.style.display = detailDiv.style.display === 'none' ? '' : 'none';
+        });
+        toggleButton.classList.add("subtle-button")
+        listItem.appendChild(toggleButton);
+
+        const detailDiv = document.createElement('div');
+        detailDiv.style.display = 'none';
+
+        // Create a textarea to hold the cookie details
+        const detailsTextarea = document.createElement('textarea');
+        detailsTextarea.rows = 10;
+        detailsTextarea.cols = 28;
+        // detailsTextarea.style.display = 'none'; // hide the textarea by default
+        detailsTextarea.textContent = JSON.stringify(cookie, null, 1);
+        detailsTextarea.readOnly = true;
+        detailDiv.appendChild(detailsTextarea);
+
+        // Create a break
+        const br = document.createElement("br");
+        detailDiv.appendChild(br);
+
+        // Create a delete button
+        const deleteButton = document.createElement('button');
+        
+        deleteButton.textContent = 'Delete';
+        deleteButton.addEventListener('click', () => {
+            chrome.cookies.remove({url: "http://" + cookie.domain + cookie.path, name: cookie.name}, function(deletedCookie) {
+                if (chrome.runtime.lastError) {
+                    console.error(chrome.runtime.lastError.message);
+                } else {
+                    console.log(deletedCookie);
+                    // Remove the list item from the list
+                    list.removeChild(listItem);
+                }
+            });
+        });
+        // deleteButton.style.display = 'none';
+        detailDiv.appendChild(deleteButton);
+
+        // Create an edit button
+        if (cookie.httpOnly) {
+            const httpOnlyWarning = document.createElement('small');
+            httpOnlyWarning.textContent = '  This cookie cannot be edited (httpOnly)';
+            detailDiv.appendChild(httpOnlyWarning);
+        } else if (cookie.domain.startsWith('.')) { 
+            const httpOnlyWarning = document.createElement('small');
+            httpOnlyWarning.textContent = "  This cookie cannot be edited (cookie's domain starts with a dot)";
+            detailDiv.appendChild(httpOnlyWarning);
+        } else {
+            const editButton = document.createElement('button');
+            editButton.textContent = 'Edit';
+            editButton.addEventListener('click', () => {
+                // Make the textarea editable and focus it
+                detailsTextarea.readOnly = false;
+                detailsTextarea.focus();
+            });
+            detailDiv.appendChild(editButton);
+        }
+        listItem.appendChild(detailDiv);
+
+        // Add an event listener for when the textarea loses focus
+        detailsTextarea.addEventListener('blur', () => {
+            // Make the textarea read-only again
+            detailsTextarea.readOnly = true;
+
+            // Parse the edited JSON and save the changes to the cookie
+            try {
+                console.log(detailsTextarea.value)
+                const editedCookie = JSON.parse(detailsTextarea.value);
+                console.log(editedCookie.value)
+                console.log(cookie.domain + cookie.path)
+                chrome.cookies.set({
+                    url: "https://" + cookie.domain + cookie.path,
+                    name: cookie.name,
+                    value: editedCookie.value,
+                    secure: cookie.secure,
+                    httpOnly: cookie.httpOnly,
+                    sameSite: cookie.sameSite,
+                    // Add other cookie properties here if needed
+                }, function(cookie) {
+                    if (chrome.runtime.lastError) {
+                        console.error(chrome.runtime.lastError.message);
+                        showNotification("Error: " + chrome.runtime.lastError.message)
+                    } else {
+                        console.log(cookie);
+                        showNotification("Cookie updated")
+                    }
+                });
+            } catch (error) {
+                console.error('Invalid JSON:', error);
+                showNotification("Error: Invalid JSON. " + error)
+            }
+        });
+
+        // Add the list item to the list
+        list.appendChild(listItem);
+    }
+}
+
+function truncateString(str, maxLength) {
+    // Check if the string length is greater than the maximum allowed length
+    if (str.length > maxLength) {
+        // Truncate the string and add an ellipsis
+        return str.slice(0, maxLength - 3) + '...';
+    }
+    // Return the original string if no truncation is needed
+    return str;
+}
 
 ///////////
 // OTHER //

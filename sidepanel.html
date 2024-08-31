@@ -14,6 +14,23 @@
 
   <style>
 
+    .cookie-item {
+          margin-bottom: 10px;
+          padding: 10px;
+          border: 1px solid #ccc;
+          border-radius: 5px;
+          list-style-type: none; /* Add this line */
+          margin-left: 0;
+        }
+
+        .subtle-button {
+      border: none;
+      background-color: transparent;
+      padding: 10px;
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      transition: border-color 0.3s ease;
+    }
 
   </style>
 
@@ -83,25 +100,49 @@
         <h2>WebAppSec</h2>
         <h3>Unsaved Note</h3>
         <textarea></textarea>
-        <h3>Validation Bypasses</h3>
+        <h3>Page Actions</h3>
         <table>
+          <tr>
+            <th>Action</th>
+            <th>One Time</th>
+            <th>Cont.</th>
+          </tr>
           <tr>
             <td>HTML Input Validation</td>
             <td><input type="button" id="web-app-sec-html-val" value="Turn Off" /></td>
+            <td><input type="checkbox" id="web-app-sec-html-val-ckbx" /></td>
           </tr>
           <tr>
             <td>JS Input Validation</td>
             <td><input type="button" id="web-app-sec-js-val" value="Turn Off" /></td>
+            <td><input type="checkbox" id="web-app-sec-js-val-ckbx" /></td>
           </tr>
           <tr>
             <td>No-Paste on Input Fields</td>
             <td><input type="button" id="web-app-sec-no-paste" value="Turn Off" /></td>
+            <td><input type="checkbox" id="web-app-sec-no-paste-ckbx" /></td>
+          </tr>
+          <tr>
+            <td>Select Fields</td>
+            <td><input type="button" id="web-app-sec-select-off" value="Turn Off" /></td>
+            <td><input type="checkbox" id="web-app-sec-select-off-ckbx" /></td>
+          </tr>
+          <tr>
+            <td>Hidden Fields</td>
+            <td><input type="button" id="web-app-sec-hidden-off" value="Turn Off" /></td>
+            <td><input type="checkbox" id="web-app-sec-hidden-off-ckbx" /></td>
+          </tr>
+          <tr>
+            <td>Sample Data</td>
+            <td><input type="button" id="web-app-sec-sample-data" value="Fill" /></td>
+            <td><input type="checkbox" id="web-app-sec-sample-data-ckbx" /></td>
           </tr>
         </table>
         <h3>Encoder</h3>
         <select id="web-app-sec-encoder-type">
           <option>HTML</option>
-          <option>URL</option>
+          <option>URL</option> 
+          <!-- More Encodings? -->
         </select>
         <br>
         <div class="input-group"><textarea id="web-app-sec-encoder"></textarea><button id="web-app-sec-enc-cpy"
@@ -137,12 +178,24 @@
             <td class="copy-on-click">' Or '87' ='87</td>
           </tr>
           <tr>
+            <td class="copy-on-click"> Or 87=87</td>
+          </tr>
+          <tr>
             <td class="copy-on-click">' UNION SELECT null FROM all_tables -- </td>
           </tr>
           <tr>
             <td class="copy-on-click">' UNION SELECT null FROM dual -- </td>
           </tr>
+          <tr>
+            <td class="copy-on-click">'; UPDATE users SET password='peter' WHERE username &gt; '1' -- </td>
+          </tr>
         </table>
+        <h2 id="cookies-header" class="cookiesName">Cookies</h2>
+        <small>Hover over 'Cookies' to fetch them</small>
+        <div id="cookies-result" style="min-height:10vh">
+          <table id="cookie-table"></table>
+          <ul style="margin-left: 0px; padding-left: 0px;" id="cookie-list"></ul>
+        </div>
       </div>
       <div class="tab-content" id="regex-search-tab">
         <h2>Regex Page Search</h2>
