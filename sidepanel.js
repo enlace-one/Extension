@@ -1,20 +1,17 @@
-// To check if sidepanel is open or closed
-// chrome.runtime.connect({ name: 'mySidepanel' });
-
 ///////////////
 // Page Notes//
 ///////////////
 
-const pnHelpButton = document.getElementById("page-notes-help-tab-button")
+var pnHelpButton;
 
-async function setActiveURL(url, autoOpen=false) {
+async function setActiveURL(url, autoOpen = false) {
     const table = document.getElementById("page-notes-matching-url-table");
     table.innerHTML = "";
 
     document.getElementById("page-notes-indicator").innerText = "";
-    const page_notes = await get_matching_page_notes(url); 
+    const page_notes = await get_matching_page_notes(url);
     console.log("Searched. Page notes returned ", page_notes.length)
-    if (page_notes.length > 0) { 
+    if (page_notes.length > 0) {
         document.getElementById("no-matching-page-notes").classList.add("hidden")
         document.getElementById("page-notes-indicator").innerText = "(" + page_notes.length + ")";
         makePageNoteTable(page_notes, table)
@@ -22,10 +19,10 @@ async function setActiveURL(url, autoOpen=false) {
         document.getElementById("no-matching-page-notes").classList.remove("hidden")
     }
 
-    
+
     if (page_notes.length === 1 && pageNotesTabButton.classList.contains("hidden") && autoOpen) {
-        open_page_note(page_notes[0].id, inPreview=true)
-    } 
+        open_page_note(page_notes[0].id, inPreview = true)
+    }
     // Sidepanel would have to be in focus... 
     // else {
     //     setTimeout(function () {
@@ -35,57 +32,17 @@ async function setActiveURL(url, autoOpen=false) {
     // } 
 }
 
-
-document.addEventListener("DOMContentLoaded", async function () {
+async function updatePageNoteURL() {
     url = await getCurrentURL()
-    console.log("======= dom tab url", url)
-    setActiveURL(url, autoOpen=true);
-});
-        
-chrome.tabs.onActivated.addListener(async (activeInfo) => {
-    const tab = await chrome.tabs.get(activeInfo.tabId);
-    if (tab.active) {
-        url = await getCurrentURL()
-        console.log("======= active tab url", tab.url);
-        setActiveURL(url);
-    }
-});
+    console.log("Url:", url)
+    setActiveURL(url, autoOpen = true);
+}
 
-chrome.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
-    if (tab.active) {
-        url = await getCurrentURL()
-        console.log("======= updated tab url", tab.url);
-        setActiveURL(url);
-    }
-});
 
-document.getElementById("add-current-url").addEventListener("click", async function () {
-    const url = await get_current_url()
-    let url_pattern = await get_default_pattern(url)
-    url_pattern = url_pattern.substring(0, maxPageNotesURLChar-1);
-    url_pattern = urlPatternElement.value + "|" + url_pattern
-    urlPatternElement.value = url_pattern
-})
+///////////////////////////////////
+// Open this in the options page //
+///////////////////////////////////
 
-document.getElementById("add-current-domain").addEventListener("click", async function () {
-    const url = await get_current_url()
-    let domain = await get_default_title(url)
-    let url_pattern = await get_default_pattern(domain)
-    url_pattern = url_pattern.substring(0, maxPageNotesURLChar-1);
-    url_pattern = urlPatternElement.value + "|" + url_pattern
-    urlPatternElement.value = url_pattern
-})
-
-//////////////////////////////////
-// Open this in the options page//
-//////////////////////////////////
-
-// document.getElementById("open-page-note-in-options").addEventListener("click", async function() {
-//     const pageNoteId = idElement.value
-//     const url = await chrome.runtime.getURL('options.html') + '#' + pageNoteId;
-//     chrome.tabs.create({ url: url });
-
-// });
 
 async function quickEdit() {
     const previewIsActive = easyMDE.isPreviewActive();
@@ -98,19 +55,19 @@ async function quickEdit() {
 }
 
 chrome.runtime.onMessage.addListener(
-    function(request, sender, sendResponse) {
-        console.log(request, sender) 
+    function (request, sender, sendResponse) {
+        console.log(request, sender)
         if (request.type === "open-side-panel") {
             quickEdit();
         } else if (request.type === "open-key-board-shortcuts") {
             openKeyBoardShortcuts()
         }
-});
+    });
 
 function openKeyBoardShortcuts() {
     console.log("Help button clicked")
     pnHelpButton.click()
-    if (easyMDE.isFullscreenActive()){
+    if (easyMDE.isFullscreenActive()) {
         easyMDE.toggleFullScreen
     }
     for (const [key, value] of Object.entries(pageNoteConfigOverwrite["shortcuts"])) {
@@ -124,7 +81,7 @@ function openKeyBoardShortcuts() {
 }
 
 
-document.addEventListener("keydown", function(event) {
+document.addEventListener("keydown", function (event) {
     if (event.ctrlKey && event.key === "?") {
         openKeyBoardShortcuts()
     }
@@ -135,96 +92,7 @@ document.addEventListener("keydown", function(event) {
 // REGEX PAGE SEARCH //
 ///////////////////////
 
-
-// function highlightPatternMatches(regexInput) {
-//     let marks = []; 
-//     let matched_text = [];
-
-//     function findMatchAndRecurse(element, regex) {
-//         if (element.childNodes.length > 0) {
-//             for (var i = 0; i < element.childNodes.length; i++) {
-//                 findMatchAndRecurse(element.childNodes[i], regex);
-//             }
-//         }
-
-//         var str = element.nodeValue;
-
-//         if (str == null) {
-//             // console.log(`${element} has no text -- Search for ${regex}`)
-//             return;
-//         }
-
-//         var matches = str.match(regex);
-//         // var parent = element.parentNode;
-
-//         if (matches !== null) {
-//             // console.log(`${element} HAS A MATCH -- Search for ${regex}`)
-//             // // for match in matches
-//             // for (var i = 0; i < matches.length; i++) {
-                
-//             // }
-
-//             const parent = element.parentNode;
-//                 const originalText = element.nodeValue;
-//                 let pos = 0;
-//                 let mark;
-
-//                 for (let i = 0; i < matches.length; i++) {
-//                     const { match, index } = matches[i];
-
-//                     const before = document.createTextNode(originalText.substring(pos, index));
-//                     pos = index + match.length;
-
-//                     if (element.parentNode === parent) {
-//                         parent.replaceChild(before, element);
-//                     } else {
-//                         parent.insertBefore(before, mark.nextSibling);
-//                     }
-
-//                     mark = document.createElement('mark');
-//                     mark.appendChild(document.createTextNode(match));
-//                     parent.insertBefore(mark, before.nextSibling);
-//                     marks.push(mark);
-//                 }
-
-//                 const after = document.createTextNode(originalText.substring(pos));
-//                 parent.insertBefore(after, mark.nextSibling);
-
-//             // var pos = 0;
-//             // var mark;
-//             // for (var i = 0; i < matches.length; i++) {
-//             //     var index = str.indexOf(matches[i], pos);
-//             //     var before = document.createTextNode(str.substring(pos, index));
-//             //     pos = index + matches[i].length;
-
-//             //     if (element.parentNode == parent) {
-//             //         parent.replaceChild(before, element);
-//             //     } else {
-//             //         parent.insertBefore(before, mark.nextSibling);
-//             //     }
-
-//             //     mark = document.createElement('mark');
-//             //     mark.appendChild(document.createTextNode(matches[i]));
-//             //     parent.insertBefore(mark, before.nextSibling);
-//             //     marks.push(mark);
-//             // }
-//             // var after = document.createTextNode(str.substring(pos));
-//             // parent.insertBefore(after, mark.nextSibling);
-//         } else {
-//             // console.log(`${element} has no match -- Search for ${regex}`)
-//         }
-//     }
-
-//     console.log(`Regex search running for regex "${regexInput}"`);
-//     const regex = new RegExp(regexInput, 'gi');
-//     const body = document.body;
-
-//     findMatchAndRecurse(body, regex);
-
-//     return marks.length;
-// }
-
-function highlightPatternMatches(regexInput, inclusiveSearch=false) {
+function highlightPatternMatches(regexInput, inclusiveSearch = false) {
     function clearPreviousMarks() {
         const marks = document.querySelectorAll('mark');
         marks.forEach(mark => {
@@ -233,10 +101,11 @@ function highlightPatternMatches(regexInput, inclusiveSearch=false) {
             parent.normalize(); // Combine adjacent text nodes
         });
     }
+
     function isVisible(element) {
         const rect = element.getBoundingClientRect();
         const style = getComputedStyle(element);
-    
+
         // Check if the element is visible and not covered up by other elements
         if (inclusiveSearch) {
             return (
@@ -246,16 +115,18 @@ function highlightPatternMatches(regexInput, inclusiveSearch=false) {
                 style.visibility !== 'hidden' &&
                 style.opacity !== '0'
             );
-        } else {return (
-            rect.width > 0 &&
-            rect.height > 0 &&
-            style.display !== 'none' &&
-            style.visibility !== 'hidden' &&
-            style.opacity !== '0' &&
-            element === document.elementFromPoint(rect.left + rect.width / 2, rect.top + rect.height / 2)
-        );}
+        } else {
+            return (
+                rect.width > 0 &&
+                rect.height > 0 &&
+                style.display !== 'none' &&
+                style.visibility !== 'hidden' &&
+                style.opacity !== '0' &&
+                element === document.elementFromPoint(rect.left + rect.width / 2, rect.top + rect.height / 2)
+            );
+        }
     }
-    
+
 
     clearPreviousMarks(); // Clear any previous highlights
 
@@ -339,9 +210,9 @@ function highlightPatternMatches(regexInput, inclusiveSearch=false) {
 }
 
 
-
-
-
+var inclusiveSearch;
+var back;
+var next;
 // async function _getMainTabDocument() {
 //     return document.body
 // }
@@ -371,108 +242,95 @@ function highlightElement(position, id) {
     //         mark.classList.remove('highlighted');
     //     });
     //     element.classList.add('highlighted');
-        
+
     // } else {
     //     console.error('No matching element found or element is not a <mark>.');
     // }
 }
 
-const inclusiveSearch = document.getElementById("regex-inclusive");
-const back = document.getElementById("regex-search-back")
-const next = document.getElementById("regex-search-next")
-back.addEventListener("click", async function () {
-    const last = document.querySelector(".match-item.bold");
-    // Get the row before "last"
-    const previousRow = last.previousElementSibling;
-    if (previousRow) {previousRow.click()}
-})
-next.addEventListener("click", async function () {
-    const last = document.querySelector(".match-item.bold");
-    // Get the row after "last"
-    const nextRow = last.nextElementSibling;
-    if (nextRow) {nextRow.click()}
-})
+async function regexSearch() {
+    console.log("searching regex")
 
+    const regexInput = document.getElementById('regex-search').value;
+    const resultsTable = document.getElementById('regex-search-results');
+    let matches;
 
-document.getElementById('regex-search').addEventListener('keydown', async (event) => {
-    if (event.key === "Enter") {
-        event.preventDefault();
-        console.log("searching regex")
-        
-        const regexInput = document.getElementById('regex-search').value;
-        const resultsTable = document.getElementById('regex-search-results');
-        let matches;
+    let [tab] = await chrome.tabs.query({
+        active: true,
+        currentWindow: true
+    });
 
-        let [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+    chrome.scripting.executeScript({
+        target: {
+            tabId: tab.id
+        },
+        function: highlightPatternMatches,
+        args: [regexInput, inclusiveSearch.checked]
+    }, (results) => {
+        const matches = results[0].result;
 
-        chrome.scripting.executeScript({
-            target: { tabId: tab.id },
-            function: highlightPatternMatches,
-            args: [regexInput, inclusiveSearch.checked]
-        }, (results) => {
-            const matches = results[0].result;
-
-            const rows = resultsTable.querySelectorAll('tr');
-            // Iterate over each row
-            rows.forEach(row => {
-                // Check if the row does not have the class "permanent"
-                if (!row.classList.contains('permanent')) {
-                    // Remove the row
-                    row.remove();
-                }
-            });
-    
-            // Check if matches is iterable
-            if (Array.isArray(matches)) {
-                // Display matches
-                matches.forEach((match, index) => {
-                    const matchElement = resultsTable.insertRow();
-                    const cellOne = matchElement.insertCell();
-                    cellOne.innerText = `${index + 1}`
-                    const cellTwo = matchElement.insertCell();
-                    cellTwo.innerText = `${match.text}`
-                    matchElement.classList.add('match-item');
-                    
-                    matchElement.dataset.position = JSON.stringify(match.position);
-                    
-                    // Add click event listener to each match item
-                    
-                    matchElement.addEventListener('click', () => {
-                        const last = document.querySelector(".match-item.bold");
-                        if (last !== null) {
-                            last.classList.remove("bold");
-                        }
-                        matchElement.classList.add("bold")
-                        chrome.scripting.executeScript({
-                            target: { tabId: tab.id },
-                            function: highlightElement,
-                            args: [match.position, match.id]
-                        });
-                    });
-                    if (index == 0) {matchElement.click()}
-                    // resultsContainer.appendChild(matchElement);
-                });              
-            } else {
-                console.error('Matches is not iterable:', matches);
+        const rows = resultsTable.querySelectorAll('tr');
+        // Iterate over each row
+        rows.forEach(row => {
+            // Check if the row does not have the class "permanent"
+            if (!row.classList.contains('permanent')) {
+                // Remove the row
+                row.remove();
             }
         });
-    }
-    
-});
+
+        // Check if matches is iterable
+        if (Array.isArray(matches)) {
+            // Display matches
+            matches.forEach((match, index) => {
+                const matchElement = resultsTable.insertRow();
+                const cellOne = matchElement.insertCell();
+                cellOne.innerText = `${index + 1}`
+                const cellTwo = matchElement.insertCell();
+                cellTwo.innerText = `${match.text}`
+                matchElement.classList.add('match-item');
+
+                matchElement.dataset.position = JSON.stringify(match.position);
+
+                // Add click event listener to each match item
+
+                matchElement.addEventListener('click', () => {
+                    const last = document.querySelector(".match-item.bold");
+                    if (last !== null) {
+                        last.classList.remove("bold");
+                    }
+                    matchElement.classList.add("bold")
+                    chrome.scripting.executeScript({
+                        target: {
+                            tabId: tab.id
+                        },
+                        function: highlightElement,
+                        args: [match.position, match.id]
+                    });
+                });
+                if (index == 0) {
+                    matchElement.click()
+                }
+                // resultsContainer.appendChild(matchElement);
+            });
+        } else {
+            console.error('Matches is not iterable:', matches);
+        }
+    });
+}
 
 /////////
 // TOC //
 /////////
-const tocArea = document.getElementById("toc-area")
-const tocTabButton = document.getElementById("toc-tab-button")
-
 function getTOC() {
     const headers = document.querySelectorAll("H1, H2, H3");
     let returnHtml = '<ol>';
     let currentLevel = 1;
 
-    headers.forEach(function(header) {
-        if (!header.innerText) { return; }
+    headers.forEach(function (header) {
+        if (!header.innerText) {
+            return;
+        }
         let id = header.id || `TOC-ID-${currentLevel}`;
         header.id = id;
 
@@ -498,61 +356,22 @@ async function _openTocElement(id) {
 }
 
 async function openTocElement(element) {
-    let [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+    let [tab] = await chrome.tabs.query({
+        active: true,
+        currentWindow: true
+    });
     chrome.scripting.executeScript({
-        target: { tabId: tab.id },
+        target: {
+            tabId: tab.id
+        },
         function: _openTocElement,
         args: [element.id]
     });
 }
 
-tocTabButton.addEventListener("click", async function() {
-    let [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
-    chrome.scripting.executeScript({
-        target: { tabId: tab.id },
-        function: getTOC,
-        args: []
-    }, (results) => {
-        console.log(results)
-        tocArea.innerHTML = results[0].result;
-        document.querySelectorAll(".toc-element").forEach(async function (element) {
-            element.addEventListener("click", async function() {
-                openTocElement(element)
-            })
-        })
-    });
-});
-
-
 ///////////////
 // WebAppSec //
 ///////////////
-
-// HTML encoding function
-function htmlEncode(str) {
-    var temp = document.createElement('div');
-    temp.textContent = str;
-    return temp.innerHTML;
-}
-
-// HTML decoding function
-function htmlDecode(str) {
-    var temp = document.createElement('div');
-    temp.innerHTML = str;
-    return temp.textContent;
-}
-
-// Function to execute code in the context of the current page's tab
-async function runFunctionOnPage(func) {
-    let [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
-    chrome.scripting.executeScript({
-        target: { tabId: tab.id },
-        function: func,
-        args: []
-    }, (results) => {
-        console.log(results);
-    });
-}
 
 var webAppSecHtmlValContinuous = false;
 var webAppSecJsValContinuous = false;
@@ -561,137 +380,6 @@ var webAppSecSelectOffContinuous = false;
 var webAppSecHiddenOffContinuous = false;
 var webAppSecNoPasteContinuous = false;
 
-document.addEventListener('tabsChanged', async (event) => {
-    const tab = event.detail.tab;
-    if (tab.active) {
-        if (webAppSecHtmlValContinuous) {
-            await runFunctionOnPage(removeHtmlValidations);
-        }
-        if (webAppSecJsValContinuous) {
-            await runFunctionOnPage(removeJsValidations);
-        }
-        if (webAppSecSampleDataContinuous) {
-            await runFunctionOnPage(fillWithSampleData);
-        }
-        if (webAppSecSelectOffContinuous) {
-            await runFunctionOnPage(replaceSelectElements);
-        }
-        if (webAppSecHiddenOffContinuous) {
-            await runFunctionOnPage(removeHiddenFields);
-        }
-        if (webAppSecNoPasteContinuous) {
-            await runFunctionOnPage(removeNoPasteRestrictions);
-        }
-    }
-});
-
-document.addEventListener("DOMContentLoaded", async function () {
-    document.getElementById("web-app-sec-html-val").addEventListener("click", async function () {
-        await runFunctionOnPage(removeHtmlValidations);
-    });
-
-    document.getElementById("web-app-sec-html-val-ckbx").addEventListener("change", function () {
-        webAppSecHtmlValContinuous = this.checked;
-        runFunctionOnPage(removeHtmlValidations);
-    });
-
-    document.getElementById("web-app-sec-js-val").addEventListener("click", async function () {
-        await runFunctionOnPage(removeJsValidations);
-    });
-
-    document.getElementById("web-app-sec-js-val-ckbx").addEventListener("change", function () {
-        webAppSecJsValContinuous = this.checked;
-        runFunctionOnPage(removeJsValidations);
-    });
-
-    document.getElementById("web-app-sec-sample-data").addEventListener("click", async function () {
-        await runFunctionOnPage(fillWithSampleData);
-    });
-
-    document.getElementById("web-app-sec-sample-data-ckbx").addEventListener("change", function () {
-        webAppSecSampleDataContinuous = this.checked;
-        runFunctionOnPage(fillWithSampleData);
-    });
-
-    document.getElementById("web-app-sec-select-off").addEventListener("click", async function () {
-        await runFunctionOnPage(replaceSelectElements);
-    });
-
-    document.getElementById("web-app-sec-select-off-ckbx").addEventListener("change", function () {
-        webAppSecSelectOffContinuous = this.checked;
-        runFunctionOnPage(replaceSelectElements);
-    });
-
-    document.getElementById("web-app-sec-hidden-off").addEventListener("click", async function () {
-        await runFunctionOnPage(removeHiddenFields);
-    });
-
-    document.getElementById("web-app-sec-hidden-off-ckbx").addEventListener("change", function () {
-        webAppSecHiddenOffContinuous = this.checked;
-        runFunctionOnPage(removeHiddenFields);
-    });
-
-    document.getElementById("web-app-sec-no-paste").addEventListener("click", async function () {
-        await runFunctionOnPage(removeNoPasteRestrictions);
-    });
-
-    document.getElementById("web-app-sec-no-paste-ckbx").addEventListener("change", function () {
-        webAppSecNoPasteContinuous = this.checked;
-        runFunctionOnPage(removeNoPasteRestrictions);
-    });
-
-    const encoderElement = document.getElementById("web-app-sec-encoder");
-    const decoderElement = document.getElementById("web-app-sec-decoder");
-
-    async function webAppSecEncode() {
-        // Get the encoding type (HTML or URL) selected by the user
-        var encType = document.getElementById("web-app-sec-encoder-type").value;
-        
-        // Encode the textContent and set web-app-sec-decoder's text content as the encoded value
-        if (encType === "HTML") {
-            decoderElement.value = htmlEncode(encoderElement.value);
-        } else if (encType === "URL") {
-            decoderElement.value = encodeURIComponent(encoderElement.value);
-        }
-    }
-
-    async function webAppSecDecode() {
-        // Get the encoding type (HTML or URL) selected by the user
-        var encType = document.getElementById("web-app-sec-encoder-type").value;
-    
-        // Decode the textContent and set web-app-sec-encoder's text content as the decoded value
-        if (encType === "HTML") {
-            encoderElement.value = htmlDecode(decoderElement.value);
-        } else if (encType === "URL") {
-            encoderElement.value = decodeURIComponent(decoderElement.value);
-        }
-    }
-
-    encoderElement.addEventListener("input", webAppSecEncode);
-    
-    decoderElement.addEventListener("input", webAppSecDecode);
-
-    document.getElementById("cookies-header").addEventListener("mouseover", loadCookies)
-
-    document.getElementById("web-app-sec-enc-cpy").addEventListener("click", async function () {
-        copyValue(encoderElement)
-    })
-    document.getElementById("web-app-sec-dec-cpy").addEventListener("click", async function () {
-        copyValue(decoderElement)
-    })
-    document.getElementById("web-app-sec-enc-pst").addEventListener("click", async function () {
-        pasteValue(encoderElement).then((value)=> {
-            webAppSecEncode()
-        })
-    })
-    document.getElementById("web-app-sec-dec-pst").addEventListener("click", async function () {
-        pasteValue(decoderElement).then((value)=> {
-            webAppSecDecode()
-        })
-        
-    })
-    
-});
 
 function fillWithSampleData() {
     // Select all input, textarea, and select elements
@@ -749,20 +437,20 @@ function fillWithSampleData() {
 function replaceSelectElements() {
     // Find all select elements in the document
     const selectElements = document.querySelectorAll('select');
-  
+
     selectElements.forEach(select => {
-      // Get the selected value and name attribute of the select element
-      const selectedValue = select.value;
-      const selectName = select.name;
-  
-      // Create a new input element
-      const inputElement = document.createElement('input');
-      inputElement.type = 'text';
-      inputElement.value = selectedValue;
-      inputElement.name = selectName;
-  
-      // Replace the select element with the input element
-      select.parentNode.replaceChild(inputElement, select);
+        // Get the selected value and name attribute of the select element
+        const selectedValue = select.value;
+        const selectName = select.name;
+
+        // Create a new input element
+        const inputElement = document.createElement('input');
+        inputElement.type = 'text';
+        inputElement.value = selectedValue;
+        inputElement.name = selectName;
+
+        // Replace the select element with the input element
+        select.parentNode.replaceChild(inputElement, select);
     });
     // Find all radio button groups by their name
     const radioGroups = {};
@@ -798,8 +486,8 @@ function replaceSelectElements() {
             radios.slice(1).forEach(radio => radio.remove());
         }
     });
-  }
-  
+}
+
 // Function to remove HTML validations like 'required', 'minlength', etc.
 function removeHtmlValidations() {
     const inputs = document.querySelectorAll('input, textarea, select');
@@ -860,10 +548,15 @@ function removeNoPasteRestrictions() {
 function loadCookies() {
     const site_only = true;
     if (site_only) {
-        chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
+        chrome.tabs.query({
+            active: true,
+            currentWindow: true
+        }, function (tabs) {
             const url = new URL(tabs[0].url);
             const domain = url.hostname;
-            chrome.cookies.getAll({domain: domain}, function (cookies) {
+            chrome.cookies.getAll({
+                domain: domain
+            }, function (cookies) {
                 displayCookies(cookies);
             });
         });
@@ -897,25 +590,62 @@ function displayCookies(cookies) {
         const detailDiv = document.createElement('div');
         detailDiv.style.display = 'none';
 
-        // Create a textarea to hold the cookie details
-        const detailsTextarea = document.createElement('textarea');
-        detailsTextarea.rows = 10;
-        detailsTextarea.cols = 28;
-        // detailsTextarea.style.display = 'none'; // hide the textarea by default
-        detailsTextarea.textContent = JSON.stringify(cookie, null, 1);
-        detailsTextarea.readOnly = true;
-        detailDiv.appendChild(detailsTextarea);
+        // Create a table to hold the cookie details
+        const cookieTable = document.createElement('table');
+        cookieTable.style.borderCollapse = 'collapse';
+        cookieTable.style.width = '100%';
 
-        // Create a break
-        const br = document.createElement("br");
-        detailDiv.appendChild(br);
+        // Populate the table with cookie details
+        for (const [key, value] of Object.entries(cookie)) {
+            const row = createTableRow(key, value);
+            cookieTable.appendChild(row);
+        }
+
+        // Add the table to the detailDiv
+        detailDiv.appendChild(cookieTable);
+
+        // Create an edit button
+        if (cookie.httpOnly) {
+            const httpOnlyWarning = document.createElement('small');
+            httpOnlyWarning.textContent = "  Can't edit: httpOnly";
+            detailDiv.appendChild(httpOnlyWarning);
+        } else if (cookie.domain.startsWith('.')) {
+            const httpOnlyWarning = document.createElement('small');
+            httpOnlyWarning.textContent = "  Can't edit: Domain starts with '.'";
+            detailDiv.appendChild(httpOnlyWarning);
+        } else {
+            // Add a save button below the table
+            const saveButton = document.createElement('button');
+            saveButton.textContent = 'Save';
+            detailDiv.appendChild(saveButton);
+            // Add event listener to the save button
+            saveButton.addEventListener('click', async () => {
+                const updatedCookie = {};
+
+                // Loop through each input in the table to collect updated values
+                const inputs = cookieTable.querySelectorAll('input');
+                inputs.forEach(input => {
+                    const key = input.getAttribute('data-key');
+                    const value = input.value;
+                    updatedCookie[key] = value;
+                });
+
+                // Call the function to update the cookie
+                await updateCookie(updatedCookie);
+                showNotification('Cookie updated successfully!');
+            });
+        }
+        listItem.appendChild(detailDiv);
 
         // Create a delete button
         const deleteButton = document.createElement('button');
-        
+
         deleteButton.textContent = 'Delete';
         deleteButton.addEventListener('click', () => {
-            chrome.cookies.remove({url: "http://" + cookie.domain + cookie.path, name: cookie.name}, function(deletedCookie) {
+            chrome.cookies.remove({
+                url: "http://" + cookie.domain + cookie.path,
+                name: cookie.name
+            }, function (deletedCookie) {
                 if (chrome.runtime.lastError) {
                     console.error(chrome.runtime.lastError.message);
                 } else {
@@ -928,65 +658,67 @@ function displayCookies(cookies) {
         // deleteButton.style.display = 'none';
         detailDiv.appendChild(deleteButton);
 
-        // Create an edit button
-        if (cookie.httpOnly) {
-            const httpOnlyWarning = document.createElement('small');
-            httpOnlyWarning.textContent = '  This cookie cannot be edited (httpOnly)';
-            detailDiv.appendChild(httpOnlyWarning);
-        } else if (cookie.domain.startsWith('.')) { 
-            const httpOnlyWarning = document.createElement('small');
-            httpOnlyWarning.textContent = "  This cookie cannot be edited (cookie's domain starts with a dot)";
-            detailDiv.appendChild(httpOnlyWarning);
-        } else {
-            const editButton = document.createElement('button');
-            editButton.textContent = 'Edit';
-            editButton.addEventListener('click', () => {
-                // Make the textarea editable and focus it
-                detailsTextarea.readOnly = false;
-                detailsTextarea.focus();
-            });
-            detailDiv.appendChild(editButton);
-        }
-        listItem.appendChild(detailDiv);
-
-        // Add an event listener for when the textarea loses focus
-        detailsTextarea.addEventListener('blur', () => {
-            // Make the textarea read-only again
-            detailsTextarea.readOnly = true;
-
-            // Parse the edited JSON and save the changes to the cookie
-            try {
-                console.log(detailsTextarea.value)
-                const editedCookie = JSON.parse(detailsTextarea.value);
-                console.log(editedCookie.value)
-                console.log(cookie.domain + cookie.path)
-                chrome.cookies.set({
-                    url: "https://" + cookie.domain + cookie.path,
-                    name: cookie.name,
-                    value: editedCookie.value,
-                    secure: cookie.secure,
-                    httpOnly: cookie.httpOnly,
-                    sameSite: cookie.sameSite,
-                    // Add other cookie properties here if needed
-                }, function(cookie) {
-                    if (chrome.runtime.lastError) {
-                        console.error(chrome.runtime.lastError.message);
-                        showNotification("Error: " + chrome.runtime.lastError.message)
-                    } else {
-                        console.log(cookie);
-                        showNotification("Cookie updated")
-                    }
-                });
-            } catch (error) {
-                console.error('Invalid JSON:', error);
-                showNotification("Error: Invalid JSON. " + error)
-            }
-        });
-
         // Add the list item to the list
         list.appendChild(listItem);
     }
 }
+
+
+
+// Define a helper function to create a table row
+function createTableRow(key, value) {
+    const row = document.createElement('tr');
+
+    // Create a cell for the cookie attribute name
+    const keyCell = document.createElement('td');
+    keyCell.style.border = '1px solid #ccc';
+    keyCell.style.padding = '8px';
+    keyCell.style.backgroundColor = '#f9f9f9';
+    keyCell.textContent = key;
+
+    // Create a cell for the cookie attribute value (editable)
+    const valueCell = document.createElement('td');
+    valueCell.style.border = '1px solid #ccc';
+    valueCell.style.padding = '8px';
+
+    const input = document.createElement('input');
+    input.type = 'text';
+    input.value = value;
+    input.style.width = '100%';
+
+    // Add an attribute to store the key name for easier retrieval later
+    input.setAttribute('data-key', key);
+
+    valueCell.appendChild(input);
+    row.appendChild(keyCell);
+    row.appendChild(valueCell);
+
+    return row;
+}
+
+
+
+// Function to update the cookie using Chrome Extension API or browser API
+async function updateCookie(updatedCookie) {
+    // Assuming 'updatedCookie' contains all necessary fields such as 'name', 'value', 'domain', 'path', etc.
+    chrome.cookies.set({
+        url: `https://${updatedCookie.domain}`,
+        name: updatedCookie.name,
+        value: updatedCookie.value,
+        domain: updatedCookie.domain,
+        path: updatedCookie.path,
+        secure: updatedCookie.secure === 'true',
+        httpOnly: updatedCookie.httpOnly === 'true',
+        sameSite: updatedCookie.sameSite
+    }, (cookie) => {
+        if (chrome.runtime.lastError) {
+            console.error(chrome.runtime.lastError);
+        } else {
+            console.log('Cookie set:', cookie);
+        }
+    });
+}
+
 
 function truncateString(str, maxLength) {
     // Check if the string length is greater than the maximum allowed length
@@ -997,30 +729,277 @@ function truncateString(str, maxLength) {
     // Return the original string if no truncation is needed
     return str;
 }
+//////////////
+// REQUESTS //
+//////////////
 
-///////////
-// OTHER //
-///////////
+let addedRequestsListeners = false;
 
-const switchButtons = document.querySelectorAll(".switch-button")
-const regexSearchTabButton = document.getElementById("regex-search-tab-button")
-const group1 = document.querySelector(".group1")
-const group2 = document.querySelector(".group2")
+function addWebAppSecListeners() {
+    if (!addedRequestsListeners) {
+        addedRequestsListeners = true;
+        
+        chrome.webRequest.onBeforeRequest.addListener(
+            function (details) {
+                lastRequest = {};
+                lastResponse = {};
 
-switchButtons.forEach(async function (button) {
-    button.addEventListener("click", async function() {
-        if (button.classList.contains("group1")) {
-            group1.classList.add("hidden")
-            group2.classList.remove("hidden")
-            regexSearchTabButton.click()
-        } else {
-            group2.classList.add("hidden")
-            group1.classList.remove("hidden")
-            openPageNoteButton.click()
+                // Extract Content-Type header from request
+                const contentTypeHeader = details.requestHeaders ? 
+                    details.requestHeaders.find(header => header.name.toLowerCase() === 'content-type') : 
+                    null;
+                const contentType = contentTypeHeader ? contentTypeHeader.value : '';
+
+                // Get the current URL's domain
+                getCurrentURL().then(currentURL => {
+                    var currentDomain = ""
+                    try {
+                        currentDomain = new URL(currentURL).hostname;
+                    } catch {
+                        console.log(`Failed to construct URL for ${currentURL}`)
+                        return
+                    }
+
+                    // Filter request based on file types and domain
+                    if (isFilteredRequest(details.url, contentType, currentDomain)) {
+                        return; // Skip filtered requests
+                    }
+
+                    lastRequest["body"] = details.requestBody ? details.requestBody.raw : null;
+                    lastRequest["method"] = details.method;
+                    lastRequest["url"] = details.url;
+
+                    updateRequestResponseTable();
+                });
+            },
+            { urls: ["<all_urls>"] },
+            ["requestBody"]
+        );
+
+        chrome.webRequest.onBeforeSendHeaders.addListener(
+            // Test here: https://www.whatismybrowser.com/detect/what-http-headers-is-my-browser-sending/
+            function(details) {
+              return getSetting("web-app-sec-header-modifications").then((headerModifications) => {
+                // headerModifications is a dictionary of headers you want to add or modify
+                if (headerModifications && details.requestHeaders) {
+                  // Convert request headers to a map for easier modification
+                  let headersMap = new Map(details.requestHeaders.map(header => [header.name.toLowerCase(), header]));
+          
+                  // Iterate through each header modification
+                  for (const [key, value] of Object.entries(headerModifications)) {
+                    let lowerKey = key.toLowerCase();
+                    if (value === null) {
+                      // If the value is null, remove the header
+                      headersMap.delete(lowerKey);
+                    } else {
+                      // Otherwise, add or update the header
+                      headersMap.set(lowerKey, { name: key, value: value });
+                    }
+                  }
+          
+                  // Convert the map back to an array
+                  details.requestHeaders = Array.from(headersMap.values());
+                  console.log(`Setting headers to`)
+                  console.log(details.requestHeaders)
+                }
+          
+                return { requestHeaders: details.requestHeaders };
+              });
+            },
+            { urls: ["<all_urls>"] },
+            ["requestHeaders"]
+          );
+          
+
+        chrome.webRequest.onSendHeaders.addListener(
+            function (details) {
+                // Extract Content-Type header
+                const contentTypeHeader = details.requestHeaders.find(header => header.name.toLowerCase() === 'content-type');
+                const contentType = contentTypeHeader ? contentTypeHeader.value : '';
+                if (details.requestId != lastRequest.requestId) {
+                    return
+                }
+                // Get the current URL's domain
+                getCurrentURL().then(currentURL => {
+                    var currentDomain = ""
+                    try {
+                        currentDomain = new URL(currentURL).hostname;
+                    } catch {
+                        console.log(`Failed to construct URL for ${currentURL}`)
+                        return
+                    }
+
+                    // Filter request based on file types and domain
+                    if (isFilteredRequest(details.url, contentType, currentDomain)) {
+                        return; // Skip filtered requests
+                    }
+
+                    lastRequest["requestHeaders"] = details.requestHeaders;
+                    updateRequestResponseTable();
+                });
+            },
+            { urls: ["<all_urls>"] },
+            ["requestHeaders"]
+        );
+
+        chrome.webRequest.onHeadersReceived.addListener(
+            function (details) {
+                // Extract Content-Type header
+                const contentTypeHeader = details.responseHeaders.find(header => header.name.toLowerCase() === 'content-type');
+                const contentType = contentTypeHeader ? contentTypeHeader.value : '';
+                
+                if (details.requestId != lastRequest.requestId) {
+                    return
+                }
+                // Get the current URL's domain
+                getCurrentURL().then(currentURL => {
+                    var currentDomain = ""
+                    try {
+                        currentDomain = new URL(currentURL).hostname;
+                    } catch {
+                        console.log(`Failed to construct URL for ${currentURL}`)
+                        return
+                    }
+
+                    // Filter response based on file types and domain
+                    if (isFilteredRequest(details.url, contentType, currentDomain)) {
+                        return; // Skip filtered responses
+                    }
+
+                    lastResponse["responseHeaders"] = details.responseHeaders;
+                    lastResponse["statusCode"] = details.statusCode; // Ensure statusCode is set
+                    updateRequestResponseTable();
+                });
+            },
+            { urls: ["<all_urls>"] },
+            ["responseHeaders"]
+        );
+    }
+}
+
+let lastRequest = {};
+let lastResponse = {};
+var excludedContentTypes = [];
+getSetting("requests-excluded-content-types").then((value) => {
+    excludedContentTypes = value;
+});
+let excludedExtensionsRegex;
+getSetting("requests-excluded-extensions").then((value) => {
+    // Convert array of extensions to a regex pattern dynamically
+    if (value && Array.isArray(value) && value.length > 0) {
+        const extensionsPattern = value.map(ext => ext.trim().replace('.', '\\.')).join('|');
+        excludedExtensionsRegex = new RegExp(`\\.(${extensionsPattern})$`, 'i');
+    } else {
+        excludedExtensionsRegex = /\.(png|jpg|jpeg|gif|svg|js|css)$/i; // Default regex pattern
+    }
+});
+var excludedHeaders = [];
+getSetting("requests-excluded-headers").then((value) => {
+    excludedHeaders = value;
+});
+
+// Function to check if the request should be filtered out
+function isFilteredRequest(url, contentType, currentDomain) {
+    try {
+        const urlObject = new URL(url);
+        const domain = urlObject.hostname; // Extract the domain
+        const pathname = urlObject.pathname; // Extract the path
+
+        // Check if the content type is in the excluded list
+        const isExcludedContentType = excludedContentTypes.some(type => contentType.includes(type));
+
+        // Check if the URL path has an excluded file extension
+        const isExcludedExtension = excludedExtensionsRegex.test(pathname);
+
+        // Check if the domain is different from the current domain
+        const isDifferentDomain = domain !== currentDomain;
+
+        // Return true if any of the conditions are met
+        return isExcludedContentType || isExcludedExtension || isDifferentDomain;
+    } catch (e) {
+        console.error('Error processing URL:', url, e);
+        return true; // Consider invalid URLs as filtered out
+    }
+}
+
+function updateRequestResponseTable() {
+    if (lastRequest && lastResponse) {
+        const requestCell = document.getElementById('web-app-sec-request');
+        const responseCell = document.getElementById('web-app-sec-response');
+
+        // Clear previous content
+        requestCell.innerHTML = '';
+        responseCell.innerHTML = '';
+
+        let requestBody = lastRequest.body ? JSON.stringify(lastRequest.body, null, 2) : 'No body';
+
+        // Create and append formatted request details
+        const lineOne = document.createElement("span");
+        lineOne.innerText = `${lastRequest.method} ${lastRequest.url} HTTP/1.1`;
+        requestCell.appendChild(lineOne);
+
+        requestCell.appendChild(document.createElement("br"));
+
+        if (lastRequest.requestHeaders) {
+            lastRequest.requestHeaders.forEach(header => {
+                if (!excludedHeaders.includes(header.name.toLowerCase())) {
+                    const headerLine = document.createElement("span");
+                    headerLine.textContent = `${header.name}: ${header.value}`;
+                    requestCell.appendChild(headerLine);
+                    requestCell.appendChild(document.createElement("br"));
+                }
+            });
         }
-    })
-})
 
+        const bodyLine = document.createElement("pre");
+        bodyLine.innerText = `${requestBody}`;
+        requestCell.appendChild(bodyLine);
+
+        // Format response details
+        let responseHeaders = '';
+        if (lastResponse.responseHeaders) {
+            lastResponse.responseHeaders.forEach(header => {
+                if (!excludedHeaders.includes(header.name.toLowerCase())) {
+                    responseHeaders += `${header.name}: ${header.value}<br>`;
+                }
+            });
+        }
+
+        let responseBody = lastResponse.body ? JSON.stringify(lastResponse.body, null, 2) : 'No body';
+
+        // Create and append formatted response details
+        const responseStatus = `HTTP/1.1 ${lastResponse.statusCode} ${getStatusText(lastResponse.statusCode)}`;
+        
+        const responseStatusLine = document.createElement("div");
+        responseStatusLine.innerText = responseStatus;
+        responseCell.appendChild(responseStatusLine);
+
+        responseCell.appendChild(document.createElement("br"));
+
+        const responseHeadersLine = document.createElement("div");
+        responseHeadersLine.innerHTML = `${responseHeaders}<br>Body:<br><pre>${responseBody}</pre>`;
+        responseCell.appendChild(responseHeadersLine);
+    }
+}
+
+
+// Function to get status text from status code
+function getStatusText(statusCode) {
+    const statusTexts = {
+        200: 'OK',
+        201: 'Created',
+        204: 'No Content',
+        400: 'Bad Request',
+        401: 'Unauthorized',
+        403: 'Forbidden',
+        404: 'Not Found',
+        500: 'Internal Server Error',
+        502: 'Bad Gateway',
+        503: 'Service Unavailable'
+    };
+
+    return statusTexts[statusCode] || 'Unknown Status';
+}
 
 // EDGE SPECIFIC
 if (navigator.userAgent.includes("Edg")) {
@@ -1034,7 +1013,7 @@ async function customZoom() {
     zoomSetting = await getSetting("zoomSetting", 1)
     document.body.style.zoom = zoomSetting
 
-    document.addEventListener('keydown', function(event) {
+    document.addEventListener('keydown', function (event) {
         if (event.ctrlKey) {
             if (event.key === '+') {
                 // Zoom in logic
@@ -1051,3 +1030,314 @@ async function customZoom() {
 }
 
 
+//////////////////////
+// DOMContentLoaded //
+//////////////////////
+
+window.addEventListener("DOMContentLoaded", function() {
+
+    ////////////////////////////////
+    // Change Visible Tab Buttons //
+    ////////////////////////////////
+    const switchButtons = document.querySelectorAll(".switch-button")
+    const regexSearchTabButton = document.getElementById("regex-search-tab-button")
+    const group1 = document.querySelector(".group1")
+    const group2 = document.querySelector(".group2")
+
+    switchButtons.forEach(async function (button) {
+        button.addEventListener("click", async function () {
+            if (button.classList.contains("group1")) {
+                group1.classList.add("hidden")
+                group2.classList.remove("hidden")
+                regexSearchTabButton.click()
+            } else {
+                group2.classList.add("hidden")
+                group1.classList.remove("hidden")
+                openPageNoteButton.click()
+            }
+        })
+    })
+
+    /////////////////
+    // Web App Sec //
+    /////////////////
+
+    document.getElementById("web-app-sec-tab-button").addEventListener("click", addWebAppSecListeners);
+
+    document.getElementById("web-app-sec-html-val").addEventListener("click", async function () {
+        await runFunctionOnPage(removeHtmlValidations);
+    });
+
+    document.getElementById("web-app-sec-html-val-ckbx").addEventListener("change", function () {
+        webAppSecHtmlValContinuous = this.checked;
+        runFunctionOnPage(removeHtmlValidations);
+    });
+
+    document.getElementById("web-app-sec-js-val").addEventListener("click", async function () {
+        await runFunctionOnPage(removeJsValidations);
+    });
+
+    document.getElementById("web-app-sec-js-val-ckbx").addEventListener("change", function () {
+        webAppSecJsValContinuous = this.checked;
+        runFunctionOnPage(removeJsValidations);
+    });
+
+    document.getElementById("web-app-sec-sample-data").addEventListener("click", async function () {
+        await runFunctionOnPage(fillWithSampleData);
+    });
+
+    document.getElementById("web-app-sec-sample-data-ckbx").addEventListener("change", function () {
+        webAppSecSampleDataContinuous = this.checked;
+        runFunctionOnPage(fillWithSampleData);
+    });
+
+    document.getElementById("web-app-sec-select-off").addEventListener("click", async function () {
+        await runFunctionOnPage(replaceSelectElements);
+    });
+
+    document.getElementById("web-app-sec-select-off-ckbx").addEventListener("change", function () {
+        webAppSecSelectOffContinuous = this.checked;
+        runFunctionOnPage(replaceSelectElements);
+    });
+
+    document.getElementById("web-app-sec-hidden-off").addEventListener("click", async function () {
+        await runFunctionOnPage(removeHiddenFields);
+    });
+
+    document.getElementById("web-app-sec-hidden-off-ckbx").addEventListener("change", function () {
+        webAppSecHiddenOffContinuous = this.checked;
+        runFunctionOnPage(removeHiddenFields);
+    });
+
+    document.getElementById("web-app-sec-no-paste").addEventListener("click", async function () {
+        await runFunctionOnPage(removeNoPasteRestrictions);
+    });
+
+    document.getElementById("web-app-sec-no-paste-ckbx").addEventListener("change", function () {
+        webAppSecNoPasteContinuous = this.checked;
+        runFunctionOnPage(removeNoPasteRestrictions);
+    });
+
+    const encoderElement = document.getElementById("web-app-sec-encoder");
+    const decoderElement = document.getElementById("web-app-sec-decoder");
+
+    async function webAppSecEncode() {
+        // Get the encoding type (HTML or URL) selected by the user
+        var encType = document.getElementById("web-app-sec-encoder-type").value;
+
+        // Encode the textContent and set web-app-sec-decoder's text content as the encoded value
+        if (encType === "HTML") {
+            decoderElement.value = htmlEncode(encoderElement.value);
+        } else if (encType === "HTMLe") {
+            decoderElement.value = htmlEntityEncode(encoderElement.value);
+        } else if (encType === "URL") {
+            decoderElement.value = encodeURIComponent(encoderElement.value);
+        } else if (encType === "*URL") {
+            decoderElement.value = urlEncodeAll(encoderElement.value);
+        } else if (encType === "2*URL") {
+            decoderElement.value = urlEncodeAll(urlEncodeAll(encoderElement.value));
+        } else if (encType === "Hex") {
+            decoderElement.value = hexEncode(encoderElement.value);
+        } else if (encType === "Dec") {
+            decoderElement.value = decEncode(encoderElement.value);
+        } else if (encType === "B64") {
+            decoderElement.value = b64Encode(encoderElement.value);
+        }
+    }
+
+    async function webAppSecDecode() {
+        // Get the encoding type (HTML or URL) selected by the user
+        var encType = document.getElementById("web-app-sec-encoder-type").value;
+
+        // Decode the textContent and set web-app-sec-encoder's text content as the decoded value
+        if (encType === "HTML") {
+            encoderElement.value = htmlDecode(decoderElement.value);
+        } else if (encType === "HTMLe") {
+            encoderElement.value = htmlEntityDecode(decoderElement.value);
+        } else if (encType === "URL") {
+            encoderElement.value = decodeURIComponent(decoderElement.value);
+        } else if (encType === "*URL") {
+            encoderElement.value = urlDecodeAll(decoderElement.value);
+        } else if (encType === "2*URL") {
+            encoderElement.value = urlDecodeAll(urlDecodeAll(decoderElement.value));
+        } else if (encType === "Hex") {
+            encoderElement.value = hexDecode(decoderElement.value);
+        } else if (encType === "Dec") {
+            decoderElement.value = decDecode(encoderElement.value);
+        } else if (encType === "B64") {
+            decoderElement.value = b64Decode(encoderElement.value);
+        }
+    }
+
+    encoderElement.addEventListener("input", webAppSecEncode);
+
+    decoderElement.addEventListener("input", webAppSecDecode);
+
+    document.getElementById("cookies-header").addEventListener("mouseover", loadCookies)
+
+    document.getElementById("web-app-sec-enc-cpy").addEventListener("click", async function () {
+        copyValue(encoderElement)
+    })
+    document.getElementById("web-app-sec-dec-cpy").addEventListener("click", async function () {
+        copyValue(decoderElement)
+    })
+    document.getElementById("web-app-sec-enc-pst").addEventListener("click", async function () {
+        pasteValue(encoderElement).then((value) => {
+            webAppSecEncode()
+        })
+    })
+    document.getElementById("web-app-sec-dec-pst").addEventListener("click", async function () {
+        pasteValue(decoderElement).then((value) => {
+            webAppSecDecode()
+        })
+    })
+
+    const commonTestingTable = document.getElementById("web-app-sec-common-testing-table")
+
+    getSetting("web-app-sec-common-testing-inputs").then((value)=> {
+        value.forEach(element => {
+           const tr = document.createElement('tr')
+           const td = document.createElement("td")
+           td.classList.add("copy-on-click")
+           td.textContent = element
+           tr.appendChild(td)
+           commonTestingTable.appendChild(tr)
+        });
+    })
+
+
+    /////////
+    // TOC //
+    /////////
+    const tocArea = document.getElementById("toc-area")
+    const tocTabButton = document.getElementById("toc-tab-button")
+
+    tocTabButton.addEventListener("click", async function () {
+        let [tab] = await chrome.tabs.query({
+            active: true,
+            currentWindow: true
+        });
+        chrome.scripting.executeScript({
+            target: {
+                tabId: tab.id
+            },
+            function: getTOC,
+            args: []
+        }, (results) => {
+            console.log(results)
+            tocArea.innerHTML = results[0].result;
+            document.querySelectorAll(".toc-element").forEach(async function (element) {
+                element.addEventListener("click", async function () {
+                    openTocElement(element)
+                })
+            })
+        });
+    });
+
+    //////////////////
+    // REGEX Search //
+    //////////////////
+
+    document.getElementById('regex-search').addEventListener('keydown', async (event) => {
+        if (event.key === "Enter") {
+            event.preventDefault();
+            regexSearch()
+        }
+    });
+
+    inclusiveSearch = document.getElementById("regex-inclusive");
+    back = document.getElementById("regex-search-back")
+    next = document.getElementById("regex-search-next")
+    back.addEventListener("click", async function () {
+        const last = document.querySelector(".match-item.bold");
+        // Get the row before "last"
+        const previousRow = last.previousElementSibling;
+        if (previousRow) {
+            previousRow.click()
+        }
+    })
+    next.addEventListener("click", async function () {
+        const last = document.querySelector(".match-item.bold");
+        // Get the row after "last"
+        const nextRow = last.nextElementSibling;
+        if (nextRow) {
+            nextRow.click()
+        }
+    })
+
+    ////////////////
+    // Page Notes //
+    ////////////////
+
+    pnHelpButton = document.getElementById("page-notes-help-tab-button")
+
+    document.getElementById("add-current-url").addEventListener("click", async function () {
+        const url = await get_current_url()
+        let url_pattern = await get_default_pattern(url)
+        url_pattern = url_pattern.substring(0, maxPageNotesURLChar - 1);
+        url_pattern = urlPatternElement.value + "|" + url_pattern
+        urlPatternElement.value = url_pattern
+    })
+    
+    document.getElementById("add-current-domain").addEventListener("click", async function () {
+        const url = await get_current_url()
+        let domain = await get_default_title(url)
+        let url_pattern = await get_default_pattern(domain)
+        url_pattern = url_pattern.substring(0, maxPageNotesURLChar - 1);
+        url_pattern = urlPatternElement.value + "|" + url_pattern
+        urlPatternElement.value = url_pattern
+    })
+
+    updatePageNoteURL()
+
+})
+
+
+////////////////////////
+// DOMContentModified //
+////////////////////////
+
+// // Uncomment the below to add stuff after initial DOM Changes occur. It's a custom event. 
+// window.addEventListener("DOMContentModified", function() {
+    
+// })
+
+/////////////////
+// tabsChanged //
+/////////////////
+
+document.addEventListener('tabsChanged', async (event) => {
+
+    /////////////////
+    // Web App Sec //
+    /////////////////
+
+    const tab = event.detail.tab;
+    if (tab.active) {
+        if (webAppSecHtmlValContinuous) {
+            await runFunctionOnPage(removeHtmlValidations);
+        }
+        if (webAppSecJsValContinuous) {
+            await runFunctionOnPage(removeJsValidations);
+        }
+        if (webAppSecSampleDataContinuous) {
+            await runFunctionOnPage(fillWithSampleData);
+        }
+        if (webAppSecSelectOffContinuous) {
+            await runFunctionOnPage(replaceSelectElements);
+        }
+        if (webAppSecHiddenOffContinuous) {
+            await runFunctionOnPage(removeHiddenFields);
+        }
+        if (webAppSecNoPasteContinuous) {
+            await runFunctionOnPage(removeNoPasteRestrictions);
+        }
+    }
+
+    ////////////////
+    // Page Notes //
+    ////////////////
+
+    updatePageNoteURL()
+
+});

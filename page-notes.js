@@ -720,6 +720,10 @@ async function makePageNoteTable(page_notes, table) {
 
 async function getCurrentURL() {
   const [tab] = await chrome.tabs.query({ active: true, lastFocusedWindow: true });
+  if (!tab) {
+    console.log("No active tab or tab URL found");
+    return "undefined";
+  }
   if (!tab.url) {
     console.log("No tab.url found")
     return "undefined"

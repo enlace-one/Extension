@@ -282,3 +282,15 @@ tr:nth-child(even) {
 .autosave {
   color: green;
 }
+
+
+.dropdown-button {
+  padding: 10px;
+  font-size: 16px;
+  border: none;
+  cursor: pointer;
+}
+.undropped {
+border: 1px solid;
+cursor: pointer;
+}

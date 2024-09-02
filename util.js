@@ -171,6 +171,49 @@ default_settings = {
   "encryption-algorithm": "AES",
   "last-open-ref-file": "css_selectors.txt",
   "zoomSetting": 1,
+  "requests-excluded-content-types": ['image/', 'application/javascript', 'application/x-javascript', 'text/javascript'],
+  "requests-excluded-extensions": ["woff", "png", "jpg", "jpeg", "gif", "svg", "js", "css", "ico"],
+  "requests-excluded-headers": [
+    'accept-encoding',
+    'accept-language',
+    'connection',
+    'host',
+    'user-agent',
+    'sec-ch-ua-platform',
+    'sec-ch-ua-mobile',
+    'date',
+    'keep-alive',
+    'proxy-connection',
+    'te',
+    'upgrade-insecure-requests',
+    'x-requested-with',
+    'content-encoding',
+    'content-length',
+    'connection',
+    'keep-alive',
+    'proxy-connection',
+    'set-cookie',
+    'transfer-encoding',
+    'vary',
+    'x-powered-by',
+    'x-frame-options',
+    'x-xss-protection'
+  ],
+  "web-app-sec-common-testing-inputs": ['<input autofocus onfocus=alert(1)>',
+    "{{$on.constructor('alert(1)')()}}",
+    "<img src=1 oNeRrOr=alert`1`> ",
+    "javascript:alert(1)",
+    "' Or '87' ='87",
+    " Or 87=87",
+    "' UNION SELECT null FROM all_tables -- ",
+    "' UNION SELECT null FROM dual -- ",
+    "'; UPDATE users SET password='peter' WHERE username > '1' -- ",
+    `<tr>
+              <td class="copy-on-click">&lt;img src=1 oNeRrOr=alert\`1\`&gt; </td>
+            </tr>`
+  ],
+  "web-app-sec-header-modifications": {"pragma": "x-get-cache-key"}
+
 };
 
 async function getSetting(setting_name) {
@@ -191,6 +234,25 @@ async function getSetting(setting_name) {
     }
   }
 }
+
+async function getAllSettings() {
+  const settings = await get("enlace-settings"); // Fetch stored settings
+  const return_settings = {}; // Initialize an empty object to store final settings
+
+  // Iterate over each key in default_settings
+  for (const key in default_settings) {
+    if (settings && settings.hasOwnProperty(key)) {
+      // If the key exists in settings, use that value
+      return_settings[key] = settings[key];
+    } else {
+      // Otherwise, use the default setting
+      return_settings[key] = default_settings[key];
+    }
+  }
+
+  return return_settings; // Return the constructed settings object
+}
+
 
 async function storeSetting(setting_name, value) {
   console.log(`Setting ${setting_name} as ${value}`);
@@ -231,7 +293,7 @@ async function generateRandomAlphaNumeric(length) {
   return result;
 }
 
-function showNotification(message, seconds=1) {
+function showNotification(message, seconds = 1) {
   const notification = document.createElement("div");
   notification.classList.add("tooltiptext");
   notification.style = "visibility: visible; opacity: 1; display: block;";
@@ -240,7 +302,7 @@ function showNotification(message, seconds=1) {
 
   setTimeout(function () {
     document.body.removeChild(notification);
-  }, seconds*1000);
+  }, seconds * 1000);
 }
 
 function truncateText(text, maxLength) {
@@ -253,6 +315,9 @@ function truncateText(text, maxLength) {
 function escapeRegExp(string) {
   return string.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"); // $& means the whole matched string
 }
+
+const defaultExcludedContentTypes = ['image/', 'application/javascript', 'application/x-javascript', 'text/javascript'];
+const defaultExcludedExtensions = /\.(png|jpg|jpeg|gif|svg|js|css)$/i;
 
 const defaultPageNoteConfig = {
   unorderedListStyle: "-",
@@ -310,7 +375,98 @@ function determineCase(text) {
 }
 
 function toTitleCase(text) {
-  return text.replace(/\w\S*/g, function(txt) {
+  return text.replace(/\w\S*/g, function (txt) {
     return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
+  });
+}
+
+// HTML encoding function
+function htmlEncode(str) {
+  var temp = document.createElement('div');
+  temp.textContent = str;
+  return temp.innerHTML;
+}
+
+// HTML decoding function
+function htmlDecode(str) {
+  var temp = document.createElement('div');
+  temp.innerHTML = str;
+  return temp.textContent;
+}
+
+function decEncode(str) {
+  return str.split('').map(char => `&#${char.charCodeAt(0)};`).join('');
+}
+
+// Function to decode a string from decimal entities
+function decDecode(encodedStr) {
+  return encodedStr.replace(/&#(\d+);/g, (match, dec) => String.fromCharCode(dec));
+}
+
+function hexEncode(str) {
+  return str.split('').map(char => `&#x${char.charCodeAt(0).toString(16)};`).join('');
+}
+
+// Function to decode a string from hexadecimal entities
+function hexDecode(encodedStr) {
+  return encodedStr.replace(/&#x([\da-fA-F]+);/g, (match, hex) => String.fromCharCode(parseInt(hex, 16)));
+}
+
+function urlDecodeAll(encodedStr) {
+  // Use a regular expression to match all percent-encoded characters
+  return encodedStr.replace(/%([0-9A-Fa-f]{2})/g, (match, hex) => String.fromCharCode(parseInt(hex, 16)));
+}
+
+function urlEncodeAll(str) {
+  return str.split('')
+    .map(char => '%' + char.charCodeAt(0).toString(16).padStart(2, '0'))
+    .join('');
+}
+
+function htmlEntityEncode(str) {
+  return str.replace(/[\u00A0-\u9999<>\&]/gim, function (i) {
+    return `&#${i.charCodeAt(0)};`;
+  });
+}
+
+// Function to decode HTML entities back to their original form
+function htmlEntityDecode(encodedStr) {
+  let textarea = document.createElement('textarea');
+  textarea.innerHTML = encodedStr;
+  return textarea.value;
+}
+
+function b64Encode(str) {
+  const utf8Bytes = new TextEncoder().encode(str);
+  return btoa(String.fromCharCode(...utf8Bytes));
+}
+
+// Function to base64 decode a string
+function b64Decode(encodedStr) {
+  try {
+    const binaryString = atob(encodedStr);
+    const bytes = Uint8Array.from(binaryString, char => char.charCodeAt(0));
+    return new TextDecoder().decode(bytes);
+  } catch {
+    return "Error"
+  }
+}
+
+
+
+// Function to execute code in the context of the current page's tab
+async function runFunctionOnPage(func) {
+  let [tab] = await chrome.tabs.query({
+    active: true,
+    currentWindow: true
+  });
+  chrome.scripting.executeScript({
+    target: {
+      tabId: tab.id
+    },
+    function: func,
+    args: []
+  }, (results) => {
+    console.log(results);
   });
 }

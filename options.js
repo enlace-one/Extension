@@ -518,10 +518,34 @@ get("page-note-json").then((value)=> {
     }
 })
 
+const allSettingsJsonTextarea = document.getElementById("all-settings-json")
+getAllSettings().then((value) => {
+    if (value != "" && value != null && value != 0 && value != undefined) {
+        allSettingsJsonTextarea.value = JSON.stringify(value, null, 4)
+    } else {
+        allSettingsJsonTextarea.value = JSON.stringify(default_settings, null, 4)
+    }
+})
+
 document.getElementById("reset-page-note-config").addEventListener("click", function () {
     pageNoteJson.value = JSON.stringify(defaultPageNoteConfig, null, 4)
     store("page-note-json", defaultPageNoteConfig)
     showNotification("Saved")
+})
+
+document.getElementById("reset-all-settings-json").addEventListener("click", function () {
+    store("enlace-settings", default_settings)
+    allSettingsJsonTextarea.value = JSON.stringify(default_settings, null, 4)
+})
+
+document.getElementById("save-all-settings-json").addEventListener("click", function () {
+    try {
+        const settingJsonValue = JSON.parse(allSettingsJsonTextarea.value)
+        store("enlace-settings", settingJsonValue)
+        showNotification("Saved")
+    } catch (e) {
+        alert(`Error saving JSON ${e}`)
+    }
 })
 
 // Save

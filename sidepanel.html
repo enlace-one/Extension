@@ -31,7 +31,6 @@
       border-bottom: 2px solid transparent;
       transition: border-color 0.3s ease;
     }
-
   </style>
 
 
@@ -84,7 +83,7 @@
           Toc
         </button>
         <button id="web-app-sec-tab-button" class="tab-button webAppSecName" data-tab="web-app-sec-tab">
-          Toc
+          WebAppSec
         </button>
         <button type="button" class="switch-button group2">
           <img style="width: 15px; height: auto;" src="images/rotate.svg" alt="Icon">
@@ -98,10 +97,22 @@
       </div>
       <div class="tab-content" id="web-app-sec-tab">
         <h2>WebAppSec</h2>
-        <h3>Unsaved Note</h3>
-        <textarea></textarea>
-        <h3>Page Actions</h3>
-        <table>
+        <h3 class="dropdown-button">Requests</h3>
+        <table class="dropdown-content">
+          <!-- <tr>
+            <th></th>
+          </tr> -->
+          <tr>
+            <td id="web-app-sec-request"></td>
+          </tr>
+          <tr >
+            <td id="web-app-sec-response"></td>
+          </tr>
+        </table>
+        <h3 class="dropdown-button">Unsaved Note</h3>
+        <textarea class="dropdown-content" columns="25" rows="1"></textarea>
+        <h3 class="dropdown-button">Page Actions</h3>
+        <table class="dropdown-content">
           <tr>
             <th>Action</th>
             <th>One Time</th>
@@ -138,11 +149,17 @@
             <td><input type="checkbox" id="web-app-sec-sample-data-ckbx" /></td>
           </tr>
         </table>
-        <h3>Encoder</h3>
+        <h3 class="dropdown-button">Encoder</h3>
+        <div class="dropdown-content">
         <select id="web-app-sec-encoder-type">
           <option>HTML</option>
+          <option>HTMLe</option>
           <option>URL</option> 
-          <!-- More Encodings? -->
+          <option>*URL</option> 
+          <option>2*URL</option> 
+          <option>Dec</option> 
+          <option>Hex</option>
+          <option>B64</option>
         </select>
         <br>
         <div class="input-group"><textarea id="web-app-sec-encoder"></textarea><button id="web-app-sec-enc-cpy"
@@ -155,44 +172,14 @@
               alt="Icon"></button><button id="web-app-sec-dec-pst" style="width: 8vw;"><img
               style="width: 100%; height: auto;" src="images/paste.svg" alt="Icon"></button>
         </div>
-        <h3>Common Testing Inputs</h3>
-        <table>
-          <tr>
-            <td class="copy-on-click">&lt;input autofocus onfocus=alert(1)&gt;</td>
-          </tr>
-          <tr>
-            <td class="copy-on-click">{{$on.constructor('alert(1)')()}}</td>
-          </tr>
-          <tr>
-            <td class="copy-on-click">&lt;img src=1 oNeRrOr=alert`1`&gt; </td>
-          </tr>
-          <tr>
-            <td class="copy-on-click">&lt;tr&gt;
-              &lt;td class="copy-on-click"&gt;&amp;lt;img src=1 oNeRrOr=alert`1`&amp;gt; &lt;/td&gt;
-            &lt;/tr&gt;</td>
-          </tr>
-          <tr>
-            <td class="copy-on-click">javascript:alert(1)</td>
-          </tr>
-          <tr>
-            <td class="copy-on-click">' Or '87' ='87</td>
-          </tr>
-          <tr>
-            <td class="copy-on-click"> Or 87=87</td>
-          </tr>
-          <tr>
-            <td class="copy-on-click">' UNION SELECT null FROM all_tables -- </td>
-          </tr>
-          <tr>
-            <td class="copy-on-click">' UNION SELECT null FROM dual -- </td>
-          </tr>
-          <tr>
-            <td class="copy-on-click">'; UPDATE users SET password='peter' WHERE username &gt; '1' -- </td>
-          </tr>
+      </div>
+        <h3 class="dropdown-button">Common Testing Inputs</h3>
+        <table id="web-app-sec-common-testing-table" class="dropdown-content">
+          
         </table>
-        <h2 id="cookies-header" class="cookiesName">Cookies</h2>
-        <small>Hover over 'Cookies' to fetch them</small>
-        <div id="cookies-result" style="min-height:10vh">
+        <h2 id="cookies-header" class="cookiesName dropdown-button">Cookies</h2>
+        <div class="dropdown-content" id="cookies-result" style="min-height:10vh">
+          <small>Hover over 'Cookies' to fetch them</small>
           <table id="cookie-table"></table>
           <ul style="margin-left: 0px; padding-left: 0px;" id="cookie-list"></ul>
         </div>
