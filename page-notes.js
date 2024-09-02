@@ -705,22 +705,38 @@ async function makePageNoteTable(page_notes, table) {
 
 
 async function getCurrentURL() {
-  const [tab] = await chrome.tabs.query({ active: true, lastFocusedWindow: true });
-  if (!tab) {
-    console.log("No active tab or tab URL found");
+  try {
+    // Query the active tab in the last focused window
+    const [tab] = await chrome.tabs.query({ active: true, lastFocusedWindow: true });
+
+    // Check if the tab exists and has a valid URL
+    if (!tab || !tab.url) {
+      console.log("No active tab or tab URL found");
+      return "undefined";
+    }
+
+    let url = tab.url;
+
+    // Check for special or invalid URLs
+    const invalidUrls = ["about:blank", "chrome://newtab/"];
+    if (invalidUrls.includes(url)) {
+      console.log("Invalid or non-standard tab URL found");
+      return "undefined";
+    }
+
+    // Strip trailing slash if it exists
+    if (url.endsWith('/')) {
+      url = url.slice(0, -1);
+    }
+
+    return url;
+  } catch (error) {
+    // Log any unexpected errors
+    console.error("Error retrieving current URL:", error);
     return "undefined";
   }
-  if (!tab.url) {
-    console.log("No tab.url found")
-    return "undefined"
-  }
-  let url = tab.url;
-  // Strip trailing slash if it exists
-  if (url.endsWith('/')) {
-    url = url.slice(0, -1);
-  }
-  return url;
 }
+
 
 async function newPageNote() {
   console.log("Generating new page note");

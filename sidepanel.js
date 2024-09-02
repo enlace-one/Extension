@@ -739,6 +739,7 @@ function addWebAppSecListeners() {
     if (!addedRequestsListeners) {
         addedRequestsListeners = true;
         
+        // Get request Body
         chrome.webRequest.onBeforeRequest.addListener(
             function (details) {
                 lastRequest = {};
@@ -762,20 +763,25 @@ function addWebAppSecListeners() {
 
                     // Filter request based on file types and domain
                     if (isFilteredRequest(details.url, contentType, currentDomain)) {
+                        console.log(`Filtered request for ${details.url}`)
                         return; // Skip filtered requests
+                    } else {
+                        console.log(`Unfiltered request for ${details.url}`)
+
+                        lastRequest["body"] = details.requestBody ? details.requestBody.raw : null;
+                        lastRequest["method"] = details.method;
+                        lastRequest["url"] = details.url;
+                        lastRequest["requestId"] = details.requestId;
+
+                        updateRequestResponseTable();
                     }
-
-                    lastRequest["body"] = details.requestBody ? details.requestBody.raw : null;
-                    lastRequest["method"] = details.method;
-                    lastRequest["url"] = details.url;
-
-                    updateRequestResponseTable();
                 });
             },
             { urls: ["<all_urls>"] },
             ["requestBody"]
         );
 
+        // Modify reqeust Headers per settings
         chrome.webRequest.onBeforeSendHeaders.addListener(
             // Test here: https://www.whatismybrowser.com/detect/what-http-headers-is-my-browser-sending/
             function(details) {
@@ -799,8 +805,8 @@ function addWebAppSecListeners() {
           
                   // Convert the map back to an array
                   details.requestHeaders = Array.from(headersMap.values());
-                  console.log(`Setting headers to`)
-                  console.log(details.requestHeaders)
+                //   console.log(`Setting headers to`)
+                //   console.log(details.requestHeaders)
                 }
           
                 return { requestHeaders: details.requestHeaders };
@@ -810,33 +816,14 @@ function addWebAppSecListeners() {
             ["requestHeaders"]
           );
           
-
+        // Get request headers
         chrome.webRequest.onSendHeaders.addListener(
             function (details) {
-                // Extract Content-Type header
-                const contentTypeHeader = details.requestHeaders.find(header => header.name.toLowerCase() === 'content-type');
-                const contentType = contentTypeHeader ? contentTypeHeader.value : '';
                 if (details.requestId != lastRequest.requestId) {
                     return
                 }
-                // Get the current URL's domain
-                getCurrentURL().then(currentURL => {
-                    var currentDomain = ""
-                    try {
-                        currentDomain = new URL(currentURL).hostname;
-                    } catch {
-                        console.log(`Failed to construct URL for ${currentURL}`)
-                        return
-                    }
-
-                    // Filter request based on file types and domain
-                    if (isFilteredRequest(details.url, contentType, currentDomain)) {
-                        return; // Skip filtered requests
-                    }
-
-                    lastRequest["requestHeaders"] = details.requestHeaders;
-                    updateRequestResponseTable();
-                });
+                lastRequest["requestHeaders"] = details.requestHeaders;
+                updateRequestResponseTable();
             },
             { urls: ["<all_urls>"] },
             ["requestHeaders"]
@@ -844,32 +831,18 @@ function addWebAppSecListeners() {
 
         chrome.webRequest.onHeadersReceived.addListener(
             function (details) {
-                // Extract Content-Type header
-                const contentTypeHeader = details.responseHeaders.find(header => header.name.toLowerCase() === 'content-type');
-                const contentType = contentTypeHeader ? contentTypeHeader.value : '';
-                
-                if (details.requestId != lastRequest.requestId) {
+                 if (details.requestId != lastRequest.requestId) {
                     return
                 }
-                // Get the current URL's domain
-                getCurrentURL().then(currentURL => {
-                    var currentDomain = ""
-                    try {
-                        currentDomain = new URL(currentURL).hostname;
-                    } catch {
-                        console.log(`Failed to construct URL for ${currentURL}`)
-                        return
-                    }
+                lastResponse["responseHeaders"] = details.responseHeaders;
+                lastResponse["statusCode"] = details.statusCode; // Ensure statusCode is set
+                updateRequestResponseTable();
 
-                    // Filter response based on file types and domain
-                    if (isFilteredRequest(details.url, contentType, currentDomain)) {
-                        return; // Skip filtered responses
-                    }
-
-                    lastResponse["responseHeaders"] = details.responseHeaders;
-                    lastResponse["statusCode"] = details.statusCode; // Ensure statusCode is set
-                    updateRequestResponseTable();
-                });
+                try {
+                    console.log(details.protocol)
+                } catch {
+                    console.log("failed to get protocol")
+                }
             },
             { urls: ["<all_urls>"] },
             ["responseHeaders"]
@@ -915,7 +888,9 @@ function isFilteredRequest(url, contentType, currentDomain) {
         const isDifferentDomain = domain !== currentDomain;
 
         // Return true if any of the conditions are met
-        return isExcludedContentType || isExcludedExtension || isDifferentDomain;
+        const isExcluded = isExcludedContentType || isExcludedExtension || isDifferentDomain;
+        console.log(`URL ${url} with path ${pathname} excluded: ${isExcluded}. CT: ${isExcludedContentType}, Ext: ${isExcludedExtension}, D: ${isDifferentDomain}`)
+        return isExcluded
     } catch (e) {
         console.error('Error processing URL:', url, e);
         return true; // Consider invalid URLs as filtered out
@@ -965,10 +940,12 @@ function updateRequestResponseTable() {
             });
         }
 
-        let responseBody = lastResponse.body ? JSON.stringify(lastResponse.body, null, 2) : 'No body';
+        let responseBody = lastResponse.body ? JSON.stringify(lastResponse.body, null, 2) : 'Chrome API does not allow access to response body';
 
         // Create and append formatted response details
-        const responseStatus = `HTTP/1.1 ${lastResponse.statusCode} ${getStatusText(lastResponse.statusCode)}`;
+        const respCode = lastResponse.statusCode ? lastResponse.statusCode:"No Response"
+        const respText = lastResponse.statusCode ? getStatusText(lastResponse.statusCode): ""
+        const responseStatus = `HTTP/1.1 ${respCode} ${respText}`;
         
         const responseStatusLine = document.createElement("div");
         responseStatusLine.innerText = responseStatus;
