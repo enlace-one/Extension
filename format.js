@@ -2,6 +2,7 @@
 // Example //
 /////////////
 const exampleVar = 1;
+var exampleDocumentElement;
 function exampleFunc() {
     
 }
@@ -11,6 +12,7 @@ function exampleFunc() {
 //////////////////////
 
 window.addEventListener("DOMContentLoaded", function() {
+    exampleDocumentElement = document.getElementById("example")
 
 })
 
@@ -20,7 +22,7 @@ window.addEventListener("DOMContentLoaded", function() {
 ////////////////////////
 
 // // Uncomment the below to add stuff after initial DOM Changes occur. It's a custom event. 
-// window.addEventListener("DOMContentModified", function() {
+// document.addEventListener("DOMContentModified", function() {
     
 // })
 

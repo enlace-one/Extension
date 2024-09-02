@@ -345,16 +345,15 @@ getEasyMDE();
 ///////////////
 // VARIABLES //
 ///////////////
-
-const urlPatternElement = document.getElementById("url-pattern");
-const titleElement = document.getElementById("page-notes-title");
-const idElement = document.getElementById("page-note-id");
-const pageNotesTabButton = document.getElementById("page-notes-tab-button");
-const newPageNotesTabButton = document.getElementById("new-page-notes-tab-button")
-const openPageNoteButton = document.getElementById(
-  "open-page-notes-tab-button"
-);
-const pageNotesSearchInput = document.getElementById("page-notes-search");
+var urlPatternElement;
+var titleElement;
+var idElement;
+var pageNotesTabButton;
+var newPageNotesTabButton;
+var openPageNoteButton;
+var pageNotesSearchInput;
+var recentPageNotesTable;
+var recentPageNotesNoneFound;
 
 let maxPageNotesTitleChar;
 getSetting("max-title-char-page-notes").then(
@@ -463,10 +462,6 @@ function saveNoteTimeOut() {
     save_page_note();
   }, 1500);
 }
-
-titleElement.addEventListener("change", saveNoteTimeOut);
-
-urlPatternElement.addEventListener("change", saveNoteTimeOut);
 
 /////////
 // GET //
@@ -612,15 +607,6 @@ async function search_page_notes() {
   }
 }
 
-document
-  .getElementById("page-notes-search")
-  .addEventListener("keydown", function (event) {
-    if (event.key === "Enter") {
-      event.preventDefault(); // Prevent the default action to avoid any unwanted behavior (like form submission)
-      search_page_notes();
-    }
-  });
-
 ////////////////////
 // AUTO MATCH URL //
 ////////////////////
@@ -754,10 +740,6 @@ async function newPageNote() {
   pageNotesTabButton.click();
   expiringCheckbox.checked = true;
 }
-
-newPageNotesTabButton
-  .addEventListener("click", newPageNote);
-
 /////////////////////////
 // Additional Features //
 /////////////////////////
@@ -849,29 +831,6 @@ function addTOC() {
 }
 addTOC();
 
-// Focus on search when clicking "open"
-openPageNoteButton.addEventListener(
-  "click",
-  function () {
-    setTimeout(function () {
-      pageNotesSearchInput.focus();
-    }, 50)
-  }
-);
-
-// Focus on page note when clicking "page note"
-pageNotesTabButton.addEventListener("click",
-function () {
-  setTimeout(function () {
-    easyMDE.codemirror.focus();
-  }, 50)
-})
-
-
-
-// Recent page notes
-const recentPageNotesTable = document.getElementById("recent-page-notes-table");
-const recentPageNotesNoneFound = document.getElementById("recent-page-notes")
 
 async function getRecentPageNotes() {
     const recentPageNotes = await get("recent_page_notes", [])
@@ -889,5 +848,3 @@ async function getRecentPageNotes() {
         makePageNoteTable(notesDetails, recentPageNotesTable);
     }
 }
-
-getRecentPageNotes()

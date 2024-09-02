@@ -3,13 +3,15 @@
 ///////////////////
 
 document.addEventListener("DOMContentLoaded", function () {
+    console.log("Fired DOMContentLoaded")
     // Set a timeout to trigger the custom event after 2 seconds
     setTimeout(() => {
         // Create the custom event
         const customEvent = new Event('DOMContentModified');
+        console.log("Firing DOMContentModified")
         // Dispatch the custom event
         document.dispatchEvent(customEvent);
-    }, 2000); // 2000 milliseconds = 2 seconds
+    }, 1000); // 2000 milliseconds = 2 seconds
   });
 
 // Function to dispatch the custom 'tabsChanged' event
@@ -304,7 +306,8 @@ window.addEventListener("DOMContentLoaded", function() {
 // DOMContentModified //
 ////////////////////////
 
-window.addEventListener("DOMContentModified", function() {
+document.addEventListener("DOMContentModified", function() {
+    console.log("Running 'DOMContentModified' actions")
     
     // Copy on Click
     const copyOnClickElements = document.querySelectorAll('.copy-on-click');
