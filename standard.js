@@ -197,13 +197,26 @@ function changeTabs(button) {
 }
 
 async function copyValue(element) {
-    navigator.clipboard
-        .writeText(element.value + element.innerText)
-        .then(() => {
-            console.log("Content copied!")
-            showNotification("Content Copied")
-        })
+    try {
+        // Check if Clipboard API is available
+        if (!navigator.clipboard) {
+            console.error("Clipboard API is not available.");
+            showNotification("Clipboard API is not supported by this browser.");
+            return;
+        }
+
+        // Concatenate value and innerText if they exist
+        const textToCopy = (element.value || '') + (element.innerText || '');
+
+        await navigator.clipboard.writeText(textToCopy);
+        console.log("Content copied!");
+        showNotification("Content Copied");
+    } catch (error) {
+        console.error("Failed to copy content: ", error);
+        showNotification("Failed to copy content");
+    }
 }
+
 
 async function pasteValue(element) {
     const text = await navigator.clipboard.readText();

@@ -200,17 +200,16 @@ default_settings = {
     'x-xss-protection'
   ],
   "web-app-sec-common-testing-inputs": ['<input autofocus onfocus=alert(1)>',
-    "{{$on.constructor('alert(1)')()}}",
-    "<img src=1 oNeRrOr=alert`1`> ",
-    "javascript:alert(1)",
+    "{{$on.constructor('alert(2)')()}}",
+    "<img src=1 oNeRrOr=alert`6`> ",
+    "javascript:alert('https://javscript.runs')",
     "' Or '87' ='87",
     " Or 87=87",
     "' UNION SELECT null FROM all_tables -- ",
     "' UNION SELECT null FROM dual -- ",
     "'; UPDATE users SET password='peter' WHERE username > '1' -- ",
-    `<tr>
-              <td class="copy-on-click">&lt;img src=1 oNeRrOr=alert\`1\`&gt; </td>
-            </tr>`
+    "& ping -c 10 127.0.0.1 &",
+    "|| whoami > /var/www/static/whoami.txt ||"
   ],
   "web-app-sec-header-modifications": {"pragma": "x-get-cache-key"}
 
@@ -455,7 +454,7 @@ function b64Decode(encodedStr) {
 
 
 // Function to execute code in the context of the current page's tab
-async function runFunctionOnPage(func) {
+async function runFunctionOnPage(func, args=[]) {
   let [tab] = await chrome.tabs.query({
     active: true,
     currentWindow: true
@@ -465,8 +464,30 @@ async function runFunctionOnPage(func) {
       tabId: tab.id
     },
     function: func,
-    args: []
+    args: args
   }, (results) => {
     console.log(results);
+    return results
+  });
+}
+
+async function runFunctionOnPage(func, args = []) {
+  let [tab] = await chrome.tabs.query({
+      active: true,
+      currentWindow: true
+  });
+
+  return new Promise((resolve, reject) => {
+      chrome.scripting.executeScript({
+          target: { tabId: tab.id },
+          func: func,
+          args: args
+      }, (results) => {
+          if (chrome.runtime.lastError) {
+              reject(chrome.runtime.lastError.message);
+          } else {
+              resolve(results[0].result);
+          }
+      });
   });
 }

@@ -387,51 +387,73 @@ function fillWithSampleData() {
 
     inputs.forEach(input => {
         if (input.tagName.toLowerCase() === 'textarea') {
-            // For textareas, fill with sample text
-            input.value = 'Sample text for textarea';
+            // For textareas, fill with sample text if the value is blank
+            if (!input.value.trim()) {
+                input.value = 'Sample text for textarea';
+            }
         } else if (input.tagName.toLowerCase() === 'select') {
-            // For select elements, select the first option
-            if (input.options.length > 0) {
+            // For select elements, select the first option if none is selected
+            if (input.selectedIndex === -1 && input.options.length > 0) {
                 input.selectedIndex = 0; // Select the first option
             }
         } else if (input.tagName.toLowerCase() === 'input') {
             // Handle different types of input elements
             switch (input.type) {
                 case 'text':
-                    input.value = 'wiener';
+                    if (!input.value.trim()) {
+                        input.value = 'wiener';
+                    }
                     break;
                 case 'number':
-                    input.value = '123';
+                    if (!input.value.trim()) {
+                        input.value = '123';
+                    }
                     break;
                 case 'email':
-                    input.value = 'sample@example.com';
+                    if (!input.value.trim()) {
+                        input.value = 'sample@example.com';
+                    }
                     break;
                 case 'password':
-                    input.value = 'peter';
+                    if (!input.value.trim()) {
+                        input.value = 'peter';
+                    }
                     break;
                 case 'checkbox':
                 case 'radio':
-                    input.checked = true; // Check all checkboxes and radio buttons
+                    if (!input.checked) {
+                        input.checked = true; // Check all checkboxes and radio buttons if not already checked
+                    }
                     break;
                 case 'date':
-                    input.value = '2024-01-01'; // Sample date
+                    if (!input.value.trim()) {
+                        input.value = '2024-01-01'; // Sample date
+                    }
                     break;
                 case 'url':
-                    input.value = 'https://example.com';
+                    if (!input.value.trim()) {
+                        input.value = 'https://example.com';
+                    }
                     break;
                 case 'tel':
-                    input.value = '+1234567890';
+                    if (!input.value.trim()) {
+                        input.value = '+1234567890';
+                    }
                     break;
                 case 'range':
-                    input.value = input.max ? input.max : '50'; // Set to max or 50 if max is not defined
+                    if (!input.value.trim()) {
+                        input.value = input.max ? input.max : '50'; // Set to max or 50 if max is not defined
+                    }
                     break;
                 default:
-                    input.value = 'Sample data'; // Default for other input types
+                    if (!input.value.trim()) {
+                        input.value = 'Sample data'; // Default for other input types
+                    }
             }
         }
     });
 
-    console.log("All inputs have been filled with sample data.");
+    console.log("All inputs have been filled with sample data where blank.");
 }
 
 function replaceSelectElements() {
@@ -978,6 +1000,142 @@ function getStatusText(statusCode) {
     return statusTexts[statusCode] || 'Unknown Status';
 }
 
+async function webAppSecAnalyzePage() {
+    const resultDiv = document.getElementById("web-app-sec-anal-results");
+    if (!resultDiv) {
+        console.error("Result div not found!");
+        return;
+    }
+
+    const results = await runFunctionOnPage(webAppSecAnalyzePageOnPage);
+    resultDiv.innerHTML = ""; // Clear any existing content
+    for (const [key, value] of Object.entries(results)) {
+        console.log(key, value)
+        resultDiv.appendChild(createTableWithHeaders(value, key));
+    }
+ 
+}
+
+async function webAppSecAnalyzePageOnPage() {
+    try {
+        // Analyze HTML comments
+        const htmlComments = [];
+        const nodeIterator = document.createNodeIterator(
+            document.documentElement,
+            NodeFilter.SHOW_COMMENT,
+            null,
+            false
+        );
+        let currentNode;
+        while (currentNode = nodeIterator.nextNode()) {
+            htmlComments.push(currentNode.nodeValue.trim());
+        }
+
+        // Analyze scripts
+        const scripts = document.querySelectorAll('script');
+        const externalScripts = [];
+        const inlineScripts = [];
+
+        scripts.forEach(script => {
+            if (script.src) {
+                externalScripts.push(script.src);
+            } else {
+                inlineScripts.push(script.textContent.trim());
+            }
+        });
+
+        // Analyze links
+        const links = document.querySelectorAll('a[href]');
+        const externalLinks = [];
+        const internalLinks = [];
+
+        links.forEach(link => {
+            const href = link.href.trim();
+            if (href.startsWith('http') && !href.includes(window.location.hostname)) {
+                externalLinks.push(href);
+            } else {
+                internalLinks.push(href);
+            }
+        });
+
+        // Example analysis of form actions (security best practice checks)
+        const forms = document.querySelectorAll('form');
+        const insecureFormActions = [];
+
+        forms.forEach(form => {
+            const action = form.action.trim();
+            if (action && !action.startsWith('https')) {
+                insecureFormActions.push(action);
+            }
+        });
+
+        // Generate and return results as a JSON object
+        return {
+            htmlComments,
+            externalScripts,
+            inlineScripts,
+            externalLinks,
+            internalLinks,
+            insecureFormActions,
+        };
+    } catch (error) {
+        console.error("An error occurred:", error);
+        return { error: "An Error Occurred" };
+    }
+}
+
+function camelCaseToTitleCase(text) {
+    // Step 1: Insert spaces before capital letters
+    let formattedText = text.replace(/([A-Z])/g, ' $1');
+    // Step 2: Capitalize the first letter of the string and make the rest lowercase
+    formattedText = formattedText.charAt(0).toUpperCase() + formattedText.slice(1).toLowerCase();
+    return formattedText;
+}
+
+function createTableWithHeaders(data, header) {
+    const table = document.createElement('table');
+    table.style = "width: 100%;table-layout: fixed;overflow-wrap: break-word;word-wrap: break-word;white-space: normal;"
+
+    // Helper function to create a header row
+    const createHeaderRow = (title) => {
+        const headerRow = document.createElement('tr');
+        const headerCell = document.createElement('th');
+        headerCell.textContent = camelCaseToTitleCase(header);
+        headerRow.appendChild(headerCell);
+        table.appendChild(headerRow);
+    };
+
+    // Helper function to create a data row
+    const createDataRow = (d) => {
+        const row = document.createElement('tr');
+        const dataCell = document.createElement('td');
+        // const pre = document.createElement("pre");
+        // pre.textContent = d
+        dataCell.textContent = d
+        // dataCell.appendChild(pre)
+        dataCell.style = "max-width: 100%;"
+        row.appendChild(dataCell)
+        table.appendChild(row);
+    };
+
+    createHeaderRow(header);
+    if (data.length) {
+        data.forEach(d => createDataRow(d));
+    } else {
+        createDataRow('Nothing found.');
+    }
+    return table;
+}
+
+// Helper function to escape HTML content
+function escapeHTML(str) {
+    const div = document.createElement('div');
+    div.textContent = str;
+    return div.innerHTML;
+}
+
+
+
 // EDGE SPECIFIC
 if (navigator.userAgent.includes("Edg")) {
     console.log("Edge settings running")
@@ -1038,6 +1196,8 @@ window.addEventListener("DOMContentLoaded", function() {
     /////////////////
     // Web App Sec //
     /////////////////
+
+    document.getElementById("web-app-sec-anal-button").addEventListener("click", webAppSecAnalyzePage);
 
     document.getElementById("web-app-sec-tab-button").addEventListener("click", addWebAppSecListeners);
 
@@ -1150,7 +1310,7 @@ window.addEventListener("DOMContentLoaded", function() {
 
     decoderElement.addEventListener("input", webAppSecDecode);
 
-    document.getElementById("cookies-header").addEventListener("mouseover", loadCookies)
+    document.getElementById("web-app-sec-cookies-fetch").addEventListener("click", loadCookies)
 
     document.getElementById("web-app-sec-enc-cpy").addEventListener("click", async function () {
         copyValue(encoderElement)

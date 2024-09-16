@@ -98,7 +98,7 @@
       <div class="tab-content" id="web-app-sec-tab">
         <h2>WebAppSec</h2>
         <h3 class="dropdown-button">Requests</h3>
-        <table class="dropdown-content" style="width: 100%;table-layout: fixed;">
+        <table class="dropdown-content" style="width: 100%;table-layout: fixed;overflow-wrap: break-word;word-wrap: break-word;white-space: normal;">
           <!-- <tr>
             <th></th>
           </tr> -->
@@ -111,6 +111,13 @@
         </table>
         <h3 class="dropdown-button">Unsaved Note</h3>
         <textarea class="dropdown-content" columns="25" rows="1"></textarea>
+        <h3 class="dropdown-button">Analyze Page</h3>
+        <div class="dropdown-content">
+          <input id="web-app-sec-anal-button" type="button" value="Analyze"/>
+          <div id="web-app-sec-anal-results">
+
+          </div>
+        </div>
         <h3 class="dropdown-button">Page Actions</h3>
         <table class="dropdown-content">
           <tr>
@@ -179,7 +186,7 @@
         </table>
         <h2 id="cookies-header" class="cookiesName dropdown-button">Cookies</h2>
         <div class="dropdown-content" id="cookies-result" style="min-height:10vh">
-          <small>Hover over 'Cookies' to fetch them</small>
+          <button id="web-app-sec-cookies-fetch">Fetch</button>
           <table id="cookie-table"></table>
           <ul style="margin-left: 0px; padding-left: 0px;" id="cookie-list"></ul>
         </div>
