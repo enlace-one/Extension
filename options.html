@@ -1,567 +1,254 @@
 <!DOCTYPE html>
-<html>
-
+<html lang="en">
 <head>
-    <title>Options Page</title>
     <meta charset="UTF-8">
-    <link rel="stylesheet" href="/third_party/easymde.min.css">
-    <link rel="stylesheet" href="/third_party/highlight.min.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Modern Layout with Responsive Sidebar</title>
+    <link rel="stylesheet" href="default.css" />
 
-    <script src="/third_party/easymde.min.js"></script>
-    <script src="/third_party/highlight.min.js"></script>
-
-    <link rel="stylesheet" href="default.css">
+    <!-- Third Party -->
+    <link href="https://cdn.jsdelivr.net/npm/quill@2.0.2/dist/quill.snow.css" rel="stylesheet" />
 
     <style>
-        /* Overrides default */
-        .container {
-            max-width: 100vw;
-            margin: 0 auto;
-            background-color: #fff;
-            border-radius: 10px;
-            padding: 20px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-        }
-
-        /* Small text below options */
-        .option small {
-            margin-left: 5px;
-            color: gray;
-        }
-
-        /* Danger Zone section */
-        .danger-zone {
-            border: 2px dotted;
-            padding: 10px;
-            margin-top: 20px;
-        }
-
-        /* Subsection for each danger option */
-        .danger-option {
-            margin-bottom: 10px;
-        }
-
-        /* Styling for danger zone labels */
-        .danger-option label {
-            display: block;
-            font-weight: bold;
-            margin-bottom: 5px;
-        }
-
-        /* Styling for danger zone inputs */
-        .danger-option input[type="number"] {
-            width: 100px;
-            padding: 5px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-        }
-
-        /* .regexTest {
-            display: inline-block;
-            width: 45%;
-        } */
-
-
-        .failed {
-            outline: 2px solid red;
-            padding: 0.2em;
-            /* Add padding to prevent content from touching the outline */
-        }
-
-        .succeeded {
-            outline: 2px solid green;
-            padding: 0.2em;
-            /* Add padding to prevent content from touching the outline */
-        }
-
-        #regexTable {
-            width: 100%;
-            /* Ensure the table takes up the available width */
-            border-collapse: collapse;
-        }
-
-        #regexTable th {
-            text-align: left;
-            padding: 8px;
-            border-bottom: 1px solid #ddd;
-        }
-
-        #regexTable td {
-            padding: 8px;
-            border-bottom: 1px solid #ddd;
-        }
-
-        textarea {
-            width: 100%;
-            /* Make the textareas take up the available width */
+        /* General Styles */
+        * {
+            margin: 0;
+            padding: 0;
             box-sizing: border-box;
-            /* Include padding and border in width calculation */
-            resize: vertical;
-            /* Allow vertical resizing */
         }
 
-        .regexTest td:last-child {
-            width: 1%;
-            /* Allow the "Hide" column to shrink */
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f4f4f4;
+            color: #333;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
         }
 
-        #html-editor,
-        #html-viewer {
-            width: 45%;
-            height: 80vh;
-            border: 1px solid #ccc;
-            padding: 10px;
-            box-sizing: border-box;
-            float: left;
-            margin-right: 5%;
-            /* overflow-y: auto; */
-            resize: both;
+        /* Top Menu */
+        .top-menu {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            background-color: #333;
+            color: white;
+            padding: 1rem;
+            text-align: center;
+            z-index: 10;
+        }
+
+        .top-menu ul {
+            list-style: none;
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+        }
+
+        .top-menu ul li {
+            display: inline;
+        }
+
+        .top-menu ul li a {
+            color: white;
+            text-decoration: none;
+            padding: 0.5rem;
+            transition: background 0.3s;
+        }
+
+        .top-menu ul li a:hover {
+            background-color: #575757;
+        }
+
+        /* Sidebar Styles */
+        .sidebar {
+            position: fixed;
+            left: 0;
+            top: 2rem; /* Push below top menu */
+            width: 200px;
+            height: calc(100% - 2rem);
+            background-color: #333;
+            color: white;
+            padding: 1rem;
             overflow: auto;
+            transition: all 0.3s;
+        }
+
+        .sidebar h2 {
+            margin-bottom: 2rem;
+            font-size: 1.5rem;
+            text-align: center;
+        }
+
+        .sidebar ul {
+            list-style: none;
+        }
+
+        .sidebar ul li {
+            margin: 1rem 0;
+        }
+
+        .sidebar ul li a {
+            color: white;
+            text-decoration: none;
+            display: block;
+            padding: 0.5rem;
+            border-radius: 4px;
+            transition: background 0.3s;
+        }
+
+        .sidebar ul li a:hover {
+            background-color: #575757;
+        }
+
+        /* Main Content */
+        .content {
+            margin-left: 200px;
+            padding: 6rem 2rem 2rem;
+            flex-grow: 1;
+            transition: margin-left 0.3s;
+            text-align: center;
+        }
+
+        .content h1 {
+            margin-bottom: 2rem;
+            font-size: 2rem;
+        }
+
+        .content textarea {
+            width: 90%;
+            height: 300px;
+            padding: 1rem;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            resize: none;
+            /* font-size: 1.2rem; */
+        }
+
+        /* Footer */
+        .footer {
+            background-color: #333;
+            color: white;
+            text-align: center;
+            padding: 1rem;
+            position: relative;
+            bottom: 0;
+            width: 100%;
+        }
+
+        @media screen and (max-width: 768px) {
+    .sidebar {
+        width: 100%;
+        height: auto;
+        top: 3rem; /* Push below top menu */
+        padding: 1rem;
+        text-align: center;
+    }
+
+    .sidebar ul {
+        display: flex;
+        justify-content: center;
+        gap: 1rem;
+    }
+
+    .content {
+        margin-left: 0;
+        padding: 10rem 1rem 2rem; /* Increase top padding to push content below the sidebar */
+    }
+
+    .content textarea {
+        width: 90%;
+    }
+}
+
+
+        @media screen and (max-width: 480px) {
+            .content textarea {
+                width: 100%;
+            }
         }
     </style>
 </head>
-
 <body>
-    <div class="container">
-        <h1 style="width: 200px; font-family: Matura MT Script Capitals, cursive" class="extensionName"></h1>
-        <div id="locked-div">
-            <label for="password">Enter Password:</label>
-            <div style="display: inline-block">
-                <input id="password" type="password" class="" key="" />
-                <p hover-text="First time? Check the box and make up a password">
-                    <img style="width: 15px; height: auto;" src="images/info.svg" alt="Icon">
-                </p>
-            </div>
-            <div style="display: inline-block">
-                <input id="set-reset-pw" type="checkbox" value="Set/Reset" />
-                <label
-                    hover-text="You will not be able to access any stored values after reseting the password">Set/Reset
-                    Password</label>
+
+    <!-- Top Menu -->
+    <nav class="top-menu">
+        <ul>
+            <li><a href="#about" class="tab-button" data-tab="about-tab">About</a></li>
+            <li><a href="#settings" class="tab-button" data-tab="settings-tab">Settings</a></li>
+            <li><a href="#page-notes" class="tab-button active" data-tab="page-notes-tab">Page Notes</a></li>
+            <li><a href="#contact-notes" class="tab-button" data-tab="contact-notes-tab">Contact Notes</a></li>
+            <li><a href="#snippets" class="tab-button" data-tab="snippets-tab">Snippets</a></li>
+            <!-- <li><a href="#">Contact</a></li> -->
+        </ul>
+    </nav>
+
+    <!-- Sidebar / Top Control Panel -->
+    <aside class="sidebar">
+        <div class="page-notes-tab tab-content active">
+            <ul>
+                <li><button id="page-notes-save">Save</button></li>
+                <li><button>Save</button></li>
+                <li><button>Save</button></li>
+                <li><button>Save</button></li>
+            </ul>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <div class="content">
+        <div class="page-notes-tab tab-content active">
+            <h1>Page Notes</h1>
+            <!-- <textarea placeholder="Enter your text here..."></textarea> -->
+            <div id="editor">
+                <p>Hello World!</p>
+                <p>Some initial <strong>bold</strong> text</p>
+                <p><br /></p>
+              </div>
+        </div>
+        <div class="contact-notes-tab tab-content">
+            <h1>Contact Notes</h1>
+            <!-- <textarea placeholder="Enter your text here..."></textarea> -->
+            <select>
+                <option>Contact 1</option>
+                <option>Contact 2</option>
+            </select>
+            <div id="contact-notes-div">
+                <textarea class="contact-notes-textarea"></textarea>
             </div>
         </div>
-        <div id="unlocked-div" class="hidden">
-            <div class="tabs">
-                <button class="tab-button active aboutName" data-tab="about-tab">
-                    Getting Started
-                </button>
-                <button class="tab-button settingsName" data-tab="settings-tab">
-                    Settings
-                </button>
-                <button class="tab-button regexName hidden" data-tab="regex-tab">
-                    Regex
-                </button>
-                <button class="tab-button htmlName hidden" data-tab="html-tab">
-                    Html
-                </button>
-                <button id="page-notes-super-tab" class="tab-button pageNotesName" data-tab="page-notes-supertab">
-                    Page Notes
-                </button>
-                <button class="tab-button scriptName hidden" data-tab="script-tab">
-                    Script
-                </button>
-                <input type="button" value="Lock" id="lock-button" />
-            </div>
-            <div class="tab-content" id="script-tab">
-                <h2 class="scriptName"></h2>
-                <small>Save this script once (and after each update), and it should run on any page you visit.</small>
-                <textarea id="script-editor" style="width:92vw; height: 80vh;"></textarea>
-                <small>Press CTRL+Enter to Save</small>
-            </div>
-            <div class="tab-content" id="html-tab">
-
-                <div style="flex: 1; text-align: right; width: 100%">
-
-                    <textarea id="html-editor" contenteditable="true">
-&lt;style&gt; 
-.myClass { 
-  background-color: grey; 
-} 
-&lt;/style&gt; 
-&lt;p class=&quot;myClass&quot;&gt;
-  Hello &lt;b&gt;world!&lt;/b&gt;
-&lt;p&gt;
-                  </textarea>
-                    <iframe id="html-viewer">
-
-                    </iframe>
-                </div>
-                <small>As you type on the left, it will render html on the right. Javascript will not work</small>
-            </div>
-            <div class="tab-content" id="regex-tab">
-
-                <div style="flex: 1; text-align: right;">
-                    <hr>
-                    <div class="subtabs">
-                        <button class="subtab-button regexTesterName active" group="regex" data-tab="regex-subtab">
-                            Regex Tester
-                        </button>
-                        <button class="subtab-button replacerName" group="regex" data-tab="replacer-subtab">
-                            Re-placer
-                        </button>
-                    </div>
-                    <div class="subtab-content" group="regex"  id="replacer-subtab">
-                        <h1 class="replacerName">Re-placer</h1>
-                        <table id="replacerTable">
-                            <tr>
-                                <th>Find</th>
-                                <th></th>
-                                <th>Replace With</th>
-                            </tr>
-                            <tr>
-                                <td><textarea id="replacer-find" rows="1"></textarea></td>
-                                <td style="width: 82px"><input type="button" id="replacer-regex-switch" value="&lt; Switch &gt;"/></td>
-                                <td><textarea id="replacer-replace-with" rows="1"></textarea></td>
-                            </tr>
-                        </table>
-                        <input type="button" id="runReplacer" value="Replace" />
-
-                        <textarea id="replacer-input" rows="5" class="copy-block" placeholder="input"></textarea>
-                        <input id="replacer-switch" type="button" style="display: block;
-                        margin: 10px auto; /* Center the button */
-                        padding: 8px 16px;" value="^ Switch v"/>
-                        <textarea id="replacer-output" rows="5" class="copy-block" placeholder="output"></textarea>
-                    </div>
-                    <div class="subtab-content active" group="regex" id="regex-subtab">
-                        <h1 class="regexTesterName">Regex Tester</h1>
-                        <textarea id="regexCode" class="copy-block"  rows="5" placeholder="h.llo"></textarea>
-                        <br />
-                        <small>Press "Enter" to run</small>
-                        <!-- <button id="runButton">Run</button> -->
-                        <table id="regexTable">
-                            <tr>
-                                <th>To Match</th>
-                                <th>To Fail</th>
-                                <th>Hide</th>
-                            </tr>
-                            <tr id="sampleRegexRow" class="regexTest">
-                                <td><textarea class="regexTest regexMatch" rows="3" placeholder="hello"></textarea>
-                                </td>
-                                <td><textarea class="regexTest regexFail" rows="3" placeholder="hi"></textarea></td>
-                                <td>X</td>
-                            </tr>
-                        </table>
-                        <input type="button" id="addRowButton" style="margin-bottom: 10px; padding: 8px; width: 100%;" value="Add Row"/>
-                        <br>
-                        <small>Items on the left will show green when they match, items on the right will show green
-                            when they don't match</small>
-                    </div>
-                </div>
-            </div>
-            <div class="tab-content" id="page-notes-supertab">
-                <hr>
-                <div class="subtabs">
-                    <button id="page-notes-tab-button" group="page-notes" class="subtab-button hidden" data-tab="page-notes-tab">
-                        Page Note
-                    </button>
-                    <button id="new-page-notes-tab-button" group="page-notes" class="subtab-button" data-tab="page-notes-tab">
-                        New
-                    </button>
-                    <button id="open-page-notes-tab-button" group="page-notes" class="subtab-button active" data-tab="open-page-notes-tab">
-                        Open <span id="page-notes-indicator"></span>
-                    </button>
-                </div>
-                <div class="subtab-content active" group="page-notes" id="open-page-notes-tab">
-                    <!-- <h3>Search</h3> -->
-                    <input id="page-notes-search" placeholder="Search..."
-                        style="margin-bottom: 10px; padding: 8px; border: 1px solid #ccc; border-radius: 4px; width: 50%;">
-                    <p
-                        hover-text="The search here is more powerful than in the sidebar. It searches the patterns and notes (when not encrypted) as well as the titles.">
-                        <img style="width: 15px; height: auto;" src="images/info.svg" alt="Icon">
-                    </p>
-                    <br>
-                    <p class="hidden" id="no-search-results-page-notes">None found</p>
-                    <div id="page-notes-search-results">
-                        <table id="page-notes-result-table"></table>
-                    </div>
-                    <hr style="margin:10px">
-                    <div id="page-notes-matching-url">
-                        <h3>Recent Page Notes</h3>
-                        <p id="recent-page-notes">None found</p>
-                        <table id="recent-page-notes-table"></table>
-                    </div>
-                    <!-- <small class="m-3">Press "Enter" to search.</small> -->
-                </div>
-                <div class="subtab-content" group="page-notes" id="page-notes-tab">
-                    <label>Title</label>
-                    <input class="pretty-text-box" id="page-notes-title" style="width: 80vw;" />
-                    <br>
-                    <br>
-                    <label>URL Pattern</label>
-                    
-                    <div class="input-group">
-                        <textarea id="url-pattern" rows=1 style="padding: 6px; width: calc(100% - 50px); border: 1px solid #ccc; border-radius: 4px;"></textarea>
-                        <button id="open-url-pattern"
-                        hover-text="Open the first URL pattern included in a new tab.">Open</button>
-                    </div>
-                    <span class="hidden" id="page-note-id"></span>
-
-                    <br />
-                    <textarea id="page-notes-textarea" style="width: 70vw; height: 70vh;"></textarea>
-                    <br />
-                    <small>Ctrl-? for help page.</small>
-                </div>
-            </div>
-            <div class="tab-content active" id="about-tab">
-                <p>
-                    Welcome to <i class="extensionName"></i>! We aim to offer useful features ran entirely locally with
-                    optional encryption.
-                    You'll notice this extension has three views, each with its own features. This is the options view
-                    or extension
-                    tab view (<i class="open-extension-tab"></i>). If you press the <i class="extensionName"></i> icon
-                    on the upper right, you will see the popup view (<i class="_execute_action"></i>). Finally, if you
-                    open the sidebar you will see the
-                    sidebar view (<i class="open-side-panel"></i>)
-                </p>
-
-                <h3>Set Up</h3>
-                <p>
-                    Keyboard shortcuts are essential. We have taken the privelege of making some default shortcuts
-                    available to you,
-                    but we recommend you visit extension shortcut page to add one for the popup view and edit the others
-                    if you'd like.
-                    <br>
-                    &nbsp;&nbsp;&nbsp;&nbsp;1. Go to "[browser]://extensions/shortcuts".
-                    <br>
-                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Example:"edge://extensions/shortcuts"
-                    <br>
-                    &nbsp;&nbsp;&nbsp;&nbsp;2. Set the "Activate the extension" shortcut
-                    <br>
-                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Example:"Alt+E"
-                    <br><br>
-                    It is nice to be able to run <i class="clipboardName"></i> shortcuts globally (while using an app
-                    other than your browser).
-                    For the shortcut to work globally, it has to follow this pattern: Ctrl+Shft+[0-9].
-                    <br>
-                    &nbsp;&nbsp;&nbsp;&nbsp;Example: Ctrl+Shift+1
-                    <br><br>
-                    Some combinations have had issues working, so if you encounter
-                    that, just try a different one.
-                </p>
-
-                <h3>Options View</h3> (<i class="open-extension-tab"></i>)
-                <p>
-                    This is where you go for information, setting changes, and some developer tools
-                    (regex, html, js scripts)
-                    that will only show up if you have the developer mode turned on for your browser.
-                    Go to Extensions -> Developer Mode to enable it.
-                </p>
-
-                <h3>Popup View</h3> (<i class="_execute_action"></i>)
-                <p>
-                    This is where you go for the apps related to your clipboard.
-                </p>
-
-                <h3>Sidebar View</h3> (<i class="open-side-panel"></i>)
-                <p>
-                    This is where you go for <i class="pageNotesName"></i>, which allows you to make notes
-                    connected to a url or url pattern (it's regex, for the nerds out there). Perhaps you
-                    want to make a private note on a ticket or profile page, this would be the place.
-                </p>
-
-                <h3>More Info</h3>
-                <p>
-                    Data storage is set to sync using the browser's built in sync storage method.
-                    So it may work across your devices. If the information itself is necessary,
-                    KEEP A COPY SOMEWHERE ELSE. This is designed for convienence, not long-term storage.
-                </p>
-                <p>
-                    Data is encrypted with AES256 encryption using a key
-                    generated via the salted password you enter. Without the
-                    password, it is irrecoverable. There is currently no way to
-                    recover your password. If that data is set to be encrypted, then
-                    the data will always be encrypted before stored. (See settings)
-                </p>
-                <p>
-                    Some third party libraries are used. 
-                    <a href="https://github.com/Ionaru/easy-markdown-editor">easyMDE</a>
-                     which is a fork of simpleMDE which are both based on 
-                    <a href="https://codemirror.net/5/doc/manual.html">CodeMirror</a>
-                     are used for page notes. Additionally, crypto-js is used for 
-                    encryption. If I am missing any references, please email me. 
-                    easyMDE and crypto-js are downloaded and included with this, 
-                    but CodeMirror is retrieved from a CDN (I did not want to 
-                    modify the easyMDE code to change that).
-                </p>
-
-                <h3>Permissions and Privacy</h3>
-                <p>
-                    This extension does not collect any personal data. It does not track your browsing history. In fact,
-                    everything runs locally on your machine.
-                </p>
-                <p>
-                    This extension requires the following permissions (which are granted by default on install):<br>
-                    "&lt;all_urls&gt;" is required for the <i class="pageNotesName"></i> feature to work.<br>
-                    "storage" is required for the <i class="clipboardName"></i> and <i
-                        class="pageNotesName"></i> features to work.<br>
-                    "offscreen" is required for the <i class="clipboardName"></i> feature to work.<br>
-                    "clipboardWrite" and "clipboardRead" are required for the <i class="clipboardName"></i> feature to
-                    work.<br>
-                    "sidePanel" is required for the <i class="pageNotesName"></i> feature to work.<br>
-                    "tabs" is required for the <i class="pageNotesName"></i> feature to work.<br>
-                    "userScripts" is required for the <i class="scriptName"></i> feature to work.<br/>
-                    "contextMenus" has been required in the past and there are plans in the future too. <br/>
-                </p>
-
-                <h3>Contact</h3>
-                <p>To contribute, donate, ask a question, provide positive feedback, or offer a request for improvement,
-                    please contact enlace.aman@gmail.com.</p>
-                <p>To complain, please visit the local DMV and ask for John.</p>
-
-            </div>
-            <div class="tab-content" id="settings-tab">
-                <div class="statistics">
-                    <h2>Statistics</h2>
-                    <table>
-                        <tr>
-                            <th>Category</th>
-                            <th>Stored</th>
-                            <th>Limit</th>
-                        </tr>
-                        <tr>
-                            <td>Total Storage Space</td>
-                            <td><span id="total-storage-space"></span></td>
-                            <td>102400</td>
-                        </tr>
-                        <tr>
-                            <td>Total Storage Item Count</td>
-                            <td><span id="total-storage-count"></span></td>
-                            <td>512</td>
-                        </tr>
-                        <!-- <tr>
-                          <td>Page Notes Space</td>
-                          <td><span id="page-notes-space"></span></td>
-                          <td>8192</td>
-                      </tr> -->
-                        <!-- <tr>
-                            <td>Snippets Space</td>
-                            <td><span id="snippets-space"></span></td>
-                            <td>8192</td>
-                        </tr> -->
-                    </table>
-                    <small>You can delete items or turn off encryption to reduce
-                        space.</small>
-                </div>
-                <div>
-                    <h2>Page Note Config</h2>
-                    <div class="page-note-settings hidden">
-                        <textarea id="page-note-json" rows="5">
-                        </textarea>
-                        <small>Toolbar options: ["bold","italic","strikethrough","heading","code","quote","ordered-list","unordered-list","clean-block","horizontal-rule","undo","redo","link","image","preview","side-by-side","fullscreen","guide","table",]</small>
-                        <br/>
-                        <small>Status options: ["lines", "words"]</small>
-                        <br/>
-                        <button id="reset-page-note-config">Reset Config</button>
-                        <a href="https://github.com/Ionaru/easy-markdown-editor?tab=readme-ov-file#install-easymde">More
-                            Info</a>
-                    </div>
-                    <button style="margin-top: 10px" id="delete-expired-page-note-button">Delete expired page
-                        notes</button>
-                </div>
-                <!-- <div>
-                  <h2>Google Drive</h2>
-                  <p>By default, you are not signed in via Google Drive. If you choose to sign in, 
-                    then Google Drive will be used to store <i class="referencesName"></i> 
-                    (and <i class="pageNotesName"></i> in the near future).</p>
-                  <p></p>
-                  <small>Status:<span id="drive-sign-in-display">Signed out</span></small>
-                  <br>
-                  <button id="sign-in-button">Sign into Google Drive</button>
-                  <button id="sign-out-button" class="hidden">Sign out of Google Drive</button>
-                </div> -->
-                <div class="danger-zone" style="border-color:yellow; border-style: dotted;">
-                    <h2>Caution</h2>
-                    <small>Changing these could cause performance or memory issues</small>
-                    <div class="danger-option">
-                        <label for="max-char-clipboard">Max Characters for <i class="clipboardName"></i></label>
-                        <input id="max-char-clipboard" type="number">
-                    </div>
-                    <!-- <div class="danger-option">
-                        <label for="max-key-char-snippets">Max Key Characters for <i class="snippetsName"></i> </label>
-                        <input id="max-key-char-snippets" type="number">
-                    </div>
-                    <div class="danger-option">
-                        <label for="max-value-char-snippets">Max Value Characters for <i
-                                class="snippetsName"></i></label>
-                        <input id="max-value-char-snippets" type="number">
-                    </div> -->
-                    <div class="danger-option">
-                        <label for="max-title-char-page-notes">Max Title Characters for <i
-                                class="pageNotesName"></i></label>
-                        <input id="max-title-char-page-notes" type="number">
-                    </div>
-                    <div class="danger-option">
-                        <label for="max-key-char-page-notes">Max URL Characters for <i
-                                class="pageNotesName"></i></label>
-                        <input id="max-key-char-page-notes" type="number">
-                    </div>
-                    <div class="danger-option">
-                        <label for="max-value-char-page-notes">Max Notes Characters for <i
-                                class="pageNotesName"></i></label>
-                        <input id="max-value-char-page-notes" type="number">
-                    </div>
-                    <small>
-                        These numbers may appear smaller in notifications if encryption is applied. 
-                        Encryption adds an estimated 1/3 length so the max figures are reduced by 1/3.
-                    </small>
-                </div>
-                
-                <br>
-                <div class="danger-zone" style="border-color: orange; border-style: dotted;">
-                    <h2>Beware</h2>
-                    <small>Be advised that changing these may prevent you from accessing the previously stored
-                        values.</small>
-                    <h3>Encryption</h3>
-                    <div class="option">
-                        <input id="encrypt-clipboard" type="checkbox" value="encrypt-clipboard">
-                        <label for="encrypt-clipboard">Encrypt <i class="clipboardName"></i></label>
-                        <small>(Default: Yes)</small>
-                    </div>
-                    <!-- <div class="option">
-                        <input id="encrypt-snippets" type="checkbox" value="encrypt-snippets">
-                        <label for="encrypt-snippets">Encrypt <i class="snippetsName"></i></label>
-                        <small>(Default: No)</small>
-                    </div> -->
-                    <div class="option">
-                        <input id="encrypt-page-notes" type="checkbox" value="encrypt-page-notes">
-                        <label for="encrypt-page-notes">Encrypt <i class="pageNotesName"></i></label>
-                        <small>(Default: No)</small>
-                    </div>
-                    <div>
-                        <label for="encryption-algorithm"><b>Encryption Algorithm:</b></label>
-                        <select id="encryption-algorithm">
-                            <option value="DES">DES</option>
-                            <option value="AES">AES</option>
-                            <option value="3DES">TripleDES</option>
-                        </select>
-                    </div>
-                </div>
-                <br>
-                <input class="m-3" type="submit" value="Submit" id="save_settings" />
-                <br>
-                <div class="danger-zone" style="border-color: red; border-style: dotted;">
-                    <h2>Danger Zone</h2>
-                    <small>These delete your data</small>
-                    <br>
-                    <input type="button" id="reset-settings" value="Reset Settings" />
-                    <input type="button" id="reset-clipboard" value="Reset Clipboard" />
-                    <!-- <input type="button" id="reset-snippets" value="Reset Snippets" /> -->
-                    <input type="button" id="reset-page-notes" value="Reset Page Notes" />
-                    <h2>Edit All Settings As JSON</h2>
-                    <small>Don't touch this unless you know what you are doing</small>
-                    <textarea id="all-settings-json" rows="30">
-                    </textarea>
-                    <br>
-                    <button id="reset-all-settings-json">Reset Config</button>
-                    <button id="save-all-settings-json">Save Config</button>
-                </div>
-            </div>
+        <div class="snippets-tab tab-content">
+            <h1>Snippets</h1>
+            <textarea class="snippets-textarea"></textarea>
         </div>
+        <div class="about-tab tab-content">
+            <h1>About</h1>
+            
+        </div>
+        <div class="settings-tab tab-content">
+            <h1>Settings</h1>
+            
+        </div>
+    </div>
 
-        <script src="/third_party/crypto-js.min.js"></script>
-        <script src="util.js"></script>
-        <script src="standard.js"></script>
-        <script src="page-notes.js"></script>
-        <script src="options.js"></script>
+    <!-- Footer -->
+    <footer class="footer">
+        <p>&copy; 2024 Modern Web Design. All rights reserved.</p>
+    </footer>
+
+    <script src="options.js"></script>
+
+    <!-- Third Party -->
+    <script src="https://cdn.jsdelivr.net/npm/quill@2.0.2/dist/quill.js"></script>
+
+    <script>
+        const quill = new Quill('#editor', {
+          theme: 'snow'
+        });
+      </script>
+
+    <!-- <script src="util.js"></script>
+    <script src="standard.js"></script> -->
+
 </body>
-
 </html>

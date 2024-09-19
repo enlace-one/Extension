@@ -29,8 +29,6 @@ Adds a copy button beside the element
 ```html
 <h1 class="copy-on-click"></h1>
 ```
-
-
 ### .dropdown-button
 Shows/hides the following element
 ```html
@@ -38,27 +36,20 @@ Shows/hides the following element
 <div></div>
 ```
 
-# To Do 
-This is not tracked as much anymore. It is mostly moved to my ToDo app.
-+ Randomized salt
-+ Copy box
-+ Page Notes
-+ Settings for encryption, etc
-+ Intro Page
-+ Regex
-+ HTML
-+ CSS refeence 
-+ Page Notes search
-- Javascript
-- Clean up unused code
-- Python?
-- SQL?
-- Quick-Reference? So you search something like "split" and git "textafter (excel)", "textbefore (excel)", "split (python)", etc. Checkboxes for what languages you have there. 
+### Tabs
+```html
+<a class="tab-button active" data-tab="about-tab">About</a>
+<a class="tab-button" data-tab="settings-tab">Settings</a>
 
-## To Do - Maybe
-- Comparer 
-- Dark mode
-- Find&Replace
-- Clipboard combiner - harder than it seems to read from clipboard
-- Extra copy paste clipboard - harder than it seems to read from clipboard
-- Custom keyboard shortcuts? Inject javascript? 
+<div class="about-tab tab-content active"></div>
+<div class="settings-tab tab-content"></div>
+```
+
+# Code Standards
+## Naming Conventions
+Javascript functions and variables: `variableName`
+CSS Classes and IDs: `class-name`
+
+
+# Planning Questions
+How do I do contact notes/snippets? They would have no formating (at least if I want to store contact notes in the contacts themselves.)

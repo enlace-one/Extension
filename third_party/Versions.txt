@@ -1,3 +1,0 @@
-EasyMDE - 2.18.0
-Crypto.js - 4.2.0
-Highlight.js - 9.11.0

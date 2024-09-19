@@ -62,104 +62,6 @@ const variables = {
     webAppSecName: "WebAppSec"
   }
 
-/////////////////
-// Lock/Unlock //
-/////////////////
-
-const validation_salt = "Validation129"
-const storage_salt = "Enlsal294"
-
-async function getValidationSalt() {
-    var salt = await get("enlace-vs")
-    if (salt === undefined) {
-        console.log("Generating Validation Salt")
-        salt = generateRandomAlphaNumeric(10)
-        store("enlace-vs", salt)
-    }
-    return salt
-}
-
-async function getStorageSalt() {
-    var salt = await get("enlace-ss")
-    if (salt === undefined) {
-        console.log("Generating Storage Salt")
-        salt = generateRandomAlphaNumeric(10)
-        store("enlace-ss", salt)
-    }
-    return salt
-}
-
-function lock() {
-    chrome.storage.session.set({"en_locked": true});
-    showhide("locked-div");
-    showhide("unlocked-div");
-}
-
-
-async function unlock(key) {
-    const hashValidation = await hashString(key + await getValidationSalt())
-    if (hashValidation == await get("hashValidation")) {
-        // Store for unlocking
-        const hashKey = await hashString(key + await getStorageSalt())
-        chrome.storage.session.set({"en_locked": hashKey});
-        runOnUnlock()
-    } else {
-        showNotification("Incorrect password")
-        console.log("Incorrect password")
-    }
-}
-
-
-async function onStart() {
-    if (! await isLocked()) {
-        runOnUnlock()
-
-    } else {
-        const inputBox = document.getElementById("password");
-        inputBox.focus();
-    }
-}
-
-
-
-
-
-async function runOnUnlock() {
-    console.log("Unlocked")
-    // Send the event
-    const event = new Event('EnlaceUnlocked');
-    document.dispatchEvent(event);
-    // Handles the HTML
-    showhide("locked-div");
-    showhide("unlocked-div");
-    document.getElementById("password").value = "";
-
-    // Send message to service worker
-    if (navigator.serviceWorker && navigator.serviceWorker.controller) {
-        navigator.serviceWorker.controller.postMessage({
-            action: 'appStateChanged',
-            isUnlocked: true
-        });
-    } else {
-        console.log("Service worker controller is not available.");
-        navigator.serviceWorker.ready.then(function(registration) {
-            registration.active.postMessage({
-                action: 'appStateChanged',
-                isUnlocked: true
-            });
-        }).catch(function(error) {
-            console.error("Failed to send message to service worker:", error);
-        });
-    }
-}
-
-async function setPassword(key) {
-    // They will not be able to unencrypt already encrypted items
-    console.log("Setting pw")
-    const hashValidation = await hashString(key + await getValidationSalt())
-    store("hashValidation", hashValidation)
-}
-
 ///////////////
 // HTML util //
 ///////////////
@@ -182,7 +84,7 @@ function changeTabs(button) {
         button.classList.add("active");
 
         // Get the ID of the tab to show
-        const tabId = button.getAttribute("data-tab");
+        const dataTabClass = button.getAttribute("data-tab");
 
         // Hide all tab contents
         const tabContents = document.querySelectorAll(".tab-content");
@@ -191,8 +93,13 @@ function changeTabs(button) {
         });
 
         // Show the tab content with the corresponding ID
-        const tabContentToShow = document.getElementById(tabId);
-        tabContentToShow.classList.add("active");
+        const tabContentToShow = document.getElementsByClassName(dataTabClass);
+        const tabContentArray = Array.from(tabContentToShow);
+
+        // Iterate over each element and add the "active" class
+        tabContentArray.forEach(element => {
+            element.classList.add("active");
+        });
     };
 }
 
@@ -234,22 +141,6 @@ window.addEventListener("DOMContentLoaded", function() {
             element.innerHTML = variables[v];
         });
     }
-
-    onStart()
-
-    // Add Keyboard Shortcuts
-    chrome.commands.getAll(function(commands) {
-        commands.forEach(function(command) {
-            // console.log('Command: ' + command.name);
-            // console.log('Shortcut: ' + command.shortcut);
-            Array.from(document.getElementsByClassName(command.name)).forEach(element => {
-                if (element && command.shortcut) {
-                    element.innerHTML = command.shortcut
-                }
-            });
-        });
-    });
-
     /////////////////
     // Tab buttons //
     /////////////////
@@ -260,58 +151,6 @@ window.addEventListener("DOMContentLoaded", function() {
     tabButtons.forEach(function (button) {
         button.addEventListener("click", changeTabs(button));
     });
-
-    const subtabButtons = document.querySelectorAll(".subtab-button");
-    subtabButtons.forEach(function (button) {
-        button.addEventListener("click", function () {
-            // Get the subtab group from the clicked button
-            const group = button.getAttribute("group");
-
-            // Filter tab buttons by group
-            const groupButtons = document.querySelectorAll(`.subtab-button[group="${group}"]`);
-
-            // Remove 'active' class from all tab buttons in that group
-            groupButtons.forEach(function (btn) {
-                btn.classList.remove("active");
-            });
-
-            // Add 'active' class to the clicked tab button
-            button.classList.add("active");
-
-            // Get the ID of the tab to show
-            const tabId = button.getAttribute("data-tab");
-
-            // Filter tab contents by group
-            const groupContents = document.querySelectorAll(`.subtab-content[group="${group}"]`);
-
-            // Hide all tab contents of that group
-            groupContents.forEach(function (content) {
-                content.classList.remove("active");
-            });
-
-            // Show the tab content with the corresponding ID
-            const tabContentToShow = document.getElementById(tabId);
-            tabContentToShow.classList.add("active");
-        });
-    });
-
-    // Enter password on "Enter"
-    document.getElementById("password").addEventListener('keydown', async function(event) {
-        if (event.key === 'Enter') {
-            if (document.getElementById('set-reset-pw').checked) {
-                await setPassword(document.getElementById("password").value)
-                await unlock(document.getElementById("password").value)
-                document.getElementById('set-reset-pw').checked = false
-            } else {
-                await unlock(document.getElementById("password").value)
-            }
-        }
-    });
-
-    // Lock
-    document.getElementById("lock-button").addEventListener('click', async function () {
-        lock()
-    })
     
 });
 
