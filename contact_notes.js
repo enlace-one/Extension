@@ -1,12 +1,13 @@
 
-async function populateContactSelect(contact_select) {
+async function populateContactSelect() {
     const contacts = await getGoogleContacts();
 
-    contact_select.innerHTML = "";
+    contactSelect.innerHTML = "";
     
     const op1 = document.createElement('option');
-    op1.textContent = "Select a contact"
-    contact_select.appendChild(op1);
+    op1.textContent = "New Contact..."
+    op1.value = "new-contact"
+    contactSelect.appendChild(op1);
 
     // Check if there are any contacts returned
     contacts.forEach(contact => {
@@ -24,7 +25,7 @@ async function populateContactSelect(contact_select) {
             option.textContent = name;
             
             // Append the option to the select element
-            contact_select.appendChild(option);
+            contactSelect.appendChild(option);
         }
     });
 }
@@ -51,17 +52,20 @@ let currentContactEtag;
 
 let contactNotesUl
 
-let contactRefreshButton
-let contactNewContactButton
+// let contactRefreshButton
+// let contactNewContactButton
 let contactNewNoteButton
 let contactSelect
     
 
 async function selectContact() {
     resourceName = contactSelect.value
-    currentContactResourceName = resourceName
     await clearContact()
-    if (resourceName) {
+    if (resourceName == 'new-contact') {
+        return
+    }
+    currentContactResourceName = resourceName
+    if (resourceName) { // Should always be true now
         console.log("Attempting fetch of contact ", resourceName)
         contact = await getGoogleContact(resourceName);
 
@@ -84,7 +88,7 @@ async function selectContact() {
 
         currentContactNotes.value = contact.biographies?.length > 0 ? contact.biographies[0]?.value ?? "" : ""; // Notes
 
-        addNotesToList(currentContactNotes.value)
+        addContactNotesToList(currentContactNotes.value)
 
     } else {
         console.log("Blank contact selected, clearing. ", resourceName)
@@ -107,10 +111,10 @@ function clearContact() {
     currentContactBirthdayMonth.value = "";
     currentContactBirthdayYear.value = "";
 
-    addNotesToList("")
+    addContactNotesToList("")
 }
 
-function parseNoteWithFallback(note) {
+function parseContactNoteWithFallback(note) {
     const notePattern = /-\[cr:(.*?)\]\[up:(.*?)\]-\n([\s\S]*?)\n---/g;
     const parsedNotes = [];
     const todayDate = new Date().toLocaleDateString(); // Get today's date in MM/DD/YYYY format
@@ -162,20 +166,16 @@ function parseNoteWithFallback(note) {
     return parsedNotes;
 }
 
-function addBlankNote() {
-    
+function addBlankContactNote() {
+    // TODO: Add on top of list
+    addContactNoteJsonToList({
+        content: "",
+        created: new Date().toLocaleDateString(),
+        updated: new Date().toLocaleDateString()
+    }, true)
 }
 
-function addNotesToList(noteString) {
-    // Split the noteString into an array of individual note strings
-    let noteArray = parseNoteWithFallback(noteString);
-
-    // Get the contact-notes-ul element
-    const ul = contactNotesUl;
-    ul.innerHTML = ""; // Clear existing notes
-
-    // Iterate over each note and add it to the list
-    noteArray.forEach(note => {
+function addContactNoteJsonToList(note, addOnTop=false) {
         // Create a new li element
         const li = document.createElement('li');
         
@@ -198,6 +198,10 @@ function addNotesToList(noteString) {
         const updatedSpan = document.createElement('span');
         updatedSpan.classList.add('updated-timestamp');
         updatedSpan.textContent = `Updated: ${note.updated}`; // Set updated timestamp
+
+        textarea.addEventListener("change", function() {
+            updatedSpan.textContent = `Updated: ${new Date().toLocaleDateString()}`;
+        })
         
         // Append elements to the li
         timestampsDiv.appendChild(createdSpan);
@@ -206,19 +210,34 @@ function addNotesToList(noteString) {
         li.appendChild(timestampsDiv);
         
         // Append the li to the ul
-        ul.appendChild(li);
-    });
+        if (addOnTop) {
+            contactNotesUl.insertBefore(li, contactNotesUl.firstChild);
+        } else {
+            contactNotesUl.appendChild(li);
+        }
+}
+
+function addContactNotesToList(noteString) {
+    // Split the noteString into an array of individual note strings
+    let noteArray = parseContactNoteWithFallback(noteString);
+
+    // Get the contact-notes-ul element
+    contactNotesUl.innerHTML = ""; // Clear existing notes
 
     // Handle case where no notes exist
-    if (ul.children.length === 0) {
-        const emptyLi = document.createElement('li');
-        emptyLi.textContent = "No notes available.";
-        ul.appendChild(emptyLi);
+    if (noteArray.length === 0) {
+        addBlankContactNote();
+    } else {
+        // Iterate over each note and add it to the list
+        noteArray.forEach(note => {
+            addContactNoteJsonToList(note);
+        });
     }
 }
 
 
-function getNoteStringFromHTML() {
+
+function getContactNoteStringFromHTML() {
     const notesList = document.querySelectorAll('#contact-notes-ul li');
     let noteString = '';
 
@@ -239,47 +258,72 @@ function getNoteStringFromHTML() {
     return noteString.trim(); // Remove any trailing whitespace or newlines
 }
 
-// async function saveContact() {
-//     const contactNoteString = getNoteStringFromHTML();
-
-//     const resourceName = contactSelect.value
-
-//     const response = await fetch(`https://people.googleapis.com/v1/${resourceName}:updateContact?updatePersonFields=biographies`, {
-//         method: "PATCH",
-//         headers: {
-//             "Authorization": `Bearer ${googleToken}`, // Use your actual token
-//             "Content-Type": "application/json"
-//         },
-//         body: JSON.stringify({
-//             biographies: [{
-//                 value: contactNoteString,
-//                 contentType: "TEXT_PLAIN"
-//             }],
-//             etag: currentContactEtag // Include the etag here
-//         })
-//     });
-
-//     if (!response.ok) {
-//         const errorDetails = await response.text();
-//         console.error('Error updating contact:', response.statusText, errorDetails);
-//         showNotification('Error updating contact')
-//         return;
-//     }
-
-//     const updatedContact = await response.json();
-//     console.log("Updated Contact:", updatedContact);
-//     showNotification('Updated contact successfully')
-//     return updatedContact;
-// }
 async function saveContact() {
-    const contactNoteString = getNoteStringFromHTML();
-
+    const contactNoteString = getContactNoteStringFromHTML();
     const resourceName = contactSelect.value;
 
+    // Check if creating a new contact
+    if (resourceName === "new-contact") {
+        const newContactResponse = await fetch(`https://people.googleapis.com/v1/people:createContact`, {
+            method: "POST",
+            headers: {
+                "Authorization": `Bearer ${googleToken}`,
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                names: [{
+                    givenName: currentContactFirstName.value,
+                    familyName: currentContactLastName.value
+                }],
+                emailAddresses: [{
+                    value: currentContactEmail.value
+                }],
+                organizations: [{
+                    name: currentContactCompany.value,
+                    title: currentContactJobTitle.value
+                }],
+                phoneNumbers: [{
+                    value: currentContactPhone.value
+                }],
+                addresses: [{
+                    streetAddress: currentContactAddressStreet.value,
+                    city: currentContactAddressCity.value,
+                    region: currentContactAddressRegion.value,
+                    country: currentContactAddressCountry.value
+                }],
+                biographies: [{
+                    value: contactNoteString,
+                    contentType: "TEXT_PLAIN"
+                }]
+            })
+        });
+
+        if (!newContactResponse.ok) {
+            const errorDetails = await newContactResponse.text();
+            console.error('Error creating contact:', newContactResponse.statusText, errorDetails);
+            showNotification('Error creating contact');
+            return;
+        }
+
+        const createdContact = await newContactResponse.json();
+        console.log("Created Contact:", createdContact);
+        showNotification('Created contact successfully. Please wait...', 4);
+        setTimeout(async function () {
+            const option = document.createElement('option');
+            option.value = createdContact.resourceName;
+            option.textContent = createdContact.names[0].displayName || "Unnamed Contact";
+            contactSelect.appendChild(option);
+            contactSelect.value = createdContact.resourceName
+            await selectContact(); // Adjust as necessary to show the new contact
+        }, 3000)
+        return createdContact;
+    }
+
+    // Proceed with updating an existing contact
     const response = await fetch(`https://people.googleapis.com/v1/${resourceName}:updateContact?updatePersonFields=biographies,names,emailAddresses,organizations,phoneNumbers,addresses,birthdays`, {
         method: "PATCH",
         headers: {
-            "Authorization": `Bearer ${googleToken}`, // Use your actual token
+            "Authorization": `Bearer ${googleToken}`,
             "Content-Type": "application/json"
         },
         body: JSON.stringify({
@@ -307,11 +351,6 @@ async function saveContact() {
                 region: currentContactAddressRegion.value,
                 country: currentContactAddressCountry.value
             }],
-            // birthdays: [{
-            //     day: currentContactBirthdayDay.value,
-            //     month: currentContactBirthdayMonth.value,
-            //     year: currentContactBirthdayYear.value
-            // }],
             etag: currentContactEtag // Include the etag here
         })
     });
@@ -326,10 +365,11 @@ async function saveContact() {
     const updatedContact = await response.json();
     console.log("Updated Contact:", updatedContact);
     showNotification('Updated contact successfully');
-    selectContact()
+    selectContact();
 
     return updatedContact;
 }
+
 
 
 
@@ -350,19 +390,15 @@ Note contents
 document.addEventListener("googleDriveSignIn", function() {
     console.log("Running GoogleDriveSignIn")
 
-    populateContactSelect(contactSelect)
-
-    contactRefreshButton.addEventListener("click", function() {
-        populateContactSelect(contactSelect)
-        clearContact()
-        showNotification("Refreshed Contacts")
-    })
+    populateContactSelect()
 
     contactSelect.addEventListener("change", function() {
         selectContact()
     })
 
     contactSaveButton.addEventListener("click", saveContact)
+
+    contactNewNoteButton.addEventListener("click", addBlankContactNote)
 
 })
 
@@ -389,9 +425,9 @@ window.addEventListener("DOMContentLoaded", function() {
     contactNotesUl = document.getElementById('contact-notes-ul');
     
 
-    contactRefreshButton = document.getElementById("contact-notes-refresh");
+    // contactRefreshButton = document.getElementById("contact-notes-refresh");
     contactSaveButton = document.getElementById("contact-notes-save")
-    contactNewContactButton = document.getElementById("contact-notes-new-contact")
+    // contactNewContactButton = document.getElementById("contact-notes-new-contact")
     contactNewNoteButton = document.getElementById("contact-notes-new-note")
     contactSelect = document.getElementById("contact-select");
 })

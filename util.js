@@ -133,7 +133,7 @@ async function generateRandomAlphaNumeric(length) {
   return result;
 }
 
-function showNotification(message, seconds = 1) {
+function showNotification(message, seconds = 2) {
   const notification = document.createElement("div");
   notification.classList.add("tooltiptext");
   notification.style = "visibility: visible; opacity: 1; display: block; z-index: 1;";

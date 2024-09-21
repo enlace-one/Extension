@@ -19,6 +19,7 @@
 
 .tab-button.active {
   border-color: var(--accent-color);
+  border-bottom: 1px solid var(--accent-color);
 }
 
 /*********/
@@ -84,6 +85,22 @@
 
 .hidden {
   display: none;
+}
+
+.tooltiptext {
+  visibility: hidden;
+  opacity: 0;
+  color: white;
+  background-color: grey;
+  text-align: center;
+  border-radius: 6px;
+  padding: 7px 10px;
+  position: fixed;
+  bottom: 0%;
+  left: 50%;
+  transform: translateX(-50%);
+  transition: opacity 0.3s, visibility 0.3s;
+  width: 100vw;
 }
 
 
@@ -187,9 +204,9 @@ button:active {
 /* Adjustments for smaller screens */
 @media (max-width: 700px) {
   button {
-    padding: 6px 12px; /* Smaller padding for smaller screens */
-    font-size: 12px; /* Smaller font size */
-    width: 60px; /* Smaller width */
+    padding: 4px 10px; /* Smaller padding for smaller screens */
+    font-size: 10px; /* Smaller font size */
+    /* width: 60px; Smaller width */
     margin: 0 4px; /* Less margin */
   }
 }

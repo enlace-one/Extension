@@ -52,8 +52,8 @@
         .top-menu ul li a {
             color: white;
             text-decoration: none;
-            padding: 0.5rem;
             transition: background 0.3s;
+            padding-bottom: .5rem;
         }
 
         .top-menu ul li a:hover {
@@ -65,7 +65,7 @@
             position: fixed;
             left: 0;
             top: 2rem; /* Push below top menu */
-            width: 200px;
+            width: 150px;
             height: calc(100% - 2rem);
             background-color: #333;
             color: white;
@@ -103,7 +103,7 @@
 
         /* Main Content */
         .content {
-            margin-left: 200px;
+            margin-left: 150px;
             padding: 6rem 2rem 2rem;
             flex-grow: 1;
             transition: margin-left 0.3s;
@@ -153,26 +153,33 @@
         }
 
         @media screen and (max-width: 768px) {
-    .sidebar {
-        width: 100%;
-        z-index: 1;
-        height: auto;
-        top: 3rem; /* Push below top menu */
-        padding: 1rem;
-        text-align: center;
-    }
+            .sidebar {
+                width: 100%;
+                z-index: 1;
+                height: auto;
+                top: 3rem; /* Push below top menu */
+                padding: 1rem;
+                text-align: center;
+            }
 
-    .sidebar ul {
-        display: flex;
-        justify-content: center;
-        gap: 1rem;
-    }
+            .sidebar ul {
+                display: flex;
+                justify-content: center;
+                gap: 1rem;
+            }
 
-    .content {
-        margin-left: 0;
-        padding: 10rem 1rem 2rem; /* Increase top padding to push content below the sidebar */
-    }
-}
+            .content {
+                margin-left: 0;
+                padding: 10rem 1rem 2rem; /* Increase top padding to push content below the sidebar */
+            }
+
+            h1 {
+                display: none;
+            }
+            h2 {
+                display: none;
+            }
+        }
 
     /* .content textarea {
         width: 90%;
@@ -202,7 +209,7 @@
     </nav>
 
     <!-- Sidebar / Top Control Panel -->
-    <aside class="sidebar">
+    <aside class="sidebar flex-container" style="justify-content: center;">
         <button id="sign-in-button">Sign in</button>
         <div class="page-notes-tab tab-content active">
             <ul>
@@ -212,12 +219,10 @@
                 <li><button>Save</button></li>
             </ul>
         </div>
-        <div class="contact-notes-tab tab-content active">
+        <div class="contact-notes-tab tab-content">
             <ul>
                 <li><button id="contact-notes-save">Save</button></li>
                 <li><button id="contact-notes-new-note">Add Note</button></li>
-                <li><button id="contact-notes-new-contact">Add Contact</button></li>
-                <li><button id="contact-notes-refresh">Refresh</button></li>
             </ul>
         </div>
     </aside>
@@ -238,22 +243,15 @@
             <!-- <textarea placeholder="Enter your text here..."></textarea> -->
             <div id="contact-notes-div" class="flex-container">
                 <div class="flex-item flex-container-1-column">
+                    <select id="contact-select">
+                    </select>
                     <ul id="contact-notes-ul">
                         <li>
-                            <textarea placeholder="Contact note..." class="contact-notes-textarea"></textarea>
-                            <div class="timestamps">
-                                <span class="created-timestamp"></span>
-                                <span class="updated-timestamp"></span>
-                            </div>
+                            
                         </li>
                     </ul>
                 </div>
                 <div class="flex-item" id="contact-details-div">
-
-                    <select id="contact-select">
-                    </select>
-
-
                     <div class="input-container">
                         <input id="contact-first-name" type="text" placeholder=" " required />
                         <label for="contact-first-name">First Name</label>
