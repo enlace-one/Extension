@@ -6,6 +6,8 @@ Most code runs after this is done.
 Some code runs after this if it is dependent on the modifications to JS in the first event.
 ### tabsChanged
 This is what to watch for URL changes. 
+### googleDriveSignIn
+This occurs when GoogleDrive is signed into
 
 ## Custom Classes and Attributes
 ### [show-hide-class-on-click]

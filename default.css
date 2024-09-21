@@ -3,6 +3,7 @@
 /*************/
 :root {
   --accent-color: #3498db;
+  --background-color: #f4f4f4;
 }
 
 /********/
@@ -20,7 +21,71 @@
   border-color: var(--accent-color);
 }
 
-/* Modern button design */
+/*********/
+/* Grids */
+/*********/
+
+.grid-container {
+  display: grid;
+}
+
+.grid-container-1-column {
+  grid-template-columns: auto;
+}
+
+.grid-container-2-column {
+  grid-template-columns: auto auto;
+}
+
+/*****************/
+/* General Style */
+/*****************/
+/* Input container */
+.input-container {
+  position: relative;
+  margin: 20px 0;
+}
+
+/* Input styles */
+input {
+  width: 100%;
+  padding: 5px 5px 5px 5px; /* Padding for input */
+  border: 2px solid #ccc;
+  border-radius: 4px;
+  outline: none;
+  font-size: 14px;
+  transition: border-color 0.3s;
+  background-color: white; /* Ensure a solid background */
+}
+
+input:focus {
+  border-color: var(--accent-color, #6200ea); /* Change border color on focus */
+}
+
+/* Label styles */
+label {
+  position: absolute;
+  top: 12px; /* Positioning inside the input */
+  left: 12px;
+  font-size: 16px;
+  color: #999; /* Default label color */
+  transition: 0.3s;
+  pointer-events: none; /* Prevent label from blocking input */
+  background-color: var(--background-color); /* Match background of input */
+  padding: 0 4px; /* Padding to cover the border */
+}
+
+/* Label focus and non-empty state */
+input:focus + label,
+input:not(:placeholder-shown) + label {
+  top: -10px; /* Move label up */
+  left: 12px; /* Maintain left position */
+  font-size: 12px; /* Smaller font size */
+  color: var(--accent-color, #6200ea); /* Color change on focus */
+}
+
+/* 
+/* Modern button design 
 button {
   display: inline-block;
   padding: 12px 24px;
@@ -43,5 +108,40 @@ button:hover {
 
 button:active {
   transform: scale(0.95);
+} */
+
+/* Modern button design */
+button {
+  display: inline-block;
+  padding: 8px 16px; /* Smaller padding */
+  margin: 0 8px; /* Slightly smaller margin */
+  font-size: 14px; /* Smaller font size */
+  font-weight: 600;
+  color: #fff;
+  background-color: var(--accent-color);
+  border: 2px solid var(--accent-color);
+  border-radius: 6px; /* Slightly smaller border radius */
+  cursor: pointer;
+  transition: background-color 0.3s, color 0.3s, transform 0.2s;
+  width: 100px; /* Fixed width for uniformity */
 }
 
+button:hover {
+  background-color: var(--accent-color);
+  color: #fff;
+  transform: scale(1.05);
+}
+
+button:active {
+  transform: scale(0.95);
+}
+
+/* Adjustments for smaller screens */
+@media (max-width: 600px) {
+  button {
+    padding: 6px 12px; /* Smaller padding for smaller screens */
+    font-size: 12px; /* Smaller font size */
+    width: 80px; /* Smaller width */
+    margin: 0 4px; /* Less margin */
+  }
+}

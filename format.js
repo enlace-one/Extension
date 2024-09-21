@@ -7,6 +7,14 @@ function exampleFunc() {
     
 }
 
+///////////////////////
+// GoogleDriveSignIn //
+///////////////////////
+
+document.addEventListener("googleDriveSignIn", function() {
+    
+})
+
 //////////////////////
 // DOMContentLoaded //
 //////////////////////

@@ -38,28 +38,13 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
 // Set Variables //
 ///////////////////
 const variables = {
-    extensionName: "Page Notes",
-    extensionShortName: "PN",
-    clipboardName: "Clipbox",
+    extensionName: "Enlace Notes",
+    extensionShortName: "EN",
     snippetsName: "Snippets",
     pageNotesName: "Page Notes",
+    contactsName: "Contact Notes",
     settingsName: "Settings",
-    aboutName: "Getting Started",
-    regexName: "Regex",
-    regexTesterName: "Regex Tester",
-    replacerName: "Re-placer",
-    htmlName: "Html",
-    pwGeneratorName: "Password Generator",
-    ppGeneratorName: "Pass Phrases",
-    generatorName: "Generator",
-    cookiesName: "Cookies",
-    pageSettingsName: "Site Settings",
-    webRequestsName: "Requests",
-    referencesName: "References",
-    scriptName: "Script",
-    regexSearchName: "re-Search",
-    tocName: "TOC", 
-    webAppSecName: "WebAppSec"
+    aboutName: "About",
   }
 
 ///////////////

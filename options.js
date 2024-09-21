@@ -38,17 +38,10 @@ function changeTabs(button) {
 //////////////////////
 
 window.addEventListener("DOMContentLoaded", function() {
-    ////////////////////////
-    // Do the tab changes //
-    ////////////////////////
-    exampleDocumentElement = document.getElementById("example")
-
-
-    // Get all tab buttons
-    const tabButtons = document.querySelectorAll(".tab-button");
-    // Add click event listener to each tab button
-    tabButtons.forEach(function (button) {
-        button.addEventListener("click", changeTabs(button));
+    
+    
+    const quill = new Quill('#editor', {
+        theme: 'snow'
     });
 
 

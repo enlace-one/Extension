@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Modern Layout with Responsive Sidebar</title>
+    <title class="extensionName">Enlace Notes</title>
     <link rel="stylesheet" href="default.css" />
 
     <!-- Third Party -->
@@ -19,7 +19,7 @@
 
         body {
             font-family: 'Arial', sans-serif;
-            background-color: #f4f4f4;
+            background-color: var(--background-color);
             color: #333;
             display: flex;
             flex-direction: column;
@@ -115,15 +115,15 @@
             font-size: 2rem;
         }
 
-        .content textarea {
+        /* .content textarea {
             width: 90%;
             height: 300px;
             padding: 1rem;
             border: 1px solid #ccc;
             border-radius: 8px;
             resize: none;
-            /* font-size: 1.2rem; */
-        }
+            /* font-size: 1.2rem; 
+        } */
 
         /* Footer */
         .footer {
@@ -155,8 +155,9 @@
         margin-left: 0;
         padding: 10rem 1rem 2rem; /* Increase top padding to push content below the sidebar */
     }
+}
 
-    .content textarea {
+    /* .content textarea {
         width: 90%;
     }
 }
@@ -166,7 +167,7 @@
             .content textarea {
                 width: 100%;
             }
-        }
+        } */
     </style>
 </head>
 <body>
@@ -174,17 +175,18 @@
     <!-- Top Menu -->
     <nav class="top-menu">
         <ul>
-            <li><a href="#about" class="tab-button" data-tab="about-tab">About</a></li>
-            <li><a href="#settings" class="tab-button" data-tab="settings-tab">Settings</a></li>
-            <li><a href="#page-notes" class="tab-button active" data-tab="page-notes-tab">Page Notes</a></li>
-            <li><a href="#contact-notes" class="tab-button" data-tab="contact-notes-tab">Contact Notes</a></li>
-            <li><a href="#snippets" class="tab-button" data-tab="snippets-tab">Snippets</a></li>
+            <li><a href="#about" class="tab-button aboutName" data-tab="about-tab">About</a></li>
+            <li><a href="#settings" class="tab-button settingsName" data-tab="settings-tab">Settings</a></li>
+            <li><a href="#page-notes" class="tab-button active pageNotesName" data-tab="page-notes-tab">Page Notes</a></li>
+            <li><a href="#contact-notes" class="tab-button contactsName" data-tab="contact-notes-tab">Contact Notes</a></li>
+            <li><a href="#snippets" class="tab-button snippetsName" data-tab="snippets-tab">Snippets</a></li>
             <!-- <li><a href="#">Contact</a></li> -->
         </ul>
     </nav>
 
     <!-- Sidebar / Top Control Panel -->
     <aside class="sidebar">
+        <button id="sign-in-button">Sign in</button>
         <div class="page-notes-tab tab-content active">
             <ul>
                 <li><button id="page-notes-save">Save</button></li>
@@ -193,12 +195,18 @@
                 <li><button>Save</button></li>
             </ul>
         </div>
+        <div class="contact-notes-tab tab-content active"></div>
+            <ul>
+                <li><button id="contact-notes-save">Save</button></li>
+                <li><button id="contact-notes-refresh">Refresh</button></li>
+            </ul>
+        </div>
     </aside>
 
     <!-- Main Content -->
     <div class="content">
         <div class="page-notes-tab tab-content active">
-            <h1>Page Notes</h1>
+            <h1 class="pageNotesName">Page Notes</h1>
             <!-- <textarea placeholder="Enter your text here..."></textarea> -->
             <div id="editor">
                 <p>Hello World!</p>
@@ -207,45 +215,105 @@
               </div>
         </div>
         <div class="contact-notes-tab tab-content">
-            <h1>Contact Notes</h1>
+            <h1 class="contactsName">Contact Notes</h1>
             <!-- <textarea placeholder="Enter your text here..."></textarea> -->
-            <select>
-                <option>Contact 1</option>
-                <option>Contact 2</option>
-            </select>
-            <div id="contact-notes-div">
-                <textarea class="contact-notes-textarea"></textarea>
+            <div id="contact-notes-div" class="grid-container">
+                <div class="grid-container-1-column">
+                    <select id="contact-select">
+                    </select>
+                    <textarea class="contact-notes-textarea"></textarea>
+                </div>
+                <div id="contact-details-div">
+                    <table>
+                        <tr>
+                            <td>First Name</td>
+                            <td><input id="contact-first-name" type="text" /></td>
+                        </tr>
+                        <tr>
+                            <td>Last Name</td>
+                            <td><input id="contact-last-name" type="text" /></td>
+                        </tr>
+                        <tr>
+                            <td>Email Address</td>
+                            <td><input id="contact-email" type="email" /></td>
+                        </tr>
+                        <tr>
+                            <td>Company</td>
+                            <td><input id="contact-company" type="text" /></td>
+                        </tr>
+                        <tr>
+                            <td>Job Title</td>
+                            <td><input id="contact-job-title" type="text" /></td>
+                        </tr>
+                        <tr>
+                            <td>Phone Number</td>
+                            <td><input id="contact-phone" type="tel" /></td>
+                        </tr>
+                        <tr>
+                            <td>Address Street</td>
+                            <td><input id="contact-address-street" type="text" /></td>
+                        </tr>
+                        <tr>
+                            <td>Address City</td>
+                            <td><input id="contact-address-city" type="text" /></td>
+                        </tr>
+                        <tr>
+                            <td>Address State/Region</td>
+                            <td><input id="contact-address-region" type="text" /></td>
+                        </tr>
+                        <tr>
+                            <td>Address country</td>
+                            <td><input id="contact-address-country" type="text" /></td>
+                        </tr>
+                        <tr>
+                            <td>Birthday Day</td>
+                            <td><input id="contact-birthday-day" /></td>
+                        </tr>
+                        <tr>
+                            <td>Birthday Month</td>
+                            <td><input id="contact-birthday-month" /></td>
+                        </tr>
+                        <tr>
+                            <td>Birthday Year</td>
+                            <td><input id="contact-birthday-year" /></td>
+                        </tr>
+                        <!-- <tr>
+                            <td>Notes</td>
+                            <td><textarea id="contact-notes"></textarea></td>
+                        </tr> -->
+                    </table>                   
+                </div>
             </div>
         </div>
         <div class="snippets-tab tab-content">
-            <h1>Snippets</h1>
+            <h1 class="snippetsName">Snippets</h1>
             <textarea class="snippets-textarea"></textarea>
         </div>
         <div class="about-tab tab-content">
-            <h1>About</h1>
+            <h1 class="aboutName">About</h1>
             
         </div>
         <div class="settings-tab tab-content">
-            <h1>Settings</h1>
+            <h1 class="settingsName">Settings</h1>
             
         </div>
     </div>
 
     <!-- Footer -->
     <footer class="footer">
-        <p>&copy; 2024 Modern Web Design. All rights reserved.</p>
+        <p></p>
     </footer>
 
+    <script src="util.js"></script>
+    <script src="standard.js"></script>
+    <script src="api_google.js"></script>
     <script src="options.js"></script>
+    <script src="contact_notes.js"></script>
+    
+    
 
     <!-- Third Party -->
-    <script src="https://cdn.jsdelivr.net/npm/quill@2.0.2/dist/quill.js"></script>
-
-    <script>
-        const quill = new Quill('#editor', {
-          theme: 'snow'
-        });
-      </script>
+    <script src="third_party/quill.js"></script>
 
     <!-- <script src="util.js"></script>
     <script src="standard.js"></script> -->
