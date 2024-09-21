@@ -125,22 +125,6 @@
             /* font-size: 1.2rem; 
         } */
 
-        .contact-notes-textarea {
-            width: 100%;
-            height: 150px;
-            padding: 1rem;
-            border: 1px solid #ccc;
-            border-radius: 8px;
-        }
-
-        #contact-notes-ul {
-            width: 100%
-        }
-
-        .created-timestamp {
-            padding-right: 5px;
-        }
-
         /* Footer */
         .footer {
             background-color: #333;
@@ -179,6 +163,28 @@
             h2 {
                 display: none;
             }
+
+            /* CONTACT NOTES */
+            .contact-notes-textarea {
+                width: 100%;
+                height: 150px;
+                padding: 1rem;
+                border: 1px solid #ccc;
+                border-radius: 8px;
+            }
+
+            #contact-notes-ul {
+                width: 100%
+            }
+
+            .created-timestamp {
+                padding-right: 5px;
+            }
+
+            /* PAGE NOTES
+            #page-notes-editor {
+                background: white;
+            } */
         }
 
     /* .content textarea {
@@ -214,9 +220,9 @@
         <div class="page-notes-tab tab-content active">
             <ul>
                 <li><button id="page-notes-save">Save</button></li>
-                <li><button>Save</button></li>
-                <li><button>Save</button></li>
-                <li><button>Save</button></li>
+                <li><button>Open</button></li>
+                <!-- <li><button>Delete</button></li>
+                <li><button>Save</button></li> -->
             </ul>
         </div>
         <div class="contact-notes-tab tab-content">
@@ -232,11 +238,24 @@
         <div class="page-notes-tab tab-content active">
             <h1 class="pageNotesName">Page Notes</h1>
             <!-- <textarea placeholder="Enter your text here..."></textarea> -->
-            <div id="editor">
-                <p>Hello World!</p>
-                <p>Some initial <strong>bold</strong> text</p>
-                <p><br /></p>
-              </div>
+            <div class="input-container">
+                <input id="page-notes-url" type="text" placeholder="" />
+                <label for="page-notes-url">URL</label>
+            </div>
+            <div id="page-notes-editor">
+                
+            </div>
+            <div class="timestamps" style="padding-top:10px">
+                Created: <span id="page-notes-created-timestamp">
+                    
+                </span>
+                Updated: <span id="page-notes-updated-timestamp">
+                    
+                </span>
+                ID: <span id="page-notes-id">
+
+                </span>
+            </div>
         </div>
         <div class="contact-notes-tab tab-content">
             <h1 class="contactsName">Contact Notes</h1>
@@ -344,6 +363,7 @@
     <script src="api_google.js"></script>
     <script src="options.js"></script>
     <script src="contact_notes.js"></script>
+    <script src="page_notes.js"></script>
     
     
 

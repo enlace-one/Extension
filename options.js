@@ -39,12 +39,6 @@ function changeTabs(button) {
 
 window.addEventListener("DOMContentLoaded", function() {
     
-    
-    const quill = new Quill('#editor', {
-        theme: 'snow'
-    });
-
-
 
 })
 

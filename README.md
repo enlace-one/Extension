@@ -51,6 +51,7 @@ Shows/hides the following element
 ## Naming Conventions
 Javascript functions and variables: `variableName`
 CSS Classes and IDs: `class-name`
+File Names: `page_notes`
 
 
 # Planning Questions
