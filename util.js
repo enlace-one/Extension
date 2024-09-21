@@ -136,7 +136,7 @@ async function generateRandomAlphaNumeric(length) {
 function showNotification(message, seconds = 1) {
   const notification = document.createElement("div");
   notification.classList.add("tooltiptext");
-  notification.style = "visibility: visible; opacity: 1; display: block;";
+  notification.style = "visibility: visible; opacity: 1; display: block; z-index: 1;";
   notification.textContent = message;
   document.body.appendChild(notification);
 

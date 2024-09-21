@@ -125,6 +125,22 @@
             /* font-size: 1.2rem; 
         } */
 
+        .contact-notes-textarea {
+            width: 100%;
+            height: 150px;
+            padding: 1rem;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+        }
+
+        #contact-notes-ul {
+            width: 100%
+        }
+
+        .created-timestamp {
+            padding-right: 5px;
+        }
+
         /* Footer */
         .footer {
             background-color: #333;
@@ -139,6 +155,7 @@
         @media screen and (max-width: 768px) {
     .sidebar {
         width: 100%;
+        z-index: 1;
         height: auto;
         top: 3rem; /* Push below top menu */
         padding: 1rem;
@@ -195,9 +212,11 @@
                 <li><button>Save</button></li>
             </ul>
         </div>
-        <div class="contact-notes-tab tab-content active"></div>
+        <div class="contact-notes-tab tab-content active">
             <ul>
                 <li><button id="contact-notes-save">Save</button></li>
+                <li><button id="contact-notes-new-note">Add Note</button></li>
+                <li><button id="contact-notes-new-contact">Add Contact</button></li>
                 <li><button id="contact-notes-refresh">Refresh</button></li>
             </ul>
         </div>
@@ -217,71 +236,89 @@
         <div class="contact-notes-tab tab-content">
             <h1 class="contactsName">Contact Notes</h1>
             <!-- <textarea placeholder="Enter your text here..."></textarea> -->
-            <div id="contact-notes-div" class="grid-container">
-                <div class="grid-container-1-column">
+            <div id="contact-notes-div" class="flex-container">
+                <div class="flex-item flex-container-1-column">
+                    <ul id="contact-notes-ul">
+                        <li>
+                            <textarea placeholder="Contact note..." class="contact-notes-textarea"></textarea>
+                            <div class="timestamps">
+                                <span class="created-timestamp"></span>
+                                <span class="updated-timestamp"></span>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+                <div class="flex-item" id="contact-details-div">
+
                     <select id="contact-select">
                     </select>
-                    <textarea class="contact-notes-textarea"></textarea>
-                </div>
-                <div id="contact-details-div">
-                    <table>
-                        <tr>
-                            <td>First Name</td>
-                            <td><input id="contact-first-name" type="text" /></td>
-                        </tr>
-                        <tr>
-                            <td>Last Name</td>
-                            <td><input id="contact-last-name" type="text" /></td>
-                        </tr>
-                        <tr>
-                            <td>Email Address</td>
-                            <td><input id="contact-email" type="email" /></td>
-                        </tr>
-                        <tr>
-                            <td>Company</td>
-                            <td><input id="contact-company" type="text" /></td>
-                        </tr>
-                        <tr>
-                            <td>Job Title</td>
-                            <td><input id="contact-job-title" type="text" /></td>
-                        </tr>
-                        <tr>
-                            <td>Phone Number</td>
-                            <td><input id="contact-phone" type="tel" /></td>
-                        </tr>
-                        <tr>
-                            <td>Address Street</td>
-                            <td><input id="contact-address-street" type="text" /></td>
-                        </tr>
-                        <tr>
-                            <td>Address City</td>
-                            <td><input id="contact-address-city" type="text" /></td>
-                        </tr>
-                        <tr>
-                            <td>Address State/Region</td>
-                            <td><input id="contact-address-region" type="text" /></td>
-                        </tr>
-                        <tr>
-                            <td>Address country</td>
-                            <td><input id="contact-address-country" type="text" /></td>
-                        </tr>
-                        <tr>
-                            <td>Birthday Day</td>
-                            <td><input id="contact-birthday-day" /></td>
-                        </tr>
-                        <tr>
-                            <td>Birthday Month</td>
-                            <td><input id="contact-birthday-month" /></td>
-                        </tr>
-                        <tr>
-                            <td>Birthday Year</td>
-                            <td><input id="contact-birthday-year" /></td>
-                        </tr>
-                        <!-- <tr>
-                            <td>Notes</td>
-                            <td><textarea id="contact-notes"></textarea></td>
-                        </tr> -->
-                    </table>                   
+
+
+                    <div class="input-container">
+                        <input id="contact-first-name" type="text" placeholder=" " required />
+                        <label for="contact-first-name">First Name</label>
+                    </div>
+                    
+                    <div class="input-container">
+                        <input id="contact-last-name" type="text" required placeholder=" " />
+                        <label for="contact-last-name">Last Name</label>
+                    </div>
+                    
+                    <div class="input-container">
+                        <input id="contact-email" type="email" required placeholder=" " />
+                        <label for="contact-email">Email Address</label>
+                    </div>
+                    
+                    <div class="input-container">
+                        <input id="contact-company" type="text" required placeholder=" " />
+                        <label for="contact-company">Company</label>
+                    </div>
+                    
+                    <div class="input-container">
+                        <input id="contact-job-title" type="text" required placeholder=" " />
+                        <label for="contact-job-title">Job Title</label>
+                    </div>
+                    
+                    <div class="input-container">
+                        <input id="contact-phone" type="tel" required placeholder=" " />
+                        <label for="contact-phone">Phone Number</label>
+                    </div>
+                    
+                    <div class="input-container">
+                        <input id="contact-address-street" type="text" required placeholder=" " />
+                        <label for="contact-address-street">Address Street</label>
+                    </div>
+                    
+                    <div class="input-container">
+                        <input id="contact-address-city" type="text" required placeholder=" " />
+                        <label for="contact-address-city">Address City</label>
+                    </div>
+                    
+                    <div class="input-container">
+                        <input id="contact-address-region" type="text" required placeholder=" " />
+                        <label for="contact-address-region">Address State/Region</label>
+                    </div>
+                    
+                    <div class="input-container">
+                        <input id="contact-address-country" type="text" required placeholder=" " />
+                        <label for="contact-address-country">Address Country</label>
+                    </div>
+                    
+                    <div class="input-container">
+                        <input id="contact-birthday-day" type="text" required placeholder=" " />
+                        <label for="contact-birthday-day">Birthday Day</label>
+                    </div>
+                    
+                    <div class="input-container">
+                        <input id="contact-birthday-month" type="text" required placeholder=" " />
+                        <label for="contact-birthday-month">Birthday Month</label>
+                    </div>
+                    
+                    <div class="input-container">
+                        <input id="contact-birthday-year" type="text" required placeholder=" " />
+                        <label for="contact-birthday-year">Birthday Year</label>
+                    </div>
+                                      
                 </div>
             </div>
         </div>

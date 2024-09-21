@@ -30,59 +30,107 @@
 }
 
 .grid-container-1-column {
+  display: grid;
   grid-template-columns: auto;
 }
 
 .grid-container-2-column {
+  display: grid;
   grid-template-columns: auto auto;
 }
+
+/* Flex Containers */
+
+.flex-container {
+  display: flex;                /* Enable Flexbox */
+  flex-wrap: wrap;             /* Allow items to wrap onto the next line */
+  justify-content: space-between; /* Space between items */
+}
+
+.flex-item {
+  flex: 1;                     /* Each item takes equal space */
+  margin: 10px;               /* Space between items */
+  min-width: 300px;           /* Minimum width for items */
+  box-sizing: border-box;      /* Include padding and border in width/height */
+  padding: 20px;              /* Padding inside each item */
+  background-color: var(--background-color);
+  border: 1px solid #ccc;      /* Border for visibility */
+}
+
+/* Media query for small screens */
+@media (max-width: 600px) {
+  .flex-container {
+      flex-direction: column;   /* Stack items vertically */
+      align-items: center;      /* Center items if needed */
+  }
+}
+
+.flex-container-1-column {
+  display: flex;                /* Enable Flexbox */
+  flex-wrap: wrap;             /* Allow items to wrap onto the next line */
+  flex-direction: column;   /* Stack items vertically */
+  align-items: center;      /* Center items if needed */
+}
+
+/* .flex-item {
+  flex: 1; /* Optional: Makes items take equal space 
+  margin: 5px; /* Optional: Adds space between items 
+} */
+
+
+/****************/
+/* Custom Stuff */
+/****************/
+
+.hidden {
+  display: none;
+}
+
 
 /*****************/
 /* General Style */
 /*****************/
+
+
 /* Input container */
 .input-container {
-  position: relative;
-  margin: 20px 0;
+  position: relative; /* Ensures the label positions correctly */
+  margin-bottom: 1rem; /* Space between inputs */
 }
 
-/* Input styles */
-input {
-  width: 100%;
-  padding: 5px 5px 5px 5px; /* Padding for input */
-  border: 2px solid #ccc;
+.input-container input {
+  font-size: 12px; /* Smaller font size */
+  padding: 5px 5px; /* Sufficient padding for touch */
+  border: 1px solid #ccc;
   border-radius: 4px;
-  outline: none;
-  font-size: 14px;
-  transition: border-color 0.3s;
-  background-color: white; /* Ensure a solid background */
+  width: 100%; /* Full width */
+  transition: all 0.2s;
+  background-color: var(--background-color);
+
 }
 
-input:focus {
-  border-color: var(--accent-color, #6200ea); /* Change border color on focus */
-}
-
-/* Label styles */
-label {
-  position: absolute;
-  top: 12px; /* Positioning inside the input */
-  left: 12px;
-  font-size: 16px;
-  color: #999; /* Default label color */
-  transition: 0.3s;
+.input-container label {
+  font-size: 12px; /* Smaller label font size */
+  position: absolute; /* Position absolutely */
+  left: 12px; /* Space from the left */
+  top: 50%; /* Center vertically */
+  transform: translateY(-50%); /* Center adjustment */
+  color: #999; /* Light gray color */
+  transition: 0.2s; /* Smooth transition */
   pointer-events: none; /* Prevent label from blocking input */
-  background-color: var(--background-color); /* Match background of input */
-  padding: 0 4px; /* Padding to cover the border */
+  background-color: var(--background-color);
+  padding-left: 3px;
+  padding-right: 3px;
 }
 
-/* Label focus and non-empty state */
 input:focus + label,
 input:not(:placeholder-shown) + label {
-  top: -10px; /* Move label up */
-  left: 12px; /* Maintain left position */
-  font-size: 12px; /* Smaller font size */
-  color: var(--accent-color, #6200ea); /* Color change on focus */
+  top: 0; /* Move label up */
+  left: 10px; /* Move label inwards */
+  font-size: 10px; /* Smaller label font size */
+  color: var(--accent-color); /* Accent color on focus */
 }
+
 
 /* 
 /* Modern button design 
@@ -137,11 +185,32 @@ button:active {
 }
 
 /* Adjustments for smaller screens */
-@media (max-width: 600px) {
+@media (max-width: 700px) {
   button {
     padding: 6px 12px; /* Smaller padding for smaller screens */
     font-size: 12px; /* Smaller font size */
-    width: 80px; /* Smaller width */
+    width: 60px; /* Smaller width */
     margin: 0 4px; /* Less margin */
   }
 }
+
+select {
+  width: 100%; /* Full width */
+  padding: 10px; /* Padding for better touch targets */
+  font-size: 14px; /* Increase font size */
+  border: 2px solid #ccc; /* Border color */
+  margin-bottom: 10px;
+  border-radius: 5px; /* Rounded corners */
+  background-repeat: no-repeat;
+  background-position: right 10px center; /* Position the arrow */
+  appearance: none; /* Remove default styling */
+  outline: none; /* Remove outline */
+  transition: border-color 0.3s; /* Smooth transition */
+}
+
+
+ul {
+  list-style-type: none; /* Removes bullets from unordered lists */
+}
+
+

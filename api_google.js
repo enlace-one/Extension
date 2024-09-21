@@ -18,6 +18,7 @@ async function onGoogleDriveSignIn(token) {
     const event = new CustomEvent('googleDriveSignIn', { detail: { googleToken: token} });
     console.log("Firing googleDriveSignIn")
     document.dispatchEvent(event);
+    document.getElementById('sign-in-button').classList.add("hidden")
 }
 
   function getGoogleToken() {

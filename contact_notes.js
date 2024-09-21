@@ -3,8 +3,10 @@ async function populateContactSelect(contact_select) {
     const contacts = await getGoogleContacts();
 
     contact_select.innerHTML = "";
-
-    contact_select.appendChild(document.createElement('option'));
+    
+    const op1 = document.createElement('option');
+    op1.textContent = "Select a contact"
+    contact_select.appendChild(op1);
 
     // Check if there are any contacts returned
     contacts.forEach(contact => {
@@ -44,17 +46,26 @@ let currentContactBirthdayYear;
 
 let currentContactNotes = {'value': ''}
 
+let currentContactResourceName;
+let currentContactEtag;
+
+let contactNotesUl
 
 let contactRefreshButton
+let contactNewContactButton
+let contactNewNoteButton
 let contactSelect
     
 
-async function selectContact(contact_select) {
-    resourceName = contact_select.value
+async function selectContact() {
+    resourceName = contactSelect.value
+    currentContactResourceName = resourceName
     await clearContact()
     if (resourceName) {
         console.log("Attempting fetch of contact ", resourceName)
         contact = await getGoogleContact(resourceName);
+
+        currentContactEtag = contact.etag
 
         // Set Attributes
         currentContactFirstName.value = contact.names?.length > 0 ? contact.names[0]?.givenName ?? "" : "";
@@ -73,6 +84,7 @@ async function selectContact(contact_select) {
 
         currentContactNotes.value = contact.biographies?.length > 0 ? contact.biographies[0]?.value ?? "" : ""; // Notes
 
+        addNotesToList(currentContactNotes.value)
 
     } else {
         console.log("Blank contact selected, clearing. ", resourceName)
@@ -95,7 +107,240 @@ function clearContact() {
     currentContactBirthdayMonth.value = "";
     currentContactBirthdayYear.value = "";
 
+    addNotesToList("")
 }
+
+function parseNoteWithFallback(note) {
+    const notePattern = /-\[cr:(.*?)\]\[up:(.*?)\]-\n([\s\S]*?)\n---/g;
+    const parsedNotes = [];
+    const todayDate = new Date().toLocaleDateString(); // Get today's date in MM/DD/YYYY format
+
+    let match;
+    let lastIndex = 0; // Track the position of the last match
+
+    // Use a while loop to match notes in the string
+    while ((match = notePattern.exec(note)) !== null) {
+        // Check for any text between lastIndex and the start of the current match (unformatted content)
+        if (lastIndex < match.index) {
+            const unformattedContent = note.slice(lastIndex, match.index).trim();
+            if (unformattedContent) {
+                parsedNotes.push({
+                    created: todayDate,
+                    updated: todayDate,
+                    content: unformattedContent
+                });
+            }
+        }
+
+        // Extract the created date, updated date, and content from the current match
+        const createdDate = match[1];
+        const updatedDate = match[2];
+        const content = match[3].trim();
+
+        parsedNotes.push({
+            created: createdDate,
+            updated: updatedDate,
+            content: content
+        });
+
+        // Update lastIndex to the end of the matched content
+        lastIndex = notePattern.lastIndex;
+    }
+
+    // Check for any leftover content after the last match (if there was unmatched content)
+    if (lastIndex < note.length) {
+        const leftoverContent = note.slice(lastIndex).trim();
+        if (leftoverContent) {
+            parsedNotes.push({
+                created: todayDate,
+                updated: todayDate,
+                content: leftoverContent
+            });
+        }
+    }
+
+    return parsedNotes;
+}
+
+function addBlankNote() {
+    
+}
+
+function addNotesToList(noteString) {
+    // Split the noteString into an array of individual note strings
+    let noteArray = parseNoteWithFallback(noteString);
+
+    // Get the contact-notes-ul element
+    const ul = contactNotesUl;
+    ul.innerHTML = ""; // Clear existing notes
+
+    // Iterate over each note and add it to the list
+    noteArray.forEach(note => {
+        // Create a new li element
+        const li = document.createElement('li');
+        
+        // Create a textarea element for the note content
+        const textarea = document.createElement('textarea');
+        textarea.classList.add('contact-notes-textarea');
+        textarea.placeholder = "Contact note...";
+        textarea.value = note.content; // Set the content
+        
+        // Create the div for timestamps
+        const timestampsDiv = document.createElement('div');
+        timestampsDiv.classList.add('timestamps');
+        
+        // Create the span for created timestamp
+        const createdSpan = document.createElement('span');
+        createdSpan.classList.add('created-timestamp');
+        createdSpan.textContent = `Created: ${note.created}`; // Set created timestamp
+        
+        // Create the span for updated timestamp
+        const updatedSpan = document.createElement('span');
+        updatedSpan.classList.add('updated-timestamp');
+        updatedSpan.textContent = `Updated: ${note.updated}`; // Set updated timestamp
+        
+        // Append elements to the li
+        timestampsDiv.appendChild(createdSpan);
+        timestampsDiv.appendChild(updatedSpan);
+        li.appendChild(textarea);
+        li.appendChild(timestampsDiv);
+        
+        // Append the li to the ul
+        ul.appendChild(li);
+    });
+
+    // Handle case where no notes exist
+    if (ul.children.length === 0) {
+        const emptyLi = document.createElement('li');
+        emptyLi.textContent = "No notes available.";
+        ul.appendChild(emptyLi);
+    }
+}
+
+
+function getNoteStringFromHTML() {
+    const notesList = document.querySelectorAll('#contact-notes-ul li');
+    let noteString = '';
+
+    notesList.forEach(noteItem => {
+        const textarea = noteItem.querySelector('textarea');
+        const createdTimestamp = noteItem.querySelector('.created-timestamp').textContent.replace("Created: ", "").trim();
+        const updatedTimestamp = noteItem.querySelector('.updated-timestamp').textContent.replace("Updated: ", "").trim();
+        
+        const noteContent = textarea.value.trim();
+        if (noteContent) {
+            // Format each note string
+            noteString += `-[cr:${createdTimestamp}][up:${updatedTimestamp}]-\n`;
+            noteString += `${noteContent}\n`;
+            noteString += '---\n'; // End note separator
+        }
+    });
+
+    return noteString.trim(); // Remove any trailing whitespace or newlines
+}
+
+// async function saveContact() {
+//     const contactNoteString = getNoteStringFromHTML();
+
+//     const resourceName = contactSelect.value
+
+//     const response = await fetch(`https://people.googleapis.com/v1/${resourceName}:updateContact?updatePersonFields=biographies`, {
+//         method: "PATCH",
+//         headers: {
+//             "Authorization": `Bearer ${googleToken}`, // Use your actual token
+//             "Content-Type": "application/json"
+//         },
+//         body: JSON.stringify({
+//             biographies: [{
+//                 value: contactNoteString,
+//                 contentType: "TEXT_PLAIN"
+//             }],
+//             etag: currentContactEtag // Include the etag here
+//         })
+//     });
+
+//     if (!response.ok) {
+//         const errorDetails = await response.text();
+//         console.error('Error updating contact:', response.statusText, errorDetails);
+//         showNotification('Error updating contact')
+//         return;
+//     }
+
+//     const updatedContact = await response.json();
+//     console.log("Updated Contact:", updatedContact);
+//     showNotification('Updated contact successfully')
+//     return updatedContact;
+// }
+async function saveContact() {
+    const contactNoteString = getNoteStringFromHTML();
+
+    const resourceName = contactSelect.value;
+
+    const response = await fetch(`https://people.googleapis.com/v1/${resourceName}:updateContact?updatePersonFields=biographies,names,emailAddresses,organizations,phoneNumbers,addresses,birthdays`, {
+        method: "PATCH",
+        headers: {
+            "Authorization": `Bearer ${googleToken}`, // Use your actual token
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+            biographies: [{
+                value: contactNoteString,
+                contentType: "TEXT_PLAIN"
+            }],
+            names: [{
+                givenName: currentContactFirstName.value,
+                familyName: currentContactLastName.value
+            }],
+            emailAddresses: [{
+                value: currentContactEmail.value
+            }],
+            organizations: [{
+                name: currentContactCompany.value,
+                title: currentContactJobTitle.value
+            }],
+            phoneNumbers: [{
+                value: currentContactPhone.value
+            }],
+            addresses: [{
+                streetAddress: currentContactAddressStreet.value,
+                city: currentContactAddressCity.value,
+                region: currentContactAddressRegion.value,
+                country: currentContactAddressCountry.value
+            }],
+            // birthdays: [{
+            //     day: currentContactBirthdayDay.value,
+            //     month: currentContactBirthdayMonth.value,
+            //     year: currentContactBirthdayYear.value
+            // }],
+            etag: currentContactEtag // Include the etag here
+        })
+    });
+
+    if (!response.ok) {
+        const errorDetails = await response.text();
+        console.error('Error updating contact:', response.statusText, errorDetails);
+        showNotification('Error updating contact');
+        return;
+    }
+
+    const updatedContact = await response.json();
+    console.log("Updated Contact:", updatedContact);
+    showNotification('Updated contact successfully');
+    selectContact()
+
+    return updatedContact;
+}
+
+
+
+
+/*
+Note Format
+
+-[cr:9/21/2024][up:9/21/2024]-
+Note contents
+---
+*/
 
 
 ///////////////////////
@@ -109,12 +354,15 @@ document.addEventListener("googleDriveSignIn", function() {
 
     contactRefreshButton.addEventListener("click", function() {
         populateContactSelect(contactSelect)
+        clearContact()
         showNotification("Refreshed Contacts")
     })
 
     contactSelect.addEventListener("change", function() {
-        selectContact(contactSelect)
+        selectContact()
     })
+
+    contactSaveButton.addEventListener("click", saveContact)
 
 })
 
@@ -137,9 +385,14 @@ window.addEventListener("DOMContentLoaded", function() {
     currentContactBirthdayDay = document.getElementById("contact-birthday-day");
     currentContactBirthdayMonth = document.getElementById("contact-birthday-month");
     currentContactBirthdayYear = document.getElementById("contact-birthday-year");
+
+    contactNotesUl = document.getElementById('contact-notes-ul');
     
 
     contactRefreshButton = document.getElementById("contact-notes-refresh");
+    contactSaveButton = document.getElementById("contact-notes-save")
+    contactNewContactButton = document.getElementById("contact-notes-new-contact")
+    contactNewNoteButton = document.getElementById("contact-notes-new-note")
     contactSelect = document.getElementById("contact-select");
 })
 
