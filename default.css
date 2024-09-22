@@ -84,7 +84,7 @@
 /****************/
 
 .hidden {
-  display: none;
+  display: none !important; /* Make the display property important */
 }
 
 .tooltiptext {
@@ -228,6 +228,16 @@ select {
 
 ul {
   list-style-type: none; /* Removes bullets from unordered lists */
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+th, td {
+  padding: 8px;
+  text-align: left;
+  border-bottom: 1px solid #ddd;
 }
 
 

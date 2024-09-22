@@ -170,9 +170,8 @@ async function updateGoogleContact(resourceName, newName) {
 //         return createFolder(token, folderName, parentFolderId)
 //     }
 // }
-
 async function createGoogleFile(fileName, fileData) {
-    token = getGoogleToken()
+    const token = getGoogleToken();
 
     // File data to be uploaded
     const blobData = new Blob([fileData], { type: 'text/plain' });
@@ -188,7 +187,7 @@ async function createGoogleFile(fileName, fileData) {
     let formData = new FormData();
 
     // Add the metadata and file data to the form
-    formData.append('metadata', new Blob([JSON.stringify(fileMetadata)], {type: 'application/json'}));
+    formData.append('metadata', new Blob([JSON.stringify(fileMetadata)], { type: 'application/json' }));
     formData.append('file', blobData);
 
     // Create the fetch options
@@ -200,12 +199,26 @@ async function createGoogleFile(fileName, fileData) {
         body: formData
     };
 
-    // Send the request
-    fetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart', options)
-        .then(response => response.json())
-        .then(data => console.log(data))
-        .catch(error => console.error('Error:', error));
+    try {
+        // Send the request and log the full response
+        const response = await fetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart', options);
+        const data = await response.text();  // Read as text to catch non-JSON errors
+        // console.log("Full response body:", data);
+
+        // Parse response only if successful
+        if (response.ok) {
+            return JSON.parse(data).id;
+        } else {
+            throw new Error(`Error: ${data}`);
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        return null;
+    }
 }
+
+
+
 
 async function updateGoogleFile(fileId, fileData) {
     token = getGoogleToken()
@@ -237,7 +250,7 @@ async function updateGoogleFile(fileId, fileData) {
 }
 
 async function listGoogleFiles() {
-    token = getGoogleToken()
+    const token = getGoogleToken();
 
     // Create the fetch options
     const options = {
@@ -248,8 +261,8 @@ async function listGoogleFiles() {
         }
     };
 
-    // Send the request
-    return fetch(`https://www.googleapis.com/drive/v3/files?q='${folderId}'+in+parents`, options)
+    // Send the request to list files in the appData folder
+    return fetch(`https://www.googleapis.com/drive/v3/files?spaces=appDataFolder`, options)
         .then(response => response.json())
         .then(data => {
             if (data.files) {
@@ -263,11 +276,9 @@ async function listGoogleFiles() {
             return [];
         });
 }
+async function searchGoogleFile(fileName) {
+    const token = getGoogleToken();
 
-
-async function _searchFile(fileName) {
-    token = getGoogleToken()
-    // Returns file id or null if not found
     // Create the fetch options
     const options = {
         method: 'GET',
@@ -277,26 +288,58 @@ async function _searchFile(fileName) {
         }
     };
 
+    // Correctly format the query
+    const query = `name = '${fileName}'`;
+
+    const url = `https://www.googleapis.com/drive/v3/files?spaces=appDataFolder&q=${encodeURIComponent(query)}`
+    console.log(url)
     // Send the request
-    return fetch(`https://www.googleapis.com/drive/v3/files?q='${folderId}'+in+parents+and+name='${fileName}'`, options)
+    return fetch(url, options)
         .then(response => response.json())
         .then(data => {
             if (data.files && data.files.length > 0) {
-                return data.files[0].id;
+                return data.files[0].id;  // Return the ID of the first file found
             } else {
-                return null;
+                return null;  // Return null if no files found
             }
         })
         .catch(error => {
             console.error('Error:', error);
-            return null;
+            return null;  // Return null in case of an error
         });
 }
-async function getGoogleFile(fileId) {
-    token = getGoogleToken()
 
-    // Returns file data as a blob
-    // Create the fetch options
+
+// async function getGoogleFile(fileId) {
+//     const token = getGoogleToken();
+
+//     const options = {
+//         method: 'GET',
+//         headers: {
+//             'Authorization': `Bearer ${token}`,
+//             'Content-Type': 'application/json',
+//         }
+//     };
+
+//     return fetch(`https://www.googleapis.com/drive/v3/files/${fileId}?alt=media`, options)
+//         .then(response => {
+//             if (!response.ok) {
+//                 throw new Error(`Error fetching file: ${response.status} ${response.statusText}`);
+//             }
+//             return response.blob();
+//         })
+//         .then(blob => {
+//             return blob;
+//         })
+//         .catch(error => {
+//             console.error('Error:', error);
+//             return null;
+//         });
+// }
+async function getGoogleFile(fileId) {
+    const token = getGoogleToken();
+
+    // Fetch the file data as a blob from Google Drive
     const options = {
         method: 'GET',
         headers: {
@@ -305,50 +348,109 @@ async function getGoogleFile(fileId) {
         }
     };
 
-    // Send the request
+    // Fetch file data from Google Drive
     return fetch(`https://www.googleapis.com/drive/v3/files/${fileId}?alt=media`, options)
-        .then(response => response.blob())
-        .then(blob => {
-            return blob;
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`Failed to fetch file with ID ${fileId}: ${response.statusText}`);
+            }
+            return response
         })
         .catch(error => {
-            console.error('Error:', error);
+            console.error('Error fetching file:', error);
             return null;
         });
 }
 
-async function searchAndReturnGoogleFile(fileName) {
-    token = getGoogleToken()
-    // Returns file data as a blob
-    // Search for the file
-    const fileId = await _searchFile(fileName);
-    if (fileId) {
-        const blob = await getGoogleFile(fileId);
+async function getGoogleFileJSON(fileId) {
+    const fileContents = await getGoogleFile(fileId);
 
-        return new Promise((resolve, reject) => {
-            const reader = new FileReader();
-            reader.onloadend = function() {
-                resolve(reader.result);
-            }
-            reader.onerror = reject;
-            reader.readAsText(blob);
-        });
-    } else {
-        return null;
+    // Convert the Blob to text
+    const fileText = await fileContents.text();
+    console.log(`Raw File Contents for ${fileId}:`, fileText);
+
+    // Strip text down to the first and last curly braces if needed
+    let trimmedText = fileText.trim();
+    if (!(trimmedText.startsWith('{') && trimmedText.endsWith('}'))) {
+        console.log("File needs trimming!")
+        const firstBraceIndex = trimmedText.indexOf('{');
+        const lastBraceIndex = trimmedText.lastIndexOf('}');
+        if (firstBraceIndex !== -1 && lastBraceIndex !== -1) {
+            trimmedText = trimmedText.substring(firstBraceIndex, lastBraceIndex + 1);
+        }
+        console.log("Trimmed File contents:", trimmedText)
+    }
+
+    // Parse and log the contents as JSON, if it's JSON data
+    try {
+        return JSON.parse(trimmedText);
+    } catch (error) {
+        console.error("Error parsing JSON:", error);
+        return null;  // Return null if parsing fails
     }
 }
+
+
+
+
+async function deleteAllAppDataFiles() {
+    try {
+        const files = await listGoogleFiles()
+
+        if (files.length === 0) {
+            console.log('No files found in appDataFolder.');
+            return;
+        }
+
+        // Step 2: Delete each file in the `appDataFolder`
+        for (const file of files) {
+            await deleteGoogleFile(file.id);
+            console.log(`Deleted file with ID: ${file.id}`);
+        }
+
+        console.log('All files in appDataFolder have been deleted.');
+    } catch (error) {
+        console.error('Error deleting files:', error);
+    }
+}
+
+// Helper function to delete a file by ID
+async function deleteGoogleFile(fileId) {
+    const token = getGoogleToken();
+
+    const deleteOptions = {
+        method: 'DELETE',
+        headers: {
+            'Authorization': `Bearer ${token}`,
+        },
+    };
+
+    try {
+        const deleteResponse = await fetch(`https://www.googleapis.com/drive/v3/files/${fileId}`, deleteOptions);
+
+        if (!deleteResponse.ok) {
+            throw new Error(`Failed to delete file with ID ${fileId}: ${deleteResponse.statusText}`);   
+        } else {
+            return true
+        }
+
+    } catch (error) {
+        console.error('Error deleting file:', error);
+    }
+}
+
+
 
 async function createGoogleFileIfNotExists(fileName) {
     // Returns file ID
     // Search for the file
-    const file = await _searchFile( fileName);
+    const file = await searchGoogleFile( fileName);
     if (file) {
         return file.id;
     } else {
         return await createGoogleFile(fileName, "").id;
     }
 }
-
 
 
 

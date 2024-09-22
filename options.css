@@ -1,0 +1,173 @@
+/* General Styles */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Arial', sans-serif;
+    background-color: var(--background-color);
+    color: #333;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+/* Top Menu */
+.top-menu {
+    position: fixed;
+    top: 0;
+    width: 100%;
+    background-color: #333;
+    color: white;
+    padding: 1rem;
+    text-align: center;
+    z-index: 10;
+}
+
+.top-menu ul {
+    list-style: none;
+    display: flex;
+    justify-content: center;
+    gap: 2rem;
+}
+
+.top-menu ul li {
+    display: inline;
+}
+
+.top-menu ul li a {
+    color: white;
+    text-decoration: none;
+    transition: background 0.3s;
+    padding-bottom: .5rem;
+}
+
+.top-menu ul li a:hover {
+    background-color: #575757;
+}
+
+/* Sidebar Styles */
+.sidebar {
+    position: fixed;
+    left: 0;
+    top: 2rem; /* Push below top menu */
+    width: 150px;
+    height: calc(100% - 2rem);
+    background-color: #333;
+    color: white;
+    padding: 1rem;
+    overflow: auto;
+    transition: all 0.3s;
+}
+
+.sidebar h2 {
+    margin-bottom: 2rem;
+    font-size: 1.5rem;
+    text-align: center;
+}
+
+.sidebar ul {
+    list-style: none;
+}
+
+.sidebar ul li {
+    margin: 1rem 0;
+}
+
+.sidebar ul li a {
+    color: white;
+    text-decoration: none;
+    display: block;
+    padding: 0.5rem;
+    border-radius: 4px;
+    transition: background 0.3s;
+}
+
+.sidebar ul li a:hover {
+    background-color: #575757;
+}
+
+/* Main Content */
+.content {
+    margin-left: 150px;
+    padding: 6rem 2rem 2rem;
+    flex-grow: 1;
+    transition: margin-left 0.3s;
+    text-align: center;
+}
+
+.content h1 {
+    margin-bottom: 2rem;
+    font-size: 2rem;
+}
+
+/* .content textarea {
+    width: 90%;
+    height: 300px;
+    padding: 1rem;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    resize: none;
+    /* font-size: 1.2rem; 
+} */
+
+/* Footer */
+.footer {
+    background-color: #333;
+    color: white;
+    text-align: center;
+    padding: 1rem;
+    position: relative;
+    bottom: 0;
+    width: 100%;
+}
+
+@media screen and (max-width: 768px) {
+    .sidebar {
+        width: 100%;
+        z-index: 1;
+        height: auto;
+        top: 3rem; /* Push below top menu */
+        padding: 1rem;
+        text-align: center;
+    }
+
+    .sidebar ul {
+        display: flex;
+        justify-content: center;
+        gap: 1rem;
+    }
+
+    .content {
+        margin-left: 0;
+        padding: 10rem 1rem 2rem; /* Increase top padding to push content below the sidebar */
+    }
+
+    h1 {
+        display: none;
+    }
+    h2 {
+        display: none;
+    }
+
+    
+}
+
+/* CONTACT NOTES */
+.contact-notes-textarea {
+        width: 100%;
+        height: 150px;
+        padding: 1rem;
+        border: 1px solid #ccc;
+        border-radius: 8px;
+    }
+
+    #contact-notes-ul {
+        width: 100%
+    }
+
+    .created-timestamp {
+        padding-right: 5px;
+    }
