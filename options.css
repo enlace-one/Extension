@@ -171,3 +171,55 @@ body {
     .created-timestamp {
         padding-right: 5px;
     }
+
+
+.saved {
+    color: green
+}
+
+.unsaved {
+    color: darkorange
+}
+
+.about-tab {
+    text-align: left;
+    font-size: medium;
+}
+
+.about-tab h2,h3,h4,h5 {
+    padding-bottom: 5px;
+    padding-top: 10px
+}
+
+.about-tab li {
+    /* text-indent: 20px; */
+    
+    list-style-type: auto;
+   
+}
+
+.about-tab ul, ol {
+    padding-left: 30px;   /* Adds padding to the entire list */
+    list-style-position: outside; /* Ensures the bullet or number is outside the padding */
+  }
+
+.truncate {
+    white-space: nowrap;          /* Prevent text from wrapping to a new line */
+    overflow: hidden;             /* Hide overflowing text */
+    text-overflow: ellipsis;      /* Display ellipsis (...) for overflow */
+    width: 100%;                  /* Set the width to 100% of the container */
+    max-width: 100%;              /* Ensure it doesn't exceed the container's width */
+  }
+  
+  @media (max-width: 768px) {
+    .truncate {
+      max-width: 80%;             /* Reduce the max-width for smaller screens */
+    }
+  }
+  
+  @media (max-width: 480px) {
+    .truncate {
+      max-width: 60%;             /* Further reduce the max-width on very small screens */
+    }
+  }
+  

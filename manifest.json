@@ -1,13 +1,18 @@
 {
   "name": "Enlace Notes",
   "description": "A note-taking application that can integrate with URLs and Google Contacts.",
-  "version": "1.0",
+  "version": "1.1",
   "manifest_version": 3,
-  "icons": {"1": "ea_128.png"},
+  "icons": {
+    "16": "icons/icon16.png",
+    "32": "icons/icon32.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  },
   "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEArSeqv88fOHJTriSBbvfCvfqmBDMwDmq1SBv0B0iPLwPzi3LGkJK3AsVSPz1qrLaXhMN+oeEo5jcocbq7d31WlqNnVk6uWXxem3mJK5HMu5vZ0bX4i5ihNKX3+6XBWwr8ml/XU6WxpG+ISx8380TMfd56nkSzuZzwSpUYW7cQ680n4tJA1DQXAWX7G+KY5cV9wsu6xlkh6cdUy8036M3BFKA9vZoNLQDHW1RcoZtQQjj2dyc2rs6OqyKeOKS24Zlz8cOB+h4pWBU0/vwgD5Ev/VF0bzUanMp+V6vTh/GUiKSLIjrQN6X4y9sNH8uZkhu5m1qpwDl25UsY5evgHMDnSQIDAQAB",
   "action": {
     "default_popup": "popup.html",
-    "default_icon": "ea_128.png"
+    "default_icon": "icons/icon128.png"
   },
   "side_panel": {
     "default_path": "sidepanel.html"
@@ -17,7 +22,7 @@
     "scopes":["https://www.googleapis.com/auth/contacts", "https://www.googleapis.com/auth/drive.file", "https://www.googleapis.com/auth/drive.appdata"]
   },
   "options_page": "options.html",
-  "permissions": ["identity", "userScripts", "webRequest", "contextMenus", "storage", "offscreen", "clipboardWrite","clipboardRead", "sidePanel", "tabs", "scripting", "cookies"],
+  "permissions": ["identity", "storage", "clipboardWrite","clipboardRead", "sidePanel", "tabs"],
   "host_permissions": [
     "*://*/*"
   ],

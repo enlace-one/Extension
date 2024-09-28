@@ -58,19 +58,52 @@
   border: 1px solid #ccc;      /* Border for visibility */
 }
 
-/* Media query for small screens */
-@media (max-width: 600px) {
-  .flex-container {
-      flex-direction: column;   /* Stack items vertically */
-      align-items: center;      /* Center items if needed */
-  }
-}
+
 
 .flex-container-1-column {
   display: flex;                /* Enable Flexbox */
   flex-wrap: wrap;             /* Allow items to wrap onto the next line */
   flex-direction: column;   /* Stack items vertically */
   align-items: center;      /* Center items if needed */
+}
+
+.flex-container-2-column {
+  display: flex;                /* Enable Flexbox */
+  flex-wrap: wrap;             /* Allow items to wrap onto the next line */ 
+  align-items: center;      /* Center items if needed */
+  gap: 20px;   
+}
+
+/* Select all direct children of elements with class */
+.flex-container-2-column > * {
+  flex: 1 1 45%;                /* Ensure each item takes up roughly 45% of the container width */
+  min-width: 300px; 
+}
+
+.flex-container-3-column {
+  display: flex;                /* Enable Flexbox */
+  flex-wrap: wrap;             /* Allow items to wrap onto the next line */ 
+  align-items: center;      /* Center items if needed */  
+}
+
+/* Select all direct children of elements with class */
+.flex-container-3-column > * {
+  flex: 1 1 30%;                /* Ensure each item takes up roughly 45% of the container width */
+  min-width: 200px; 
+}
+
+/* Media query for small screens */
+@media (max-width: 600px) {
+  .flex-container {
+      flex-direction: column;   /* Stack items vertically */
+      align-items: center;      /* Center items if needed */
+  }
+  .flex-container-2-column > * {
+    display: flex;                /* Enable Flexbox */
+    flex-wrap: wrap;             /* Allow items to wrap onto the next line */ 
+    align-items: center;      /* Center items if needed */
+    gap: 0px;   
+  }
 }
 
 /* .flex-item {
@@ -103,11 +136,94 @@
   width: 100vw;
 }
 
+@media (max-width: 600px) {
+  .hide-on-small-screens {
+    display: none;
+  }
+}
+
+
+.green-ball {
+  display: inline-block;  /* Makes sure the span or pseudo-element takes up space */
+  width: 10px;            /* Diameter of the ball */
+  height: 10px;           /* Diameter of the ball */
+  background-color: green; /* Green color */
+  border-radius: 50%;     /* Turns it into a circle */
+  margin-right: 5px;      /* Optional: space between the ball and the text */
+  vertical-align: middle; /* Aligns the ball vertically with the text */
+}
+
+.orange-ball {
+  display: inline-block;  /* Makes sure the span or pseudo-element takes up space */
+  width: 10px;            /* Diameter of the ball */
+  height: 10px;           /* Diameter of the ball */
+  background-color: darkorange !important; /* Green color */
+  border-radius: 50%;     /* Turns it into a circle */
+  margin-right: 5px;      /* Optional: space between the ball and the text */
+  vertical-align: middle; /* Aligns the ball vertically with the text */
+}
+
+/* Tool Tips */
+
+
+.tooltiptext {
+  visibility: hidden;
+  opacity: 0;
+  color: white;
+  background-color: grey;
+  text-align: center;
+  border-radius: 6px;
+  padding: 7px 10px;
+  position: fixed;
+  bottom: 0%;
+  left: 50%;
+  transform: translateX(-50%);
+  transition: opacity 0.3s, visibility 0.3s;
+  width: 100vw;
+}
+
+.hover-text-trigger {
+  position: relative;
+  display: inline-block;
+}
+
+.hover-text-trigger:hover .tooltiptext {
+  visibility: visible;
+  opacity: 1;
+  display: block;
+  z-index: 1000;
+}
+
+.blue-text {
+  color: var(--accent-color)
+}
+
+.bottom-right {
+  position: fixed;
+    bottom: 5px;
+    right: 0;
+    z-index: 9999;
+}
+
 
 /*****************/
 /* General Style */
 /*****************/
 
+input[type="button"] {
+  /* background-color: #4CAF50;    Green background */
+  /* color: white;                 White text */
+  /* border: none;                 Remove default border */
+  padding: 3px;           /* Add padding */
+  /* font-size: 16px;              Adjust font size */
+  /* border-radius: 5px;           /* Rounded corners */
+  /* cursor: pointer;              Pointer cursor on hover */ 
+  transition: background-color 0.3s ease;
+}
+
+/* input[type="button"]:hover {
+  transform: scale(1.05);
+} */
 
 /* Input container */
 .input-container {

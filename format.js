@@ -1,7 +1,24 @@
-/////////////
-// Example //
-/////////////
+///////////////////////
+// Naming Convention //
+///////////////////////
+// 
+//
+// CSS 
+// All IDs/Classes begin with:
+//
+// JavaScript
+// All Global function/variables begin with:
+//
+
+///////////////
+// Variables //
+///////////////
 const exampleVar = 1;
+
+///////////////
+// Functions //
+///////////////
+
 var exampleDocumentElement;
 function exampleFunc() {
     

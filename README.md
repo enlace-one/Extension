@@ -56,3 +56,9 @@ File Names: `page_notes`
 
 # Planning Questions
 How do I do contact notes/snippets? They would have no formating (at least if I want to store contact notes in the contacts themselves.)
+
+# Tools
+Image Resizer: https://alexleybourne.github.io/chrome-extension-icon-generator/
+
+# Other
+Logo font: Rage Italic

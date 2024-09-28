@@ -15,20 +15,23 @@
     <!-- Top Menu -->
     <nav class="top-menu">
         <ul>
-            <li><a href="#about" class="tab-button aboutName" data-tab="about-tab">About</a></li>
+            <li><a href="#about" class="tab-button aboutName active" data-tab="about-tab">About</a></li>
             <li class="hidden"><a href="#settings" class="tab-button settingsName" data-tab="settings-tab">Settings</a></li>
-            <li><a href="#page-notes" class="tab-button active pageNotesName" data-tab="page-notes-tab">Page Notes</a></li>
-            <li><a href="#contact-notes" class="tab-button contactsName" data-tab="contact-notes-tab">Contact Notes</a></li>
+            <li><a href="#page-notes" class="tab-button pageNotesName hidden" data-tab="page-notes-tab">Page Notes</a></li>
+            <li><a href="#contact-notes" class="tab-button contactsName hidden" data-tab="contact-notes-tab">Contact Notes</a></li>
             <li class="hidden"><a href="#snippets" class="tab-button snippetsName" data-tab="snippets-tab">Snippets</a></li>
             <li class="hidden"><a href="#page-notes-open" class="tab-button" data-tab="page-notes-open-tab">Open Page Note</a></li>
+            <li class="hidden"><a href="#contact-notes-open" class="tab-button" data-tab="contact-notes-open-tab">Open Contacts</a></li>
             <!-- <li><a href="#">Contact</a></li> -->
         </ul>
     </nav>
 
     <!-- Sidebar / Top Control Panel -->
     <aside class="sidebar flex-container" style="justify-content: center;">
-        <button id="sign-in-button">Sign in</button>
-        <div class="page-notes-tab tab-content active">
+        <div>
+            <button id="sign-in-button">Sign in</button>
+        </div>
+        <div class="page-notes-tab tab-content">
             <ul>
                 <li><button id="page-notes-save">Save</button></li>
                 <li><button id="page-notes-open">Open</button></li>
@@ -40,6 +43,9 @@
         <div class="contact-notes-tab tab-content">
             <ul>
                 <li><button id="contact-notes-save">Save</button></li>
+                <li><button id="contact-notes-open">Open</button></li>
+                <li><button id="contact-notes-new-contact">New</button></li>
+                <hr>
                 <li><button id="contact-notes-new-note">Add Note</button></li>
             </ul>
         </div>
@@ -56,23 +62,37 @@
                 <tr>
                     <th>Title</th>
                     <th>URL</th>
-                    <th>Updated</th>
+                    <th class="hide-on-small-screens">Updated</th>
                     <th>Created</th>
-                    <th>Delete</th>
+                    <th class="hide-on-small-screens">Delete</th>
                 </tr>
 
             </table>
         </div>
-        <div class="page-notes-tab tab-content active">
+        <div class="page-notes-tab tab-content">
             <h1 class="pageNotesName">Page Notes</h1>
             <!-- <textarea placeholder="Enter your text here..."></textarea> -->
             <div class="input-container">
                 <input id="page-notes-title" type="text" placeholder="" style="font-size:16px"/>
                 <label for="page-notes-title">Title</label>
             </div>
-            <div class="input-container">
-                <input id="page-notes-url" type="text" placeholder="" />
-                <label for="page-notes-url">URL</label>
+            <div class="flex-container-3-column">
+                
+                <input id="page-notes-open-url" type="button" style="
+                    flex: 1 1 1%;
+                    max-width: 45px;
+                    margin-bottom: 16px;
+                    padding: 3px 0px 2px 0px;
+                    min-width: 45px;
+                " value="Open"/>
+                <div class="input-container" style="padding-right: 10px">
+                    <input id="page-notes-url" type="text" placeholder="" />
+                    <label for="page-notes-url">URL</label>
+                </div>
+                <div class="input-container">
+                    <input id="page-notes-url-pattern" type="text" placeholder=""  />
+                    <label for="page-notes-url-pattern">URL Pattern</label>
+                </div>
             </div>
             <div id="page-notes-editor">
                 <p></p>
@@ -82,24 +102,41 @@
                 <p></p>
             </div>
             <div class="timestamps" style="padding-top:10px">
-                Created: <span id="page-notes-created-timestamp">
+                Created: <span id="page-notes-created-timestamp" class="editableSpan">
                     
-                </span>
-                Updated: <span id="page-notes-updated-timestamp">
+                </span>.
+                Updated: <span id="page-notes-updated-timestamp" class="editableSpan">
                     
-                </span>
-                ID: <span id="page-notes-id">
-
+                </span>.
+                <!-- <span id="page-notes-saved-status" class="">
+                    
+                </span> -->
+                <span id="page-notes-saved-status" class="bottom-right green-ball" hover-text="Saved or unsaved indicator">
                 </span>
             </div>
         </div>
+        <div class="contact-notes-open-tab tab-content">
+            <div class="input-container">
+                <input id="contact-notes-search" type="text" placeholder="" style="font-size:16px"/>
+                <label for="contact-notes-search">Search</label>
+            </div>
+            <table id="contact-notes-table">
+                <tr>
+                    <th>Name</th>
+                    <th>Company</th>
+                </tr>
+            </table>
+        </div>
         <div class="contact-notes-tab tab-content">
             <h1 class="contactsName">Contact Notes</h1>
+            <span id="contact-notes-saved-status" class="bottom-right green-ball" hover-text="Saved or unsaved indicator">
+            </span>
             <!-- <textarea placeholder="Enter your text here..."></textarea> -->
             <div id="contact-notes-div" class="flex-container">
                 <div class="flex-item flex-container-1-column">
-                    <select id="contact-select">
-                    </select>
+                    <!-- <select id="contact-select">
+                    </select> -->
+                    
                     <ul id="contact-notes-ul">
                         <li>
                             
@@ -171,6 +208,10 @@
                         <input id="contact-birthday-year" type="text" required placeholder=" " />
                         <label for="contact-birthday-year">Birthday Year</label>
                     </div>
+
+                    <div id="" class="flex-container">
+                        <input id="contact-open-in-google" type="button" value="Open in Google" />
+                    </div>
                                       
                 </div>
             </div>
@@ -179,10 +220,43 @@
             <h1 class="snippetsName">Snippets</h1>
             <textarea class="snippets-textarea"></textarea>
         </div>
-        <div class="about-tab tab-content">
+        <div class="about-tab tab-content active">
             <h1 class="aboutName">About</h1>
-            <p>Welcome to version 1.0 of <span class="extensionName"></span>! 
-                It's a work in progress and there is plenty more on the way. </p>
+            <p>Welcome to <span class="extensionName"></span>! 
+                It's still a work in progress and there is plenty more on the way. </p>
+
+            <div>
+                <h3 class="pageNotesName">Page Notes</h3>
+                <!-- <h3>Basic Usage</h3> -->
+                
+                <h4>FAQs</h4>
+                <h5>How does the URL pattern work?</h5>
+                The extension checks if the current link contains the url pattern. 
+                It accounts for the wildcard '*' which matches anything and "|" which means "OR". <br>
+                For example, "https://*.example.com|https://example.com" will match:
+                <ul>
+                    <li>https://example/com/path/one</li>
+                    <li>https://something.example.com</li>
+                    <li>https://somethingelse.example.com/path/two</li>
+                </ul>
+                <h5>How do I edit the updated/created date?</h5>
+                Double click it
+            </div>
+            <div></div>
+                <h3 class="contactNotesName">Contact Notes</h3>
+                <!-- <h3>Basic Usage</h3> -->
+
+                <h4>FAQs</h4>
+                <h5>What happens to content previously in the Google contact notes field?</h5>
+                Then it will compromise the first note, and the current dates will be used for created/updated 
+                <h5>How do I edit the updated/created date?</h5>
+                You have two options:
+                <ul>
+                    <li>Double click it</li>
+                    <li>Edit it in Google Contacts</li>
+                </ul>
+            </div>
+            
             
         </div>
         <div class="settings-tab tab-content">

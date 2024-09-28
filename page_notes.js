@@ -1,27 +1,43 @@
-// CSS prefix: page-notes
-// JS prefix: pageNotes
+///////////////////////
+// Naming Convention //
+///////////////////////
+// 
+//
+// CSS 
+// All IDs/Classes begin with: page-notes
+//
+// JavaScript
+// All Global function/variables begin with: pn
+//
 
 ///////////////
 // Variables //
 ///////////////
 
 
-let pageNotesSaveButton;
-let pageNotesEditor;
-let pageNotesURLField;
-let pageNotesCreatedTimestampSpan;
-let pageNotesUpdatedTimestampSpan;
-let pageNotesIdSpan;
-let pageNotesTitleField;
-let pageNotesOpenNoteButton;
-let pageNotesSearchTable;
-let pageNotesSearchInput;
-let pageNotesNewPageNoteButton;
+let pnSaveButton;
+let pnEditor;
+let pnURLField;
+let pnCreatedTimestampSpan;
+let pnUpdatedTimestampSpan;
+let pnTitleField;
+let pnOpenNoteButton;
+let pnSearchTable;
+let pnSearchInput;
+let pnNewPageNoteButton;
+let pnURLPatternField;
+let pnSavedNoteStatusField;
+let pnOpenURLField;
+let currentTabId;
+let pnEditorDiv;
 
-let pageNotesGoogleID;
+let pnCurrentGoogleId;
+let pnCurrentPageNoteId
 
-let pageNotesSummaryFileId;
-let pageNotesSummaryFileName = "page_notes_summary"
+let pnSummaryFileId;
+const pnSummaryFileName = "page_notes_summary"
+
+const pnQueryParam = "PageNoteGoogleId"
 
 
 ///////////////
@@ -41,108 +57,128 @@ async function getCurrentTimestamp() {
 
 
 
-async function pageNotesUpdateTimestamp() {
-    pageNotesUpdatedTimestampSpan.innerText = await getCurrentTimestamp()
+async function pnUpdateTimestamp() {
+    pnUpdatedTimestampSpan.innerText = await getCurrentTimestamp()
 }
 
-async function pageNotesGetCurrent() {
+async function pnGetCurrentPageNote() {
     currentPageNote = {
-        "quill_contents": pageNotesEditor.getContents(),
-        "id": pageNotesIdSpan.innerText,
-        "google_id": pageNotesGoogleID,
-        "updated_time": pageNotesUpdatedTimestampSpan.innerText,
-        "created_time": pageNotesCreatedTimestampSpan.innerText,
-        "url": pageNotesURLField.value,
-        "title": pageNotesTitleField.value
+        "quill_contents": pnEditor.getContents(),
+        "id": pnCurrentPageNoteId,
+        "google_id": pnCurrentGoogleId,
+        "updated_time": pnUpdatedTimestampSpan.innerText,
+        "created_time": pnCreatedTimestampSpan.innerText,
+        "url": pnURLField.value,
+        "url_pattern": pnURLPatternField.value,
+        "title": pnTitleField.value
     }
     return currentPageNote
 }
 
-async function pageNotesSetCurrent(pageNote) {
-    pageNotesEditor.setContent(pageNote.quill_contents)
-    pageNotesIdSpan.innerText = pageNote.id
-    pageNotesUpdatedTimestampSpan.innerText = pageNote.updated_time
-    pageNotesCreatedTimestampSpan.innerText = pageNote.created_time
-    pageNotesURLField.value = pageNote.url 
-    pageNotesGoogleID = pageNote.google_id
-    pageNotesTitleField = pageNote.title
+async function pnSetCurrentPageNote(pageNote) {
+    pnEditor.setContent(pageNote.quill_contents)
+    pnCurrentPageNoteId = pageNote.id
+    pnUpdatedTimestampSpan.innerText = pageNote.updated_time
+    pnCreatedTimestampSpan.innerText = pageNote.created_time
+    pnURLField.value = pageNote.url 
+    pnCurrentGoogleId = pageNote.google_id
+    pnTitleField = pageNote.title
+    pnURLPatternField = pageNote?.url_pattern
 }
 
-async function pageNotesGetSummaryFileId() {
-    if (!pageNotesSummaryFileId) {
+async function pnGetSummaryFileId() {
+    if (!pnSummaryFileId) {
         console.log("Page Notes summary file ID not in memory, searching..")
-        pageNotesSummaryFileId = await searchGoogleFile(pageNotesSummaryFileName);
-        if (!pageNotesSummaryFileId) {
+        pnSummaryFileId = await gdSearchFile(pnSummaryFileName);
+        if (!pnSummaryFileId) {
             console.log("Page Notes summary file id not found in Google, making")
             // Create the summary data with the current note if no file exists
             const pndata = {};
             const summaryFileData = JSON.stringify(pndata);
-            pageNotesSummaryFileId = await createGoogleFile(pageNotesSummaryFileName, summaryFileData);
+            pnSummaryFileId = await gdCreateFile(pnSummaryFileName, summaryFileData);
             console.log("Created summary file");
         }
     }
-    return pageNotesSummaryFileId
+    return pnSummaryFileId
 }
 
-async function pageNotesSaveNoteDataInSummaryFile(pageNote) {
+async function pnSaveNoteDataInSummaryFile(pageNote) {
     // Step 1: Remove 'quill_contents' from the pageNote
     const { quill_contents, ...filteredPageNote } = pageNote;
 
     // Step 3: Retrieve the existing notes from the summary file
-    const existingNotes = await getGoogleFileJSON(pageNotesSummaryFileId)
+    const existingNotes = await gdGetFileJSON(pnSummaryFileId)
     
     // Step 4: Add or update the pageNote in the list
     existingNotes[filteredPageNote.id] = filteredPageNote;
 
     // Step 5: Save the updated list back to the summary file
     const updatedSummaryData = JSON.stringify(existingNotes);
-    await updateGoogleFile(pageNotesSummaryFileId, updatedSummaryData);
+    await gdUpdateFile(pnSummaryFileId, updatedSummaryData);
     console.log("Added data to summary file");
 }
 
 
-async function pageNotesSaveNoteData(pageNote) {
+async function pnSaveNoteData(pageNote) {
     // Output the pageNote dict as a JSON string
 
     console.log("Saving note", pageNote)
 
     // Check if ID is defined, if not create ID using the current time
     if (!pageNote.id) {
+        showNotification("Creating page note, please wait...", 10)
+
         pageNote.id = "page_note_" + Date.now().toString(); // Create a unique ID based on the current timestamp
-        pageNotesIdSpan.innerText = pageNote.id
+        pnCurrentPageNoteId = pageNote.id
 
         pageNote.created_time = await getCurrentTimestamp()
-        pageNotesCreatedTimestampSpan.innerText = pageNote.created_time
+        pnCreatedTimestampSpan.innerText = pageNote.created_time
 
         const fileData = JSON.stringify(pageNote);
 
         console.log("File Data:", fileData)
 
         // Call createGoogleFile with the ID as filename and the JSON data
-        pageNotesGoogleID = await createGoogleFile(pageNote.id, fileData);
+        pnCurrentGoogleId = await gdCreateFile(pageNote.id, fileData);
+
+        console.log("Newly created pagenote GoogleId: ", pnCurrentGoogleId)
 
         // Save in summary file
-        pageNote.google_id = pageNotesGoogleID
-        await pageNotesSaveNoteDataInSummaryFile(pageNote)
+        pageNote.google_id = pnCurrentGoogleId
+        await pnSaveNoteDataInSummaryFile(pageNote)
 
-        return pageNotesGoogleID
+        
+
+        setTimeout(function () {
+            // location = "?PageNoteGoogleId=" + pageNotesGoogleId
+            addQueryParamAndHash(pnQueryParam, pnCurrentGoogleId, "page-notes")
+        }, 3000)
+
+        return pnCurrentGoogleId
     } else {
         const fileData = JSON.stringify(pageNote);
 
-        await updateGoogleFile(pageNote.google_id, fileData)
+        await gdUpdateFile(pageNote.google_id, fileData)
 
-        await pageNotesSaveNoteDataInSummaryFile(pageNote)
+        await pnSaveNoteDataInSummaryFile(pageNote)
+
+        showNotification("Page Note Saved");
+        pnSetStatusSaved()
 
         return pageNote.google_id
     }
     
 }
 
-async function pageNotesSaveNote() {
-    await pageNotesUpdateTimestamp();
-    const pageNote = await pageNotesGetCurrent();
-    await pageNotesSaveNoteData(pageNote);
-    showNotification("Page Note Saved");
+async function pnSaveNote() {
+    await pnUpdateTimestamp();
+    const pageNote = await pnGetCurrentPageNote();
+    if (pageNote.title) {
+        await pnSaveNoteData(pageNote);
+    } else {
+        showNotification("You must set the title before you can save the note", 6)
+    }
+    
 }
 
 
@@ -158,19 +194,19 @@ async function pageNotesSaveNote() {
 //         throw error; // Rethrow the error for further handling if necessary
 //     }
 // }
-async function pageNotesDeletePageNote(googleID) {
+async function pnDeletePageNote(googleID) {
     // Prompt for confirmation
     if (await confirm("Are you sure you want to delete the note?")) {
-        const success = await deleteGoogleFile(googleID);
+        const success = await gdDeleteFile(googleID);
 
         if (success) {
             // Retrieve existing notes and remove the note
-            const existingNotes = await getGoogleFileJSON(pageNotesSummaryFileId);
+            const existingNotes = await gdGetFileJSON(pnSummaryFileId);
             delete existingNotes[googleID];  // Use delete to remove the note by ID
 
             // Update the summary file with the modified notes
             const updatedSummaryData = JSON.stringify(existingNotes);
-            await updateGoogleFile(pageNotesSummaryFileId, updatedSummaryData);
+            await gdUpdateFile(pnSummaryFileId, updatedSummaryData);
 
             showNotification("Successfully deleted note");
 
@@ -186,20 +222,22 @@ async function pageNotesDeletePageNote(googleID) {
 }
 
 
-async function pageNotesPopulateOpenNotesTable() {
+async function pnPopulateOpenNotesTable() {
 
-    const pns = await getGoogleFileJSON(pageNotesSummaryFileId);
+    const pns = await gdGetFileJSON(pnSummaryFileId);
 
     // Clear existing rows
-    pageNotesSearchTable.innerHTML = `<tr>
+    pnSearchTable.innerHTML = `<tr>
                     <th>Title</th>
                     <th>URL</th>
-                    <th>Updated</th>
+                    <th class="hide-on-small-screens">Updated</th>
                     <th>Created</th>
-                    <th>Delete</th>
+                    <th class="hide-on-small-screens">Delete</th>
                 </tr>`;
 
-    Object.values(pns).forEach(pn => {
+    const sortedPns = Object.values(pns).sort((a, b) => new Date(b.updated_time) - new Date(a.updated_time));
+
+    Object.values(sortedPns).forEach(pn => {
         const row = document.createElement("tr"); // Changed 'row' to 'tr'
         row.id = pn.google_id
 
@@ -209,14 +247,27 @@ async function pageNotesPopulateOpenNotesTable() {
         const tdCreated = document.createElement("td");
         const tdDelete = document.createElement("td");
 
-        tdTitle.innerText = truncateText(pn.title, 50);
-        tdUrl.innerText = truncateText(pn.url, 50);
+        tdUpdated.classList.add("hide-on-small-screens")
+        tdDelete.classList.add("hide-on-small-screens")
+
+        tdTitle.addEventListener("click", function () {
+            addQueryParamAndHash(pnQueryParam, pn.google_id, "page-notes");
+        });
+        tdTitle.classList.add("blue-text")
+        tdTitle.innerText = truncateText(pn.title, getTruncateCharLength());
+        if (!pn.google_id) {
+            tdTitle.innerText = "!Err: " + tdTitle.innerText
+        }
+        tdTitle.setAttribute('data-full-text',  pn.title)
+
+        tdUrl.innerText = truncateText(pn.url, getTruncateCharLength());
+        tdUrl.setAttribute('data-full-text',pn.url)
         tdUpdated.innerText = pn.updated_time.split(' ')[0];
         tdCreated.innerText = pn.created_time.split(' ')[0]; // Fixed assignment
         tdDelete.innerText = "X"; // Add delete functionality here
 
         tdDelete.addEventListener("click", function () {
-            pageNotesDeletePageNote(pn.google_id)
+            pnDeletePageNote(pn.google_id)
         })
 
         row.append(tdTitle);
@@ -225,21 +276,21 @@ async function pageNotesPopulateOpenNotesTable() {
         row.append(tdCreated);
         row.append(tdDelete);
 
-        pageNotesSearchTable.append(row);
+        pnSearchTable.append(row);
     });
 }
 
 
-async function pageNotesSearchPageNotes() {
-    const searchTerm = pageNotesSearchInput.value.toLowerCase();
-    const rows = pageNotesSearchTable.querySelectorAll('tr');
+async function pnSearchPageNotes() {
+    const searchTerm = pnSearchInput.value.toLowerCase();
+    const rows = pnSearchTable.querySelectorAll('tr');
 
     rows.forEach((row, index) => {
         // Skip the header row
         if (index === 0) return;
 
-        const title = row.querySelector('td:first-child').innerText.toLowerCase();
-        const url = row.querySelector('td:nth-child(2)').innerText.toLowerCase();
+        const title = row.querySelector('td:first-child').getAttribute('data-full-text').toLowerCase();
+        const url = row.querySelector('td:nth-child(2)').getAttribute('data-full-text').toLowerCase();
 
         if (title.includes(searchTerm) || url.includes(searchTerm)) {
             row.style.display = '';
@@ -249,61 +300,159 @@ async function pageNotesSearchPageNotes() {
     });
 }
 
-async function pageNotesNewPageNote() {
-    showNotification("Opening new note...", 3)
-    
-    // Clear
-    pageNotesEditor.deleteText(0, 99999999);
-    pageNotesCreatedTimestampSpan.innerText = ""
-    pageNotesUpdatedTimestampSpan.innerText = ""
-    pageNotesIdSpan.innerText = ""
-    pageNotesGoogleID = null
-    pageNotesTitleField.value = ""
-    pageNotesURLField.value = ""
-
+async function pnSetStatusSaved() {
+    // pnSavedNoteStatusField.classList  = ["saved"]
+    // pnSavedNoteStatusField.innerText = "Saved."
+    pnSavedNoteStatusField.classList.remove("orange-ball")
+}
+async function pnSetStatusUnsaved() {
+    // pnSavedNoteStatusField.classList  = ["unsaved"]
+    // pnSavedNoteStatusField.innerText = "Unsaved"
+    pnSavedNoteStatusField.classList.add("orange-ball")
 }
 
+async function pnNewPageNote() {
+    showNotification("Opening new note...", 3)
+    pnSetStatusUnsaved()
+    
+    // Clear
+    pnEditor.deleteText(0, 99999999);
+    pnCreatedTimestampSpan.innerText = ""
+    pnUpdatedTimestampSpan.innerText = ""
+    pnCurrentPageNoteId = ""
+    pnCurrentGoogleId = null
+    pnTitleField.value = ""
+    pnURLField.value = ""
+    pnURLPatternField.value = ""
+}
+
+async function pnOpenPageNote (pageNoteGoogleId) {
+    showNotification("Loading...")
+    pageNote = await gdGetFileJSON(pageNoteGoogleId) 
+
+    pnEditor.setContents(pageNote.quill_contents)
+    pnCreatedTimestampSpan.innerText = pageNote.created_time
+    pnUpdatedTimestampSpan.innerText = pageNote.updated_time
+    pnCurrentPageNoteId = pageNote.id
+    // Recall that after first creation the google is not in the pn
+    // Also there is an 's' in the global one
+    pnCurrentGoogleId = pageNoteGoogleId 
+    pnTitleField.value = pageNote.title
+    pnURLField.value = pageNote.url
+    pnURLPatternField.value = pageNote.url_pattern
+
+    pnSetStatusSaved()
+}
+
+async function pnGetPageNoteFromURL() {
+      console.log("Searching for page note in URL")
+      const params = new URLSearchParams(window.location.search);
+      
+      if (params.has('PageNoteGoogleId')) {
+        console.log("Page note found in url:", params.get(pnQueryParam))
+        if (params.get(pnQueryParam) != "undefined") {
+            return pnOpenPageNote(params.get(pnQueryParam))
+        } else {
+            console.error("Page note in URL is undefined")
+        }
+      } else {
+        return null
+      }
+}
+
+function pnOpenURL() {
+    const url = pnURLField.value;
+
+    if (url) {
+        chrome.sidePanel.open({ tabId: currentTabId });
+
+        setTimeout(function() {
+            try {
+                chrome.runtime.sendMessage({
+                    type: "open-page-note",
+                    target: 'sidepanel',
+                    data: pnCurrentGoogleId
+                });
+            } catch (e) {
+                console.log("failed to open keyboard shortcuts", e)
+            }
+        }, 100)
+    
+        // Open the URL in a new tab
+        window.open(url, '_blank');
+        
+    } else {
+        
+        showNotification('URL Field is empty')
+    }
+}
 
 ///////////////////////
 // GoogleDriveSignIn //
 ///////////////////////
 
 document.addEventListener("googleDriveSignIn", function() {
-    pageNotesGetSummaryFileId();
-    
+    pnGetSummaryFileId().then(id=>
+        pnGetPageNoteFromURL().then(id=>
+            pnPopulateOpenNotesTable()
+        )
+    )
 })
+
 
 //////////////////////
 // DOMContentLoaded //
 //////////////////////
 
 window.addEventListener("DOMContentLoaded", function() {
-    pageNotesSaveButton = document.getElementById("page-notes-save")
-    pageNotesURLField = document.getElementById("page-notes-url")
-    pageNotesCreatedTimestampSpan = document.getElementById("page-notes-created-timestamp")
-    pageNotesUpdatedTimestampSpan = document.getElementById("page-notes-updated-timestamp")
-    pageNotesIdSpan = document.getElementById("page-notes-id");
-    pageNotesTitleField = document.getElementById("page-notes-title")
-    pageNotesOpenNoteButton = document.getElementById("page-notes-open")
+    pnSaveButton = document.getElementById("page-notes-save")
+    pnURLField = document.getElementById("page-notes-url")
+    pnURLPatternField = document.getElementById("page-notes-url-pattern")
+    pnCreatedTimestampSpan = document.getElementById("page-notes-created-timestamp")
+    pnUpdatedTimestampSpan = document.getElementById("page-notes-updated-timestamp")
+    pnTitleField = document.getElementById("page-notes-title")
+    pnOpenNoteButton = document.getElementById("page-notes-open")
     pageNotesOpenTabButton = document.querySelector("[data-tab='page-notes-open-tab']");
-    pageNotesSearchTable = document.getElementById("page-notes-table")
-    pageNotesSearchInput = document.getElementById("page-notes-search")
-    pageNotesNewPageNoteButton = document.getElementById("page-notes-new")
+    pnSearchTable = document.getElementById("page-notes-table")
+    pnSearchInput = document.getElementById("page-notes-search")
+    pnNewPageNoteButton = document.getElementById("page-notes-new")
+    pnSavedNoteStatusField = document.getElementById("page-notes-saved-status")
+    pnOpenURLField = document.getElementById("page-notes-open-url")
+    pnEditorDiv = document.getElementById("page-notes-editor")
 
-    pageNotesEditor = new Quill('#page-notes-editor', {
+    pnEditorDiv.addEventListener("keydown", function(event) {
+        if ((event.ctrlKey || event.metaKey) && event.key === 'Enter') {
+            event.preventDefault();  // Prevent default behavior (if necessary)
+            pnSaveNote();     // Call the function
+        }
+    });
+    
+
+    chrome.tabs.query({ active: true, currentWindow: true },([tab]) => {
+        currentTabId = tab.id})
+
+    pnEditor = new Quill('#page-notes-editor', {
         theme: 'snow'
     });
 
-    pageNotesSaveButton.addEventListener("click", pageNotesSaveNote)
+    pnOpenURLField.addEventListener("click", pnOpenURL)
 
-    pageNotesOpenNoteButton.addEventListener("click", function () {
+    pnSaveButton.addEventListener("click", pnSaveNote)
+
+    pnOpenNoteButton.addEventListener("click", function () {
         pageNotesOpenTabButton.click()
-        pageNotesPopulateOpenNotesTable()
+        pnSearchInput.focus()
     })
 
-    pageNotesSearchInput.addEventListener("input", pageNotesSearchPageNotes)
+    pnSearchInput.addEventListener("input", pnSearchPageNotes)
 
-    pageNotesNewPageNoteButton.addEventListener("click", pageNotesNewPageNote)
+    pnNewPageNoteButton.addEventListener("click", pnNewPageNote)
+
+    pnURLField.addEventListener("input", pnSetStatusUnsaved)
+    pnURLPatternField.addEventListener("input", pnSetStatusUnsaved)
+    pnTitleField.addEventListener("input", pnSetStatusUnsaved)
+    // pageNotesEditor.addEventListener("input", pageNotesSetStatusUnsaved)
+    pnEditor.on('text-change', pnSetStatusUnsaved);
 
 })
 

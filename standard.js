@@ -175,19 +175,15 @@ document.addEventListener("DOMContentModified", function() {
     });
 
     // Hover over help Text
-    document.addEventListener('DOMContentLoaded', function () {
-        var tooltips = document.querySelectorAll('[hover-text]');
-
-        tooltips.forEach(function (tooltip) {
-            tooltip.classList.add('hover-text-trigger')
-            var tooltipText = tooltip.getAttribute('hover-text');
-            var tooltipElement = document.createElement('div');
-            tooltipElement.classList.add('tooltiptext');
-            tooltipElement.textContent = tooltipText;
-            tooltip.appendChild(tooltipElement);
-        });
+    var tooltips = document.querySelectorAll('[hover-text]');
+    tooltips.forEach(function (tooltip) {
+        tooltip.classList.add('hover-text-trigger')
+        var tooltipText = tooltip.getAttribute('hover-text');
+        var tooltipElement = document.createElement('div');
+        tooltipElement.classList.add('tooltiptext');
+        tooltipElement.textContent = tooltipText;
+        tooltip.appendChild(tooltipElement);
     });
-
     // Show Hide Class on Click
     Array.from(document.querySelectorAll("[show-hide-class-on-click]")).forEach(element => {
         element.addEventListener("click", function() {
@@ -217,3 +213,81 @@ document.addEventListener("DOMContentModified", function() {
     });
 
 });
+
+
+function makeSpanEditable(span) {
+    span.addEventListener('dblclick', function () {
+        const currentText = span.textContent;
+  
+        // Create an input element
+        const input = document.createElement('input');
+        input.type = 'text';
+        input.value = currentText;
+        input.style.width = span.offsetWidth + 'px'; // Match the width of the span
+  
+        // Replace the span with the input
+        span.replaceWith(input);
+        input.focus();
+  
+        // Function to handle when the user clicks outside the input or presses Enter
+        function saveInput() {
+          span.textContent = input.value || currentText; // Save the input value or revert to original text if empty
+          try {
+            input.replaceWith(span); // Replace input back with the span
+          } catch {
+            console.debug('Input already replaced')
+          }
+        }
+  
+        // Event listeners to detect when to save the input
+        input.addEventListener('blur', saveInput);  // Triggered when input loses focus
+        input.addEventListener('keydown', function (event) {
+          if (event.key === 'Enter') saveInput();  // Triggered when Enter key is pressed
+        });
+
+})
+}
+
+function makeEditableByClass(className) {
+    const spans = document.querySelectorAll(`.${className}`);
+  
+    spans.forEach(span => {
+        makeSpanEditable(span)
+    })
+  }
+  
+  // Call the function with the class name
+  makeEditableByClass('editableSpan');
+
+
+function getTruncateCharLength() {
+const screenWidth = window.innerWidth;
+  let maxChars;
+  if (screenWidth > 1200) {
+    maxChars = 100;  // For large screens
+  } else if (screenWidth > 768) {
+    maxChars = 50;  // For tablets
+  } else {
+    maxChars = 25;   // For mobile devices
+  }
+  return maxChars
+}
+  
+
+function addQueryParamAndHash(param, value, hashValue, reload=true) {
+    // Get the current URL
+    let url = new URL(window.location.href);
+
+    // Add or update the query parameter
+    url.searchParams.set(param, value);
+
+    // Set the hash
+    url.hash = hashValue;
+
+    // Update the URL in the browser (without reloading the page)
+    if (reload) {
+        location = url
+    } else {
+        window.history.pushState({}, '', url);
+    }
+}

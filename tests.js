@@ -12,20 +12,20 @@ async function testGoogleDrive(log = log) {
     const testData = { "testkey": "testvalue" };
 
     log(`Searching for test file: ${testFileName}`);
-    let fileId = await searchGoogleFile(testFileName);
+    let fileId = await gdSearchFile(testFileName);
 
     if (fileId) {
         log(`Deleting previous test file: ${testFileName} with ID ${fileId}`);
-        await deleteGoogleFile(fileId);
+        await gdDeleteFile(fileId);
     } else {
         log(`No previous test file found`);
     }
 
     log(`Creating test file: ${testFileName}`);
-    fileId = await createGoogleFile(testFileName, JSON.stringify(testData));
+    fileId = await gdCreateFile(testFileName, JSON.stringify(testData));
 
     log(`Retrieving test file: ${testFileName} with ID ${fileId}`);
-    const fileContents = await getGoogleFile(fileId);
+    const fileContents = await gdGetFile(fileId);
 
     if (fileContents) {
         const fileText = await fileContents.text();
