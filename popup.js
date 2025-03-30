@@ -21,6 +21,79 @@ onStartSpecific()
 
 let clipboardComponentsAdded = false
 
+
+async function clipEditPopUpForm(defaultName = '', defaultInputType = 'text', id, callback) {
+  // Remove any existing form before creating a new one
+  const existingForm = document.getElementById("clipEditForm");
+  if (existingForm) {
+    existingForm.remove();
+  }
+
+  // Create a form element
+  const form = document.createElement('form');
+  form.id = "clipEditForm"; // Assign ID for easier cleanup
+  form.style.position = 'fixed';
+  form.style.top = '50%';
+  form.style.left = '50%';
+  form.style.transform = 'translate(-50%, -50%)';
+  form.style.padding = '20px';
+  form.style.backgroundColor = '#fff';
+  form.style.border = '1px solid #ccc';
+  form.style.boxShadow = '0 0 10px rgba(0, 0, 0, 0.1)';
+
+  // Create input for name
+  const nameLabel = document.createElement('label');
+  nameLabel.textContent = 'Name: ';
+  const nameInput = document.createElement('input');
+  nameInput.type = 'text';
+  nameInput.value = defaultName;
+  nameLabel.appendChild(nameInput);
+  form.appendChild(nameLabel);
+
+  // Create select for input type
+  const typeLabel = document.createElement('label');
+  typeLabel.textContent = 'Input Type: ';
+  const typeSelect = document.createElement('select');
+  const options = ['text', 'password', 'textarea'];
+  options.forEach(option => {
+    const opt = document.createElement('option');
+    opt.value = option;
+    opt.textContent = option.charAt(0).toUpperCase() + option.slice(1);
+    if (option === defaultInputType) {
+      opt.selected = true;
+    }
+    typeSelect.appendChild(opt);
+  });
+  typeLabel.appendChild(typeSelect);
+  form.appendChild(typeLabel);
+
+  // Create submit button
+  const submitButton = document.createElement('button');
+  submitButton.type = 'submit';
+  submitButton.textContent = 'Submit';
+  form.appendChild(submitButton);
+
+  // Append form to body
+  document.body.appendChild(form);
+
+  // Handle form submission
+  form.addEventListener('submit', (event) => {
+    event.preventDefault();
+    const name = nameInput.value;
+    const inputType = typeSelect.value;
+    console.log(`Name: ${name}, Input Type: ${inputType}`);
+
+    try {
+      callback(name, inputType, id);
+    } catch (error) {
+      console.error("Callback Error:", error);
+    }
+
+    // Ensure form is removed after submission
+    form.remove();
+  });
+}
+
 function addClipboardComponenets() {
   if (clipboardComponentsAdded) {
     return
@@ -29,16 +102,41 @@ function addClipboardComponenets() {
   console.log("triggered unlock stuff ")
     const copy_html = '<button id="copy-{ID}" style="width: 8vw;"><img style="width: 100%; height: auto;" src="images/copy.svg" alt="Icon"></button>'
     const paste_html = '<button id="paste-{ID}" style="width: 8vw;"><img style="width: 100%; height: auto;" src="images/paste.svg" alt="Icon"></button>'
+    const edit_html = `<button id="edit-{ID}" style="width: 8vw;"><img style="width: 
+    100%; height: auto;" src="images/edit.svg" alt="Icon"></button>`
 
     Array.from(document.getElementsByClassName("store-input-value")).forEach(async element => {
+        const clipId = element.getAttribute("key")
+        const clipName = await get(clipId + "-name", "")
+        const clipInputType = await get(clipId + "-input-type", "text")
+
+        const nameSmall = document.createElement("small")
+        nameSmall.innerText = clipName
+        nameSmall.style="width:100%"
+        element.parentElement.insertAdjacentElement('beforebegin', nameSmall)
+
+        if (clipInputType === "textarea") {
+          const textarea = document.createElement("textarea");
+          textarea.value = element.value; // Preserve existing value
+          textarea.key = element.key; // Preserve existing value
+          textarea.id = element.id; // Preserve ID if needed
+          textarea.className = element.className; // Preserve classes if applicable
+          textarea.rows = 3
+          textarea.style = element.style
+          element.replaceWith(textarea); // Replace input with textarea
+          element = textarea
+        } else {
+          element.type = clipInputType; // Correct way to change input type
+        }
+
         try {
             if (await getSetting("encrypt-clipboard")) {
-                element.value = await eGet(element.getAttribute("key"))
+                element.value = await eGet(clipId)
             } else {
-                element.value = await get(element.getAttribute("key"))
+                element.value = await get(clipId)
             }
         } catch {
-            console.log("No found value stored for " + element.getAttribute("key"))
+            console.log("No found value stored for " + clipId)
         }
         async function saveClipBoard() {
           console.log("triggered input onchange")
@@ -48,31 +146,49 @@ function addClipboardComponenets() {
               hasChanged: true
           });
           if (await getSetting("encrypt-clipboard")) {
-              eStore(element.getAttribute("key"), element.value)
+              eStore(clipId, element.value)
           } else {
-              store(element.getAttribute("key"), element.value)
+              store(clipId, element.value)
           }
           showNotification("Saved")
       }
         element.addEventListener("change", saveClipBoard);
 
         // Add copy/paste button after the variable element
-        const copyButton = copy_html.replace("{ID}", element.getAttribute("key"));
-        const pasteButton = paste_html.replace("{ID}", element.getAttribute("key"));
-        element.insertAdjacentHTML('afterend', copyButton + pasteButton);
+        const copyButton = copy_html.replace("{ID}", clipId);
+        const pasteButton = paste_html.replace("{ID}", clipId);
+        const editButton = edit_html.replace("{ID}", clipId);
+        element.insertAdjacentHTML('afterend', copyButton + pasteButton + editButton);
 
         // Add event listeners for the copy and paste buttons
-        document.getElementById("copy-" + element.getAttribute("key")).addEventListener("click", function() {
-            element.select()
-            document.execCommand('copy');
-            showNotification("Copied");
+        document.getElementById("copy-" +clipId).addEventListener("click", function() {
+          let originalType = element.type;
+          if (originalType === "password") {
+              element.type = "text"; // Temporarily change to text
+          }
+      
+          element.select();
+          document.execCommand("copy");
+      
+          if (originalType === "password") {
+              element.type = "password"; // Revert back to password
+          }
+      
+          showNotification("Copied");
         });
-        document.getElementById("paste-" + element.getAttribute("key")).addEventListener("click", async function() {
+        document.getElementById("paste-" + clipId).addEventListener("click", async function() {
             const text = await navigator.clipboard.readText();
             element.value = text;
             showNotification("Pasted");
             saveClipBoard();
         });
+        document.getElementById("edit-" + clipId).addEventListener("click", async function() {
+          async function updateSettings(name, inputType, clipId) {
+            store(clipId + "-name", name)
+            store(clipId + "-input-type", inputType)
+          }
+          await clipEditPopUpForm(clipName, clipInputType, clipId, updateSettings)
+      });
 
     });
 
