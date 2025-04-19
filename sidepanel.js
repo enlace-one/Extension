@@ -1456,6 +1456,9 @@ window.addEventListener("DOMContentLoaded", function() {
         url_pattern = url_pattern.substring(0, maxPageNotesURLChar - 1);
         url_pattern = urlPatternElement.value + "|" + url_pattern
         urlPatternElement.value = url_pattern
+
+        saveNoteTimeOut()
+
     })
     
     document.getElementById("add-current-domain").addEventListener("click", async function () {
@@ -1465,6 +1468,8 @@ window.addEventListener("DOMContentLoaded", function() {
         url_pattern = url_pattern.substring(0, maxPageNotesURLChar - 1);
         url_pattern = urlPatternElement.value + "|" + url_pattern
         urlPatternElement.value = url_pattern
+
+        saveNoteTimeOut()
     })
     
     getRecentPageNotes()
