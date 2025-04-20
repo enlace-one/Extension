@@ -27,7 +27,7 @@ const defaultPageNotes = [
   {text:"chrome_keyboard.txt", id:"mde_chrome_keyboard", url_pattern:"", title:"Chrome Keyboard Shortcuts"}, 
   {text:"git.txt", id:"mde_git", url_pattern:"", title:"git"}, 
   {text:"regex.txt", id:"mde_regex", url_pattern:"chrome-extension:", title:"Regex"}, 
-  {text:"country_codes.txt", id:"mde_country_codes", url_pattern:"", title:"Country Codes"}, 
+  // {text:"country_codes.txt", id:"mde_country_codes", url_pattern:"", title:"Country Codes"}, 
   {text:"linux_keyboard.txt", id:"mde_linux_keyboard", url_pattern:"", title:"Linux Keyboard"}, 
   {text:"linux_term.txt", id:"mde_linux_term", url_pattern:"", title:"Linux Terminal"}, 
   {text:"nmap.txt", id:"mde_nmap", url_pattern:"", title:"NMAP"}, 

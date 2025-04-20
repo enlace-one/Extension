@@ -473,9 +473,13 @@ document.addEventListener("DOMContentLoaded", function () {
         document.getElementById("total-storage-space").innerText = bytes
         console.log("Size of data in bytes (of 102400): " + bytes);
 
+        for (key of Object.keys(result)) {
+            console.log("Size of", key, JSON.stringify(result[key]).length * 2)
+        }
+
         // var pageNoteBytes = JSON.stringify(result["page-note-data"]).length * 2; // Multiply by 2 to account for UTF-16 encoding
-        // document.getElementById("page-notes-space").innerText = pageNoteBytes
-        //console.log("Size of data in bytes (of 102400): " + bytes);
+        // // document.getElementById("page-notes-space").innerText = pageNoteBytes
+        // console.log("Size of page note data in bytes (of 102400): " + pageNoteBytes);
 
         // try {
         //     var snippetsBytes = JSON.stringify(result["snippet-data"]).length * 2; // Multiply by 2 to account for UTF-16 encoding

@@ -340,7 +340,7 @@
 
                 <h3>Options View</h3> (<i class="open-extension-tab"></i>)
                 <p>
-                    This is where you go for information, setting changes, and some developer tools
+                    This is the tab you are in right now. It is where you go for information, setting changes, and some developer tools
                     (regex, html, js scripts)
                     that will only show up if you have the developer mode turned on for your browser.
                     Go to Extensions -> Developer Mode to enable it.
@@ -366,10 +366,11 @@
                 <p>
                     Data storage is set to sync using the browser's built in sync storage method.
                     So it may work across your devices. If the information itself is necessary,
-                    KEEP A COPY SOMEWHERE ELSE. This is designed for convienence, not long-term storage.
+                    I recommend you keep a copy somewhere else as well. This is designed for convienence, not long-term storage.
                 </p>
                 <p>
-                    Data is encrypted with AES256 encryption using a key
+                    Data is encrypted with AES256 encryption by default (though you can 
+                    change it in settings). It uses a key
                     generated via the salted password you enter. Without the
                     password, it is irrecoverable. There is currently no way to
                     recover your password. If that data is set to be encrypted, then
@@ -378,32 +379,18 @@
                 <p>
                     Some third party libraries are used. 
                     <a href="https://github.com/Ionaru/easy-markdown-editor">easyMDE</a>
-                     which is a fork of simpleMDE which are both based on 
+                     which is a fork of <a href="https://simplemde.com/">simpleMDE</a> which are both based on 
                     <a href="https://codemirror.net/5/doc/manual.html">CodeMirror</a>
-                     are used for page notes. Additionally, crypto-js is used for 
-                    encryption. If I am missing any references, please email me. 
+                     is used for page notes. Additionally, <a href="https://www.npmjs.com/package/crypto-js">crypto-js</a> is used for 
+                    encryption. If I am missing any references, please contact me. 
                     easyMDE and crypto-js are downloaded and included with this, 
-                    but CodeMirror is retrieved from a CDN (I did not want to 
-                    modify the easyMDE code to change that).
+                    but CodeMirror is retrieved from a CDN.
                 </p>
 
                 <h3>Permissions and Privacy</h3>
                 <p>
                     This extension does not collect any personal data. It does not track your browsing history. In fact,
                     everything runs locally on your machine.
-                </p>
-                <p>
-                    This extension requires the following permissions (which are granted by default on install):<br>
-                    "&lt;all_urls&gt;" is required for the <i class="pageNotesName"></i> feature to work.<br>
-                    "storage" is required for the <i class="clipboardName"></i> and <i
-                        class="pageNotesName"></i> features to work.<br>
-                    "offscreen" is required for the <i class="clipboardName"></i> feature to work.<br>
-                    "clipboardWrite" and "clipboardRead" are required for the <i class="clipboardName"></i> feature to
-                    work.<br>
-                    "sidePanel" is required for the <i class="pageNotesName"></i> feature to work.<br>
-                    "tabs" is required for the <i class="pageNotesName"></i> feature to work.<br>
-                    "userScripts" is required for the <i class="scriptName"></i> feature to work.<br/>
-                    "contextMenus" has been required in the past and there are plans in the future too. <br/>
                 </p>
 
                 
