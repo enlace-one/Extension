@@ -105,11 +105,14 @@ async function getEasyMDE() {
       customPageNoteJson = value;
     }
 
-  function customMarkdownParser(plainText) {
-    plainText = plainText.replace(/\{\{ TABLE_OF_CONTENTS \}\}/g, '<div class="page-note-table-of-contents"></div>');
-    // plainText = plainText.replace(/\[\]/g, '');
-    return plainText
-  }
+    function customMarkdownParser(plainText) {
+      plainText = plainText.replace(
+        /\{\{ TABLE_OF_CONTENTS \}\}/g,
+        '<div class="page-note-table-of-contents"></div>'
+      );
+      // plainText = plainText.replace(/\[\]/g, '');
+      return plainText;
+    }
 
     pageNoteConfigOverwrite = {
       ...defaultPageNoteConfig, // start with the default in case custom deletes some
@@ -119,11 +122,11 @@ async function getEasyMDE() {
         //previewRender: (plainText) => customMarkdownParser(plainText),
         renderingConfig: {
           sanitizerFunction: (renderedHTML) => {
-              // Using DOMPurify and only allowing <b> tags
-              return customMarkdownParser(renderedHTML)
+            // Using DOMPurify and only allowing <b> tags
+            return customMarkdownParser(renderedHTML);
           },
-        taskLists: true,  // Enable task lists
-      },
+          taskLists: true, // Enable task lists
+        },
       },
     };
 
@@ -222,7 +225,7 @@ async function getEasyMDE() {
             id: "table-of-contents",
             // "data-value": "custom value" // HTML5 data-* attributes need to be enclosed in quotation marks ("") because of the dash (-) in its name.
           },
-        }
+        },
       ];
     } else {
       pageNoteConfigOverwrite["toolbar"].unshift({
@@ -413,13 +416,15 @@ async function _save_page_note(id, note, title, url_pattern, expiring) {
   }
   if (title.length > maxPageNotesTitleChar) {
     showNotification(
-      `Error: Title is too long. ${title.length} is larger than max setting: ${maxPageNotesTitleChar}`, 3
+      `Error: Title is too long. ${title.length} is larger than max setting: ${maxPageNotesTitleChar}`,
+      3
     );
     return;
   }
   if (url_pattern.length > maxPageNotesURLChar) {
     showNotification(
-      `Error: URL pattern is too long. ${url_pattern.length} is larger than max setting: ${maxPageNotesURLChar}`, 3
+      `Error: URL pattern is too long. ${url_pattern.length} is larger than max setting: ${maxPageNotesURLChar}`,
+      3
     );
     return;
   }
@@ -484,28 +489,28 @@ function addPageNoteIdToUrl(pageNoteId) {
 }
 
 async function updateRecentPageNotes(currentNoteId) {
-  let recentPageNotes = await get("recent_page_notes") || [];
-  
+  let recentPageNotes = (await get("recent_page_notes")) || [];
+
   // Check if the current note is already in the recent list
   const noteIndex = recentPageNotes.indexOf(currentNoteId);
-  
+
   if (noteIndex !== -1) {
-    return
+    return;
   }
-  
+
   // Add the current note to the beginning of the list
   recentPageNotes.unshift(currentNoteId);
-  
+
   // Keep only the last 5 notes
   if (recentPageNotes.length > 5) {
     recentPageNotes.pop();
   }
-  
+
   // Save the updated list back to storage
   await store("recent_page_notes", recentPageNotes);
 }
 
-async function open_page_note(id, inPreview=false) {
+async function open_page_note(id, inPreview = false) {
   console.log(`Opening page note ${id}`);
 
   const page_note = await get_page_note(id);
@@ -548,7 +553,7 @@ async function open_page_note(id, inPreview=false) {
   // Refresh CodeMirror
   easyMDE.codemirror.refresh();
 
-  updateRecentPageNotes(id)
+  updateRecentPageNotes(id);
 }
 
 ////////////
@@ -648,7 +653,7 @@ async function makePageNoteTable(page_notes, table) {
     try {
       note.title;
     } catch {
-      return
+      return;
     }
 
     const row = table.insertRow();
@@ -702,12 +707,13 @@ async function makePageNoteTable(page_notes, table) {
 // Put default url pattern
 // Put default title
 
-
-
 async function getCurrentURL() {
   try {
     // Query the active tab in the last focused window
-    const [tab] = await chrome.tabs.query({ active: true, lastFocusedWindow: true });
+    const [tab] = await chrome.tabs.query({
+      active: true,
+      lastFocusedWindow: true,
+    });
 
     // Check if the tab exists and has a valid URL
     if (!tab || !tab.url) {
@@ -725,7 +731,7 @@ async function getCurrentURL() {
     }
 
     // Strip trailing slash if it exists
-    if (url.endsWith('/')) {
+    if (url.endsWith("/")) {
       url = url.slice(0, -1);
     }
 
@@ -736,7 +742,6 @@ async function getCurrentURL() {
     return "undefined";
   }
 }
-
 
 async function newPageNote() {
   console.log("Generating new page note");
@@ -817,26 +822,37 @@ function addCodeCopyButtons() {
 
 addCodeCopyButtons();
 function enableCheckboxes() {
-  const checkboxes = document.querySelectorAll('.editor-preview input[type="checkbox"]');
-  checkboxes.forEach(checkbox => {
-      checkbox.disabled = false;
+  const checkboxes = document.querySelectorAll(
+    '.editor-preview input[type="checkbox"]'
+  );
+  checkboxes.forEach((checkbox) => {
+    checkbox.disabled = false;
   });
 }
 
 function addTOC() {
   setTimeout(function () {
-    // Enable checkboxes 
-    enableCheckboxes()
+    // Enable checkboxes
+    enableCheckboxes();
 
     // TOC
-    var TOC = document.querySelector(".page-note-table-of-contents:not(.done-already)");
+    var TOC = document.querySelector(
+      ".page-note-table-of-contents:not(.done-already)"
+    );
     if (TOC) {
       TOC.classList.add("done-already");
-      var headers = document.querySelectorAll(".CodeMirror h1, .CodeMirror h2, .CodeMirror h3");
+      var headers = document.querySelectorAll(
+        ".CodeMirror h1, .CodeMirror h2, .CodeMirror h3"
+      );
       var tocHTML = "<ul>";
-      headers.forEach(function(header) {
+      headers.forEach(function (header) {
         var tag = header.tagName.toLowerCase();
-        var spacing = (tag === 'h2') ? '&nbsp;&nbsp;' : (tag === 'h3' ? '&nbsp;&nbsp;&nbsp;&nbsp;' : '');
+        var spacing =
+          tag === "h2"
+            ? "&nbsp;&nbsp;"
+            : tag === "h3"
+            ? "&nbsp;&nbsp;&nbsp;&nbsp;"
+            : "";
         tocHTML += `<li class="${tag}">${spacing}<a href="#${header.id}">${header.textContent}</a></li>`;
       });
       tocHTML += "</ul>";
@@ -847,20 +863,62 @@ function addTOC() {
 }
 addTOC();
 
-
 async function getRecentPageNotes() {
-    const recentPageNotes = await get("recent_page_notes", [])
-    if (recentPageNotes.length > 0) {
-        recentPageNotesNoneFound.classList.add("hidden");
-        const notesDetails = [];
-        for (const pn of recentPageNotes) {
-            try {
-                const pageNote = await get_page_note(pn);
-                notesDetails.push(pageNote);
-            } catch (error) {
-                console.error("Failed to get page note:", error);
-            }
-        }
-        makePageNoteTable(notesDetails, recentPageNotesTable);
+  const recentPageNotes = await get("recent_page_notes", []);
+  if (recentPageNotes.length > 0) {
+    recentPageNotesNoneFound.classList.add("hidden");
+    const notesDetails = [];
+    for (const pn of recentPageNotes) {
+      try {
+        const pageNote = await get_page_note(pn);
+        notesDetails.push(pageNote);
+      } catch (error) {
+        console.error("Failed to get page note:", error);
+      }
     }
+    makePageNoteTable(notesDetails, recentPageNotesTable);
+  }
 }
+
+//////////////////////
+// DOMContentLoaded //
+//////////////////////
+
+window.addEventListener("DOMContentLoaded", function () {
+  urlPatternElement = document.getElementById("url-pattern");
+  titleElement = document.getElementById("page-notes-title");
+  idElement = document.getElementById("page-note-id");
+  pageNotesTabButton = document.getElementById("page-notes-tab-button");
+  newPageNotesTabButton = document.getElementById("new-page-notes-tab-button");
+  openPageNoteButton = document.getElementById("open-page-notes-tab-button");
+  pageNotesSearchInput = document.getElementById("page-notes-search");
+  recentPageNotesTable = document.getElementById("recent-page-notes-table");
+  recentPageNotesNoneFound = document.getElementById("recent-page-notes");
+  pnHelpButton = document.getElementById("page-notes-help-tab-button");
+
+  titleElement.addEventListener("change", saveNoteTimeOut);
+  urlPatternElement.addEventListener("change", saveNoteTimeOut);
+
+  pageNotesSearchInput.addEventListener("keydown", function (event) {
+    if (event.key === "Enter") {
+      event.preventDefault(); // Prevent the default action to avoid any unwanted behavior (like form submission)
+      search_page_notes();
+    }
+  });
+
+  newPageNotesTabButton.addEventListener("click", newPageNote);
+
+  // Focus on search when clicking "open"
+  openPageNoteButton.addEventListener("click", function () {
+    setTimeout(function () {
+      pageNotesSearchInput.focus();
+    }, 50);
+  });
+
+  // Focus on page note when clicking "page note"
+  pageNotesTabButton.addEventListener("click", function () {
+    setTimeout(function () {
+      easyMDE.codemirror.focus();
+    }, 50);
+  });
+});

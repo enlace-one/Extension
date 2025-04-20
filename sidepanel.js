@@ -1406,50 +1406,6 @@ window.addEventListener("DOMContentLoaded", function() {
     // Page Notes //
     ////////////////
 
-    urlPatternElement = document.getElementById("url-pattern");
-    titleElement = document.getElementById("page-notes-title");
-    idElement = document.getElementById("page-note-id");
-    pageNotesTabButton = document.getElementById("page-notes-tab-button");
-    newPageNotesTabButton = document.getElementById("new-page-notes-tab-button")
-    openPageNoteButton = document.getElementById(
-    "open-page-notes-tab-button"
-    );
-    pageNotesSearchInput = document.getElementById("page-notes-search");
-    recentPageNotesTable = document.getElementById("recent-page-notes-table");
-    recentPageNotesNoneFound = document.getElementById("recent-page-notes")
-    pnHelpButton = document.getElementById("page-notes-help-tab-button")
-
-    titleElement.addEventListener("change", saveNoteTimeOut);
-    urlPatternElement.addEventListener("change", saveNoteTimeOut);
-
-    pageNotesSearchInput.addEventListener("keydown", function (event) {
-        if (event.key === "Enter") {
-        event.preventDefault(); // Prevent the default action to avoid any unwanted behavior (like form submission)
-        search_page_notes();
-        }
-    });
-
-    newPageNotesTabButton.addEventListener("click", newPageNote);
-
-    // Focus on search when clicking "open"
-    openPageNoteButton.addEventListener(
-        "click",
-        function () {
-        setTimeout(function () {
-            pageNotesSearchInput.focus();
-        }, 50)
-        }
-    );
-
-    // Focus on page note when clicking "page note"
-    pageNotesTabButton.addEventListener("click",
-        function () {
-        setTimeout(function () {
-            easyMDE.codemirror.focus();
-        }, 50)
-        })
-
-
     document.getElementById("add-current-url").addEventListener("click", async function () {
         const url = await getCurrentURL()
         let url_pattern = await get_default_pattern(url)
