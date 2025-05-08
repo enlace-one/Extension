@@ -100,8 +100,8 @@ function addClipboardComponenets() {
   }
   clipboardComponentsAdded = true
   console.log("triggered unlock stuff ")
-    const copy_html = '<button id="copy-{ID}" style="width: 8vw;"><img style="width: 100%; height: auto;" src="images/copy.svg" alt="Icon"></button>'
-    const paste_html = '<button id="paste-{ID}" style="width: 8vw;"><img style="width: 100%; height: auto;" src="images/paste.svg" alt="Icon"></button>'
+    const copy_html = '<button id="copy-{ID}" style="width: 8vw;"><img style="width: 100%; height: auto;" src="images/copy-icon.svg" alt="Icon"></button>'
+    const paste_html = '<button id="paste-{ID}" style="width: 8vw;"><img style="width: 100%; height: auto;" src="images/paste-icon.svg" alt="Icon"></button>'
     const edit_html = `<button id="edit-{ID}" style="width: 8vw;"><img style="width: 
     100%; height: auto;" src="images/edit.svg" alt="Icon"></button>`
 

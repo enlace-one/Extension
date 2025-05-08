@@ -803,7 +803,7 @@ function addCodeCopyButtons() {
       var copyBtn = document.createElement("button");
 
       copyBtn.innerHTML =
-        '<img style="height: 5px;" src="images/copy.svg" alt="Icon"></img>';
+        '<img style="height: 5px;" src="images/copy-icon.svg" alt="Icon"></img>';
       copyBtn.style =
         "float: right; margin-left: 10px; font-size: 8px; padding: 1px; vertical-align: top;";
       code_block.parentNode.insertBefore(copyBtn, code_block.nextSibling); // Insert the button after the code block

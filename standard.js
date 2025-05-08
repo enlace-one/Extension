@@ -340,7 +340,7 @@ document.addEventListener("DOMContentModified", function() {
         var copyBtn = document.createElement("button");
 
         copyBtn.innerHTML =
-        '<img style="height: 15px;" src="images/copy.svg" alt="Icon"></img>';
+        '<img style="height: 15px;" src="images/copy-icon.svg" alt="Icon"></img>';
         copyBtn.style =
         "float: right; margin-left: 10px; font-size: 15px; padding: 1px; vertical-align: top;";
         copy_block.parentNode.insertBefore(copyBtn, copy_block.nextSibling); // Insert the button after the code block
