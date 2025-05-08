@@ -74,8 +74,21 @@ chrome.runtime.onInstalled.addListener(function(details) {
 });
 
 async function get_clipboard_command_value(command) {
+  
   if (await getSetting("encrypt-clipboard") === true) {
-    return await convertSmartValues(await eGet(command))
+    if (!await isLocked()) {
+      return await convertSmartValues(await eGet(command))
+    } else {
+      // service_worker.js (or .ts)
+      chrome.notifications.create({
+        type: "basic",
+        iconUrl: "ea_128.png", // must be in extension's manifest
+        title: "Copy Error",
+        message: "You can't use the copy shortcuts while the Page Notes is locked",
+      });
+      
+
+    }
   } else {
     return await convertSmartValues(await get(command))
   }
