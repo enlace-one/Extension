@@ -103,7 +103,7 @@ function addClipboardComponenets() {
     const copy_html = '<button id="copy-{ID}" style="width: 8vw;"><img style="width: 100%; height: auto;" src="images/copy-icon.svg" alt="Icon"></button>'
     const paste_html = '<button id="paste-{ID}" style="width: 8vw;"><img style="width: 100%; height: auto;" src="images/paste-icon.svg" alt="Icon"></button>'
     const edit_html = `<button id="edit-{ID}" style="width: 8vw;"><img style="width: 
-    100%; height: auto;" src="images/edit.svg" alt="Icon"></button>`
+    100%; height: auto;" src="images/edit-icon.svg" alt="Icon"></button>`
 
     Array.from(document.getElementsByClassName("store-input-value")).forEach(async element => {
         const clipId = element.getAttribute("key")

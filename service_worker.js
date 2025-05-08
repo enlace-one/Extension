@@ -21,35 +21,10 @@ async function _save_page_note(id, note, title, url_pattern) {
   console.log(`Note saved with ID: ${id}`);
 }
 
-const defaultPageNotes = [
-  {text:"css_selectors.txt", id:"mde_css_selectors", url_pattern:"chrome-extension:", title:"HTML/CSS Selectors"}, 
-  {text:"bash.txt", id:"mde_bash", url_pattern:"", title:"Bash"}, 
-  {text:"chrome_keyboard.txt", id:"mde_chrome_keyboard", url_pattern:"", title:"Chrome Keyboard Shortcuts"}, 
-  {text:"git.txt", id:"mde_git", url_pattern:"", title:"git"}, 
-  {text:"regex.txt", id:"mde_regex", url_pattern:"chrome-extension:", title:"Regex"}, 
-  // {text:"country_codes.txt", id:"mde_country_codes", url_pattern:"", title:"Country Codes"}, 
-  {text:"linux_keyboard.txt", id:"mde_linux_keyboard", url_pattern:"", title:"Linux Keyboard"}, 
-  {text:"linux_term.txt", id:"mde_linux_term", url_pattern:"", title:"Linux Terminal"}, 
-  {text:"nmap.txt", id:"mde_nmap", url_pattern:"", title:"NMAP"}, 
-  {text:"powershell.txt", id:"mde_powershell", url_pattern:"", title:"Powershell"}, 
-  {text:"sql.txt", id:"mde_sql", url_pattern:"", title:"SQL"}, 
-  {text:"us_states.txt", id:"mde_us_states", url_pattern:"", title:"US States"}, 
-  {text:"windows_cmd.txt", id:"mde_cmd", url_pattern:"", title:"Windows CMD"}, 
-  {text:"windows_keyboard.txt", id:"mde_windows_keyboard", url_pattern:"", title:"Windows Keyboard Shortcuts"},
-  {text:"keyboard_nav.txt", id:"mde_keyboard_nav", url_pattern:"", title:"Keyboard Navigation Basics"},
-  {text:"confluence_keyboard.txt", id:"mde_confluence_keyboard", url_pattern:"confluence", title:"Confluence Keyboard Shortcuts"},
-  {text:"github_keyboard.txt", id:"mde_github_keyboard", url_pattern:"github\.com", title:"GitHub Keyboard Shortcuts"},
-  {text:"loop_keyboard.txt", id:"mde_loop_keyboard", url_pattern:"loop", title:"Microsoft Loop Keyboard Shortcuts"},
-  {text:"jira_keyboard.txt", id:"mde_jira_keyboard", url_pattern:"jira", title:"Jira Keyboard shortcuts"},
- ]
 
  async function _storeDefaultPageNotes() {
   for (let item of defaultPageNotes) {
-    fetch("references/" + item.text)
-      .then(response => response.text())
-      .then(data => {
-        _save_page_note(item.id, data, item.title, item.url_pattern)
-      })
+        _save_page_note(item.id, item.text, item.title, item.url_pattern)
   }
 }
 
