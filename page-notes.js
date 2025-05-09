@@ -409,9 +409,9 @@ async function _save_page_note(id, note, title, url_pattern, expiring) {
     note = await encrypt(note);
   }
 
-  if (defaultPageNoteIds.includes(id)) {
-    note = currentReferencePageNoteName
-  }
+  // if (defaultPageNoteIds.includes(id)) {
+  //   note = currentReferencePageNoteName
+  // }
 
   if (note.length > maxPageNotesNoteChar) {
     showNotification(
@@ -527,22 +527,17 @@ async function open_page_note(id, inPreview = false) {
   if (defaultPageNoteIds.includes(page_note.id)) {
     console.log("Page not is a reference note")
     // Add Try/Except
-    currentReferencePageNoteName = page_note.note
-    response = await fetch("references/" + page_note.note)
-    data = await response.text()
-    easyMDE.value(data);
-    console.log(data)
-    easyMDE.codemirror.setOption('readOnly', true);
-    if (!inPreview & !easyMDE.isPreviewActive()) {
-      easyMDE.togglePreview();
+    try {
+      response = await fetch("references/" + page_note.note)
+      data = await response.text()
+      easyMDE.value(data);
+      console.log(data)
+    } catch {
+      easyMDE.value(page_note.note);
     }
   } else {
     console.log("Page not is not a reference note")
-    easyMDE.codemirror.setOption('readOnly', false);
     easyMDE.value(page_note.note);
-    if (!inPreview & easyMDE.isPreviewActive()) {
-      easyMDE.togglePreview();
-    }
   }
   
   urlPatternElement.value = page_note.url_pattern;
@@ -562,6 +557,10 @@ async function open_page_note(id, inPreview = false) {
   // Set Visibility
   pageNotesTabButton.classList.remove("hidden");
   pageNotesTabButton.click();
+
+  if (!inPreview & easyMDE.isPreviewActive()) {
+    easyMDE.togglePreview();
+  }
 
   // Set options
   if (inPreview) {

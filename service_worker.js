@@ -23,8 +23,11 @@ async function _save_page_note(id, note, title, url_pattern) {
 
 
  async function _storeDefaultPageNotes() {
+  const results = await chrome.storage.sync.get();
   for (let item of defaultPageNotes) {
+    if (!item.id in results) {
         _save_page_note(item.id, item.text, item.title, item.url_pattern)
+    }
   }
 }
 

@@ -351,7 +351,7 @@ document.addEventListener("DOMContentModified", function() {
     });
 
     // Hover over help Text
-    document.addEventListener('DOMContentLoaded', function () {
+   
         var tooltips = document.querySelectorAll('[hover-text]');
 
         tooltips.forEach(function (tooltip) {
@@ -362,7 +362,7 @@ document.addEventListener("DOMContentModified", function() {
             tooltipElement.textContent = tooltipText;
             tooltip.appendChild(tooltipElement);
         });
-    });
+  
 
     // Show Hide Class on Click
     Array.from(document.querySelectorAll("[show-hide-class-on-click]")).forEach(element => {
