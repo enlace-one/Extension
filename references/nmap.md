@@ -15,10 +15,10 @@ nmap -Pn --script vuln 172.20.10.1
 nmap --script-help "afp-* and discovery“
 	#filename and category
 
-Categories: 
+# Categories
 discovery, dos, exploit, external, fuzzer, intrustive, safe, version, vuln, malware #detects for malware
 
-Firewall:
+# Firewall
 -sA	#See FW filtered ports
 -sN	#TCP, no flag. non-stateful firewall
 -Pn	#Skip discovery. Firewall may block discovery
@@ -26,7 +26,7 @@ Firewall:
 -g 	#use given port number to send
 -sS/sT/sA/sW/sM	#scan types
 
-Evading Detection:
+# Evading Detection
 -D [ip] 	#send with decoy IPs to blend in
 
 Nmap -T0			#slow

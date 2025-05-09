@@ -1,2 +1,2 @@
 Access another computers C drive:
-\\servername\c$
+`\\servername\c$`

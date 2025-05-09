@@ -528,11 +528,12 @@ async function open_page_note(id, inPreview = false) {
     console.log("Page not is a reference note")
     // Add Try/Except
     try {
-      response = await fetch("references/" + page_note.note)
+      response = await fetch(page_note.note)
       data = await response.text()
       easyMDE.value(data);
       console.log(data)
-    } catch {
+    } catch (e) {
+      console.log(e)
       easyMDE.value(page_note.note);
     }
   } else {

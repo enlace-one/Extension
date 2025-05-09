@@ -1,9 +1,9 @@
 # Common
-`ls`	`cd ..`	`pwd`	`exit`
+'ls'	'cd ..'	'pwd'	'exit'
 
-`mkdir` 	`rmdir`	`nano`	`less`
+'mkdir' 	'rmdir'	'nano'	'less'
 
-`cat`	`head`	`tail`
+'cat'	'head'	'tail'
 
 `md5sum filename.txt`
 
@@ -47,10 +47,13 @@
 `history`
 
 `chmod [u (user) | g (group) | o (others) | a 	(all)] [+ | - | =] [r | w | x]`
+
 `chmod a=r` read only for all
 
 `sudo apt install app_name`
+
 `service app_name start`
+
 `service app_name stop`
 
 # Network
