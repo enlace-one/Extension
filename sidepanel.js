@@ -1,881 +1,1484 @@
-// To check if sidepanel is open or closed
-chrome.runtime.connect({ name: 'mySidepanel' });
+///////////////
+// Page Notes//
+///////////////
 
-////////////////
-// Page notes //
-////////////////
+var pnHelpButton;
 
-// Add a listener for the context menu item
-chrome.contextMenus.onClicked.addListener(async (info, tab) => {
-    if (info.menuItemId === "add-to-page-note") {
-        const selection = info.selectionText;
-        document.getElementById("page-notes-textarea").value += "\n" + selection;
-        storeKeyValue();
-        document.getElementById("page-notes-unsaved-changes").classList.add("hidden")
-        document.getElementById("page-notes-saved-changes").classList.remove("hidden")
+async function setActiveURL(url, autoOpen = false) {
+    const table = document.getElementById("page-notes-matching-url-table");
+    table.innerHTML = "";
+
+    document.getElementById("page-notes-indicator").innerText = "";
+    const page_notes = await get_matching_page_notes(url);
+    console.log("Searched. Page notes returned ", page_notes.length)
+    if (page_notes.length > 0) {
+        document.getElementById("no-matching-page-notes").classList.add("hidden")
+        document.getElementById("page-notes-indicator").innerText = "(" + page_notes.length + ")";
+        makePageNoteTable(page_notes, table)
+    } else {
+        document.getElementById("no-matching-page-notes").classList.remove("hidden")
     }
-});
 
-document.getElementById('page-notes-textarea').addEventListener('keydown', function(event) {
-    if (event.key === "Enter") {
-      storeKeyValue();
-      document.getElementById("page-notes-unsaved-changes").classList.add("hidden")
-      document.getElementById("page-notes-saved-changes").classList.remove("hidden")
-    } else if (event.altKey && event.key === 't') {
-        let currentDate = new Date();
-        let options = { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false };
-        let formattedDate = currentDate.toLocaleString('en-GB', options);
-        this.value += formattedDate;
-}    else {
-        document.getElementById("page-notes-saved-changes").classList.add("hidden")
-        document.getElementById("page-notes-unsaved-changes").classList.remove("hidden")
+
+    if (page_notes.length === 1 && pageNotesTabButton.classList.contains("hidden") && autoOpen) {
+        open_page_note(page_notes[0].id, inPreview = true)
     }
-});
+    // Sidepanel would have to be in focus... 
+    // else {
+    //     setTimeout(function () {
+    //         document.getElementById("page-notes-search").click()
+    //         document.getElementById("page-notes-search").focus()
+    //     }, 1000)
+    // } 
+}
 
-// document.getElementById('page-notes-textarea').addEventListener('change', function(event) {
-//     document.getElementById("page-notes-saved-changes").classList.add("hidden")
-//     document.getElementById("page-notes-unsaved-changes").classList.remove("hidden")
-// });
+async function updatePageNoteURL() {
+    url = await getCurrentURL()
+    console.log("Url:", url)
+    setActiveURL(url, autoOpen = true);
+}
 
-document.getElementById('url-pattern').addEventListener('keydown', function(event) {
-    if (event.key === "Enter") {
-      storeKeyValue();
+
+///////////////////////////////////
+// Open this in the options page //
+///////////////////////////////////
+
+
+async function quickEdit() {
+    const previewIsActive = easyMDE.isPreviewActive();
+    if (previewIsActive) {
+        easyMDE.togglePreview();
     }
-});
+    easyMDE.codemirror.focus();
+    save_page_note();
+    easyMDE.codemirror.focus();
+}
 
+chrome.runtime.onMessage.addListener(
+    function (request, sender, sendResponse) {
+        console.log(request, sender)
+        if (request.type === "open-side-panel") {
+            quickEdit();
+        } else if (request.type === "open-key-board-shortcuts") {
+            openKeyBoardShortcuts()
+        }
+    });
 
-async function storeKeyValue() {
-    const key = document.getElementById("url-pattern").value
-    const value = document.getElementById("page-notes-textarea").value
-    if (key && value) {
-        if (key.length > await getSetting("max-key-char-page-notes")) {
-            showNotification("Url is too long")
-            return ""
-        } else if (value.length > await getSetting("max-value-char-page-notes")) {
-            showNotification("Note is too long")
-            return ""
+function openKeyBoardShortcuts() {
+    console.log("Help button clicked")
+    pnHelpButton.click()
+    if (easyMDE.isFullscreenActive()) {
+        easyMDE.toggleFullScreen
+    }
+    for (const [key, value] of Object.entries(pageNoteConfigOverwrite["shortcuts"])) {
+        const element = document.getElementById("kbs_" + key);
+        if (element) {
+            element.innerText = value;
         } else {
-            if (await getSetting("encrypt-page-notes")) {
-                // data[key] = encrypt(value)
-                storePageNoteData(key, encrypt(value))
-            } else {
-                // data[key] = value;
-                storePageNoteData(key, value)
-            }
-            // store("page-note-data", data)
-            showNotification("Saved")
-        }
-    } else {
-        showNotification("Provide a url and note")
-    }
-}
-
-function defaultPattern(url) {
-    if (url === undefined) {
-        url = ""
-    }
-    if (url.includes("?")) {
-        url = url.split("?")[0]
-    }
-    if (url.includes("#")) {
-        url = url.split("#")[0]
-    }
-    const escapedString = escapeRegExp(url);
-    console.log("returning " + escapedString)
-    return escapedString
-}
-
-async function checkMatch(url, isPattern=false) {
-    const result = await searchPageNoteData(url, isPattern=isPattern)
-    const key = result[0]
-    const value = result[1]
-    if (await getSetting("encrypt-page-notes")) {
-        return [key, decrypt(value)]; // Return the corresponding value
-    } else {
-        return [key, value]; // Return the corresponding value
-    }
-}
-
-let data = {};
-get("page-note-data").then((value) => {
-    data = value || {};
-  });
-
-
-document.addEventListener("DOMContentLoaded", async function () {
-    // Convert old page notes to new storage method
-    async function convertPageNotes(data) {
-        for (const key in data) {
-            if (! await get(key)) {
-                console.log("Converting page note " + key + " to new storage method")
-                storePageNoteData(key, data[key]);
-            }
+            console.log(`Element with ID ${key} not found.`);
         }
     }
-    convertPageNotes(data);
-});
-
-
-
-// Get Page Note Data 
-async function getPageNoteData(key) {
-    return get("page-note-data-" + key)
 }
 
-// Set Page Note Data
-async function storePageNoteData(key, value) {
-    store("page-note-data-" + key, value)
-}
 
-// Remove Page Not Data
-async function removePageNoteData(key) {
-    chrome.storage.sync.remove("page-note-data-" + key)
-}
-
-// Search Page Note Data
-async function searchPageNoteData(searchKey, isPattern=true) {
-    results = await chrome.storage.sync.get()
-    for (result in results) {
-        if (result.startsWith("page-note-data-")) {
-            if (! isPattern) {
-                 // If the searchKey is a pattern just like the 
-                 // stored key, then it would just be an ==.
-                 const regexPattern = new RegExp(result.substring(15));
-                 if (regexPattern.test(searchKey)) {
-                    return [result.substring(15), results[result]]
-                }
-            } else {
-                if (searchKey == result.substring(15)) {
-                    return [result.substring(15), results[result]]
-                }
-            }
-            
-        }
+document.addEventListener("keydown", function (event) {
+    if (event.ctrlKey && event.key === "?") {
+        openKeyBoardShortcuts()
     }
-    return [defaultPattern(searchKey), ""]
-}
-
-
-async function setActiveURL(url, isPattern=false) {
-    keyTextArray = await checkMatch(url, isPattern=isPattern)
-    console.log(keyTextArray)
-    document.getElementById("url-pattern").value = keyTextArray[0]
-    document.getElementById("page-notes-textarea").value = keyTextArray[1]
-}
-
-let changeWithTabs = true
-
-document.getElementById("page-notes-toggle-change").addEventListener("click", function () {
-    changeWithTabs = document.getElementById("page-notes-toggle-change").checked
-});
-
-document.addEventListener("DOMContentLoaded", async function () {
-    const [tab] = await chrome.tabs.query({ active: true, lastFocusedWindow: true });
-    console.log(tab.url)
-    setActiveURL(tab.url);
-  });
-  
-  chrome.tabs.onActivated.addListener(async (activeInfo) => {
-    if (changeWithTabs) {
-        const tab = await chrome.tabs.get(activeInfo.tabId);
-        if (tab.active) {
-        console.log("======= active tab url", tab.url);
-        setActiveURL(tab.url);
-        }
-    }
-  });
-  
-  chrome.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
-    if (changeWithTabs) {
-        if (tab.active) {
-        console.log("======= updated tab url", tab.url);
-        setActiveURL(tab.url);
-        }
-    }
-  });
+})
 
 
 ///////////////////////
-// Page Notes Search //
+// REGEX PAGE SEARCH //
 ///////////////////////
 
-const searchResults = document.getElementById("page-notes-search-results")
-const searchBox = document.getElementById("page-notes-search")
-const resultTable = document.getElementById("page-notes-result-table")
-
-searchBox.addEventListener("keyup", async function () {
-    const searchKey = searchBox.value
-    let matches = []
-    if (! await getSetting("encrypt-page-notes")) {
-        results = await chrome.storage.sync.get()
-        for (result in results) {
-            if (result.startsWith("page-note-data-")) {
-                if (result.includes(searchKey) | results[result].includes(searchKey)) {
-                    matches.push(result.substring(15))
-                }  
-            }
-        }
-    } else {
-        results = await chrome.storage.sync.get()
-        for (result in results) {
-            if (result.startsWith("page-note-data-")) {
-                if (result.includes(searchKey)) {
-                    matches.push(result)
-                }  
-            }
-        }
-    }
-    resultTable.innerHTML = ""
-    if (matches.length > 0) {
-        highlightedIndex = 0;
-        const tableBody = document.createElement('tbody');
-        matches.forEach(async (match, index) => {
-          const row = tableBody.insertRow();
-          row.style="border-radius: 5px;"
-          const keyCell = row.insertCell();
-          const valueCell = row.insertCell();
-          const deleteCell = row.insertCell();
-          keyCell.textContent = truncateText(match, 20) + ":";
-          keyCell.classList.add("bold")
-          keyCell.classList.add("page-note-result")
-          //keyCell.attributes.add("key", match)
-          keyCell.setAttribute("key", match)
-          keyCell.addEventListener("click", function () {
-            console.log("Opening page note")
-            changeTabs(document.getElementById("page-notes-tab-button"))()
-            setActiveURL(this.getAttribute("key"), isPattern=true);
-            //document.getElementById("url-pattern").value=
-          })
-          keyCell.id = match
-          if (await getSetting("encrypt-page-notes")) {
-                valueCell.textContent = truncateText(decrypt(await getPageNoteData(match)), 10);
-            } else {
-                valueCell.textContent = truncateText(await getPageNoteData(match), 10);
-            }
-          valueCell.style="width: 60vw;"
-          valueCell.classList.add("truncate")
-          deleteCell.textContent = "X"
-          //deleteCell.attributes.add("key_id", match)
-          deleteCell.addEventListener("click", function () {
-             removePageNoteData(match);
-             //  store("page-note-data", data)
-             row.remove()
-             showNotification("Deleted" + match)
-          })
-          if (index === highlightedIndex) {
-            row.classList.add('highlighted');
-          }
+function highlightPatternMatches(regexInput, inclusiveSearch = false) {
+    function clearPreviousMarks() {
+        const marks = document.querySelectorAll('mark');
+        marks.forEach(mark => {
+            const parent = mark.parentNode;
+            parent.replaceChild(document.createTextNode(mark.textContent), mark);
+            parent.normalize(); // Combine adjacent text nodes
         });
-        resultTable.appendChild(tableBody);
-        
-      } else {
-        resultTable.textContent = `No matches found for '${searchKey}'.`;
-      }
-});
-
-///////////////////
-// Site Settings //
-///////////////////
-
-async function refreshSiteSettings() {
-    const [tab] = await chrome.tabs.query({ active: true, lastFocusedWindow: true });
-    try {
-        const url = new URL(tab.url);
-        const parts = url.hostname.split(".");
-        const domain = "https://*." + parts[parts.length - 2] + "." + parts[parts.length - 1] + "/";
-        const cookies = await chrome.contentSettings.cookies.get({primaryUrl: domain});
-        if (cookies.setting === "block") {
-            document.getElementById("settings-toggle-cookies").checked = true;
-        } else {
-            document.getElementById("settings-toggle-cookies").checked = false;
-        }
-
-        const javascript = await chrome.contentSettings.javascript.get({primaryUrl: domain});
-        if (javascript.setting === "block") {
-            document.getElementById("settings-toggle-javascript").checked = true;
-        } else {
-            document.getElementById("settings-toggle-javascript").checked = false;
-        }
-
-        const popups = await chrome.contentSettings.popups.get({primaryUrl: domain});
-        if (popups.setting === "block") {
-            document.getElementById("settings-toggle-popups").checked = true;
-        }
-        else {
-            document.getElementById("settings-toggle-popups").checked = false;
-        }
-
-        const camera = await chrome.contentSettings.camera.get({primaryUrl: domain});
-        if (camera.setting === "block") {
-            document.getElementById("settings-toggle-camera").checked = true;
-        }
-        else {
-            document.getElementById("settings-toggle-camera").checked = false;
-        }
-
-        const microphone = await chrome.contentSettings.microphone.get({primaryUrl: domain});
-        if (microphone.setting === "block") {
-            document.getElementById("settings-toggle-microphone").checked = true;
-        } else {
-            document.getElementById("settings-toggle-microphone").checked = false;
-        }
-
-        const automaticDownloads = await chrome.contentSettings.automaticDownloads.get({primaryUrl: domain});
-        if (automaticDownloads.setting === "block") {
-            document.getElementById("settings-toggle-automatic-downloads").checked = true;
-        }
-        else {
-            document.getElementById("settings-toggle-automatic-downloads").checked = false;
-        }
-
-        const location = await chrome.contentSettings.location.get({primaryUrl: domain});
-        if (location.setting === "block") {
-            document.getElementById("settings-toggle-location").checked = true;
-        } else {
-            document.getElementById("settings-toggle-location").checked = false;
-        }
-
-        document.getElementById("settings-current-site").innerText = domain;
-
-        const notifications = await chrome.contentSettings.notifications.get({primaryUrl: domain});
-        if (notifications.setting === "block") {
-            document.getElementById("settings-toggle-notifications").checked = true;
-        } else {
-            document.getElementById("settings-toggle-notifications").checked = false;
-        }
-
-    } catch (e) {
-        return
     }
 
-}
+    function isVisible(element) {
+        const rect = element.getBoundingClientRect();
+        const style = getComputedStyle(element);
 
-// Refresh Site Settings Triggers
-document.addEventListener("DOMContentLoaded", async function () {
-    refreshSiteSettings()
-});
-
-chrome.tabs.onActivated.addListener(async (activeInfo) => {
-    refreshSiteSettings()
-});
-  
-chrome.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
-    refreshSiteSettings()
-});
-
-
-// Cookies 
-document.getElementById("settings-toggle-cookies").addEventListener("click", function () {
-    const blockCookies = document.getElementById("settings-toggle-cookies").checked;
-    chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
-        const url = new URL(tabs[0].url);
-        const parts = url.hostname.split(".");
-        const domain = "https://*." + parts[parts.length - 2] + "." + parts[parts.length - 1] + "/*";
-        console.log(domain, blockCookies)
-        if (blockCookies) {
-            chrome.contentSettings.cookies.set({
-                primaryPattern: domain,
-                setting: 'block'
-            });
+        // Check if the element is visible and not covered up by other elements
+        if (inclusiveSearch) {
+            return (
+                rect.width > 0 &&
+                rect.height > 0 &&
+                style.display !== 'none' &&
+                style.visibility !== 'hidden' &&
+                style.opacity !== '0'
+            );
         } else {
-            chrome.contentSettings.cookies.set({
-                primaryPattern: domain,
-                setting: 'allow'
+            return (
+                rect.width > 0 &&
+                rect.height > 0 &&
+                style.display !== 'none' &&
+                style.visibility !== 'hidden' &&
+                style.opacity !== '0' &&
+                element === document.elementFromPoint(rect.left + rect.width / 2, rect.top + rect.height / 2)
+            );
+        }
+    }
+
+
+    clearPreviousMarks(); // Clear any previous highlights
+
+    let matches = [];
+
+    function findMatchAndRecurse(element, regex) {
+        if (element.childNodes.length > 0) {
+            for (let i = 0; i < element.childNodes.length; i++) {
+                findMatchAndRecurse(element.childNodes[i], regex);
+            }
+        }
+
+        if (element.nodeType === Node.TEXT_NODE && isVisible(element.parentNode)) {
+            const str = element.nodeValue;
+            if (str == null) {
+                return;
+            }
+
+            const parent = element.parentNode;
+            const originalText = element.nodeValue;
+            const regexMatches = [...originalText.matchAll(regex)];
+
+            if (regexMatches.length > 0) {
+                let lastIndex = 0;
+                const fragment = document.createDocumentFragment();
+                let accum = Math.floor(Math.random() * 9000) + 1;
+
+                regexMatches.forEach(match => {
+                    accum += 1
+                    const matchText = match[0];
+                    const matchIndex = match.index;
+
+                    if (matchIndex > lastIndex) {
+                        fragment.appendChild(document.createTextNode(originalText.substring(lastIndex, matchIndex)));
+                    }
+
+                    const mark = document.createElement('mark');
+                    mark.appendChild(document.createTextNode(matchText));
+                    mark.id = `mark_${accum}`
+                    fragment.appendChild(mark);
+
+                    lastIndex = matchIndex + matchText.length;
+                });
+
+                if (lastIndex < originalText.length) {
+                    fragment.appendChild(document.createTextNode(originalText.substring(lastIndex)));
+                }
+
+                parent.replaceChild(fragment, element);
+
+            }
+        }
+
+    }
+
+    console.log(`Regex search running for regex "${regexInput}"`);
+    const regex = new RegExp(regexInput, 'gi');
+    const body = document.body;
+
+    findMatchAndRecurse(body, regex);
+
+    // After replacement, get the bounding rects of the newly created marks
+    const newMarks = document.querySelectorAll('mark');
+    newMarks.forEach(newMark => {
+        if (isVisible(newMark)) {
+            const rect = newMark.getBoundingClientRect();
+            matches.push({
+                text: newMark.textContent,
+                position: {
+                    top: rect.top + window.scrollY,
+                    left: rect.left + window.scrollX,
+                    width: rect.width,
+                    height: rect.height
+                },
+                id: newMark.id
             });
         }
     });
-});
 
-// Javascript
-document.getElementById("settings-toggle-javascript").addEventListener("click", function () {
-    const blockJavascript = document.getElementById("settings-toggle-javascript").checked;
-    chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
-        const url = new URL(tabs[0].url);
-        const parts = url.hostname.split(".");
-        const domain = "https://*." + parts[parts.length - 2] + "." + parts[parts.length - 1] + "/*";
-        console.log(domain, blockJavascript)
-        if (blockJavascript) {
-            chrome.contentSettings.javascript.set({
-                primaryPattern: domain,
-                setting: 'block'
-            });
-        } else {
-            chrome.contentSettings.javascript.set({
-                primaryPattern: domain,
-                setting: 'allow'
-            });
-        }
-    })
-});
-
-// Pop-ups and redirects
-document.getElementById("settings-toggle-popups").addEventListener("click", function () {
-    const blockPopups = document.getElementById("settings-toggle-popups").checked;
-    chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
-        const url = new URL(tabs[0].url);
-        const parts = url.hostname.split(".");
-        const domain = "https://*." + parts[parts.length - 2] + "." + parts[parts.length - 1] + "/*";
-        console.log(domain, blockPopups)
-        if (blockPopups) {
-            chrome.contentSettings.popups.set({
-                primaryPattern: domain,
-                setting: 'block'
-            });
-        } else {
-            chrome.contentSettings.popups.set({
-                primaryPattern: domain,
-                setting: 'allow'
-            });
-        }
-    })
-});
-
-// Camera
-document.getElementById("settings-toggle-camera").addEventListener("click", function () {
-    const blockCamera = document.getElementById("settings-toggle-camera").checked;
-    chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
-        const url = new URL(tabs[0].url);
-        const parts = url.hostname.split(".");
-        const domain = "https://*." + parts[parts.length - 2] + "." + parts[parts.length - 1] + "/*";
-        console.log(domain, blockCamera)
-        if (blockCamera) {
-            chrome.contentSettings.camera.set({
-                primaryPattern: domain,
-                setting: 'block'
-            });
-        } else {
-            chrome.contentSettings.camera.set({
-                primaryPattern: domain,
-                setting: 'allow'
-            });
-        }
-    })
-});
-
-// Microphone
-document.getElementById("settings-toggle-microphone").addEventListener("click", function () {
-    const blockMicrophone = document.getElementById("settings-toggle-microphone").checked;
-    chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
-        const url = new URL(tabs[0].url);
-        const parts = url.hostname.split(".");
-        const domain = "https://*." + parts[parts.length - 2] + "." + parts[parts.length - 1] + "/*";
-        console.log(domain, blockMicrophone)
-        if (blockMicrophone) {
-            chrome.contentSettings.microphone.set({
-                primaryPattern: domain,
-                setting: 'block'
-            });
-        } else {
-            chrome.contentSettings.microphone.set({
-                primaryPattern: domain,
-                setting: 'allow'
-            });
-        }
-    })
-});
+    return matches;
+}
 
 
-//Automatic downloads
-document.getElementById("settings-toggle-automatic-downloads").addEventListener("click", function () {
-    const blockAutomaticDownloads = document.getElementById("settings-toggle-automatic-downloads").checked;
-    chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
-        const url = new URL(tabs[0].url);
-        const parts = url.hostname.split(".");
-        const domain = "https://*." + parts[parts.length - 2] + "." + parts[parts.length - 1] + "/*";
-        console.log(domain, blockAutomaticDownloads)
-        if (blockAutomaticDownloads) {
-            chrome.contentSettings.automaticDownloads.set({
-                primaryPattern: domain,
-                setting: 'block'
-            });
-        } else {
-            chrome.contentSettings.automaticDownloads.set({
-                primaryPattern: domain,
-                setting: 'allow'
-            });
-        }
-    })
-});
+var inclusiveSearch;
+var back;
+var next;
+// async function _getMainTabDocument() {
+//     return document.body
+// }
 
+// async function getMainTabDocument() {
+//     let [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+//     return await chrome.scripting.executeScript({
+//             target: {tabId: tab.id},
+//             function: _getMainTabDocument,
+//             args: []
+//         })
+// }
+function highlightElement(position, id) {
+    console.log(id)
+    window.scrollTo({
+        top: position.top - 100, // Adjust offset as needed
+        behavior: 'smooth'
+    });
+    element = document.getElementById(id)
+    document.querySelectorAll('mark.highlighted').forEach(mark => {
+        mark.classList.remove('highlighted');
+    });
+    element.classList.add('highlighted');
+    // const element = document.elementFromPoint(position.left, position.top);
+    // if (element && element.tagName === 'MARK') {
+    //     document.querySelectorAll('mark.highlighted').forEach(mark => {
+    //         mark.classList.remove('highlighted');
+    //     });
+    //     element.classList.add('highlighted');
 
-// Location
-document.getElementById("settings-toggle-location").addEventListener("click", function () {
-    const blockLocation = document.getElementById("settings-toggle-location").checked;
-    chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
-        const url = new URL(tabs[0].url);
-        const parts = url.hostname.split(".");
-        const domain = "https://*." + parts[parts.length - 2] + "." + parts[parts.length - 1] + "/*";
-        console.log(domain, blockLocation)
-        if (blockLocation) {
-            chrome.contentSettings.location.set({
-                primaryPattern: domain,
-                setting: 'block'
-            });
-        } else {
-            chrome.contentSettings.location.set({
-                primaryPattern: domain,
-                setting: 'allow'
-            });
-        }
-    })
-});
+    // } else {
+    //     console.error('No matching element found or element is not a <mark>.');
+    // }
+}
 
-// Notifications
-document.getElementById("settings-toggle-notifications").addEventListener("click", function () {
-    const blockNotifications = document.getElementById("settings-toggle-notifications").checked;
-    chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
-        const url = new URL(tabs[0].url);
-        const parts = url.hostname.split(".");
-        const domain = "https://*." + parts[parts.length - 2] + "." + parts[parts.length - 1] + "/*";
-        console.log(domain, blockNotifications)
-        if (blockNotifications) {
-            chrome.contentSettings.notifications.set({
-                primaryPattern: domain,
-                setting: 'block'
-            });
-        } else {
-            chrome.contentSettings.notifications.set({
-                primaryPattern: domain,
-                setting: 'allow'
-            });
-        }
-    })
-});
+async function regexSearch() {
+    console.log("searching regex")
 
-//////////////////
-// Web requests //
-//////////////////
+    const regexInput = document.getElementById('regex-search').value;
+    const resultsTable = document.getElementById('regex-search-results');
+    let matches;
 
-let recordRequests = false
+    let [tab] = await chrome.tabs.query({
+        active: true,
+        currentWindow: true
+    });
 
-document.getElementById("requests-toggle-record").addEventListener("click", function () {
-    recordRequests = document.getElementById("requests-toggle-record").checked;
-});
+    chrome.scripting.executeScript({
+        target: {
+            tabId: tab.id
+        },
+        function: highlightPatternMatches,
+        args: [regexInput, inclusiveSearch.checked]
+    }, (results) => {
+        const matches = results[0].result;
 
-let webRequests = {};
-
-// Adds items to the table and expands to show headers and body when clicked
-chrome.webRequest.onBeforeRequest.addListener(
-    function(details) {
-        if (! recordRequests) {
-            return
-        }
-        webRequests[details.requestId] = details;
-        const table = document.getElementById("web-requests-table");
-        const row = table.insertRow();
-        row.id = details.requestId;
-        const urlCell = row.insertCell();
-        const methodCell = row.insertCell();
-        const statusCell = row.insertCell();
-        urlCell.textContent = details.url;
-        methodCell.textContent = details.method;
-        statusCell.textContent = "";
-        // DETAILS ROW
-        const detailsRow = table.insertRow(row.rowIndex + 1);
-        const detailsCell = detailsRow.insertCell();
-        detailsCell.classList.add("hidden");
-        detailsCell.colSpan = 3;
-        detailsCell.id = "details-" + details.requestId;
-        row.addEventListener("click", function() {
-            // if detailsCell is hidden, show it
-            if (! detailsCell.classList.contains("hidden")) {
-                detailsCell.classList.add("hidden");
-            } else {
-                detailsCell.classList.remove("hidden");
+        const rows = resultsTable.querySelectorAll('tr');
+        // Iterate over each row
+        rows.forEach(row => {
+            // Check if the row does not have the class "permanent"
+            if (!row.classList.contains('permanent')) {
+                // Remove the row
+                row.remove();
             }
         });
-        // Generate Javascript code button
-        const button = document.createElement("button");
-        button.textContent = "Generate JS Code";
-        detailsCell.appendChild(button);
-        codeDiv = document.createElement("textarea");
-        codeDiv.id = "code-div-" + details.requestId;
-        codeDiv.style.width = "80vw";
-        codeDiv.style.height = "60vh";
-        codeDiv.classList.add("hidden");
-        detailsCell.appendChild(codeDiv);
 
+        // Check if matches is iterable
+        if (Array.isArray(matches)) {
+            // Display matches
+            matches.forEach((match, index) => {
+                const matchElement = resultsTable.insertRow();
+                const cellOne = matchElement.insertCell();
+                cellOne.innerText = `${index + 1}`
+                const cellTwo = matchElement.insertCell();
+                cellTwo.innerText = `${match.text}`
+                matchElement.classList.add('match-item');
 
-        button.addEventListener("click", function() {
-            const cd = document.getElementById("code-div-" + details.requestId);
-            if (! cd.classList.contains("hidden")) {
-                cd.classList.add("hidden");
-            } else {
-                cd.classList.remove("hidden");
-                details = webRequests[details.requestId];
-                let code = `\nfetch("${details.url}", {\n`;
-                code += `    method: "${details.method}",\n`;
-                code += `    headers: {\n`;
-                for (const header of details.requestHeaders) {
-                    let headerName = header.name.replace(/"/g, '\\"');
-                    let headerValue = header.value.replace(/"/g, '\\"');
-                    code += `        "${headerName}": "${headerValue}",\n`;
-                }
-                code += `    },\n`;
-                if (details.requestBody) {
-                    if (details.requestBody.formData) {
-                        const formData = details.requestBody.formData;
-                        let formDataString = '';
-                        for (const key in formData) {
-                            formDataString += `${key}: ${formData[key]}, `;
-                        }
-                        code += `    body: '${formDataString}',\n`;
-                    } else if (details.requestBody.raw) {
-                        const decoder = new TextDecoder("utf-8");
-                        const rawData = details.requestBody.raw[0].bytes;
-                        const bodyText = decoder.decode(rawData);
-                        code += `    body: '${bodyText}',\n`;
+                matchElement.dataset.position = JSON.stringify(match.position);
+
+                // Add click event listener to each match item
+
+                matchElement.addEventListener('click', () => {
+                    const last = document.querySelector(".match-item.bold");
+                    if (last !== null) {
+                        last.classList.remove("bold");
                     }
+                    matchElement.classList.add("bold")
+                    chrome.scripting.executeScript({
+                        target: {
+                            tabId: tab.id
+                        },
+                        function: highlightElement,
+                        args: [match.position, match.id]
+                    });
+                });
+                if (index == 0) {
+                    matchElement.click()
                 }
-                code += `})\n`;
-                code += `.then(response => console.log(response))\n`;
-                code += `.catch(error => console.error('Error:', error));\n`;
-                
-                cd.value = code;
-                cd.style.width = "80vw";
+                // resultsContainer.appendChild(matchElement);
+            });
+        } else {
+            console.error('Matches is not iterable:', matches);
+        }
+    });
+}
 
-                // Copy the code to clipboard by focusing on cd and executing document.execCommand('copy')
-                cd.focus();
-                document.execCommand('selectAll');
-                document.execCommand('copy');
-                showNotification("Copied to clipboard");
-                cd.style.whiteSpace = 'pre-wrap'; // or 'pre-line'
+/////////
+// TOC //
+/////////
+function getTOC() {
+    const headers = document.querySelectorAll("H1, H2, H3");
+    let returnHtml = '<ol>';
+    let currentLevel = 1;
+
+    headers.forEach(function (header) {
+        if (!header.innerText) {
+            return;
+        }
+        let id = header.id || `TOC-ID-${currentLevel}`;
+        header.id = id;
+
+        const headerLevel = parseInt(header.tagName.replace(/\D/g, ''), 10);
+        if (headerLevel > currentLevel) {
+            returnHtml += "<ol>";
+        } else if (headerLevel < currentLevel) {
+            returnHtml += "</ol>".repeat(currentLevel - headerLevel);
+        }
+
+        returnHtml += `<li class='toc-${header.tagName.toLowerCase()} toc-element' id='${id}'>${header.innerText}</li>`;
+        currentLevel = headerLevel;
+    });
+
+    return returnHtml + "</ol>".repeat(currentLevel) + "</ol>";
+}
+
+async function _openTocElement(id) {
+    // currentURL = URL + `#${id}`
+    const currentURL = new URL(window.location.href);
+    currentURL.hash = id;
+    window.location.href = currentURL.href;
+}
+
+async function openTocElement(element) {
+    let [tab] = await chrome.tabs.query({
+        active: true,
+        currentWindow: true
+    });
+    chrome.scripting.executeScript({
+        target: {
+            tabId: tab.id
+        },
+        function: _openTocElement,
+        args: [element.id]
+    });
+}
+
+///////////////
+// WebAppSec //
+///////////////
+
+var webAppSecHtmlValContinuous = false;
+var webAppSecJsValContinuous = false;
+var webAppSecSampleDataContinuous = false;
+var webAppSecSelectOffContinuous = false;
+var webAppSecHiddenOffContinuous = false;
+var webAppSecNoPasteContinuous = false;
+
+
+function fillWithSampleData() {
+    // Select all input, textarea, and select elements
+    const inputs = document.querySelectorAll('input, textarea, select');
+
+    inputs.forEach(input => {
+        if (input.tagName.toLowerCase() === 'textarea') {
+            // For textareas, fill with sample text if the value is blank
+            if (!input.value.trim()) {
+                input.value = 'Sample text for textarea';
             }
-        });
-        // Generate Python code button
-        const pyButton = document.createElement("button");
-        pyButton.textContent = "Generate Python Code";
-        detailsCell.appendChild(pyButton);
-        pyCodeDiv = document.createElement("textarea");
-        pyCodeDiv.id = "py-code-div-" + details.requestId;
-        pyCodeDiv.style.width = "80vw";
-        pyCodeDiv.style.height = "60vh";
-        pyCodeDiv.classList.add("hidden");
-        detailsCell.appendChild(pyCodeDiv);
-
-        pyButton.addEventListener("click", function() {
-            const cd = document.getElementById("py-code-div-" + details.requestId);
-            if (! cd.classList.contains("hidden")) {
-                cd.classList.add("hidden");
-            } else {
-                cd.classList.remove("hidden");
-                details = webRequests[details.requestId];
-                let code = `import requests\n\n`;
-                code += `url = "${details.url}"\n`;
-                code += `headers = {\n`;
-                for (const header of details.requestHeaders) {
-                    let headerName = header.name.replace(/"/g, '\\"');
-                    let headerValue = header.value.replace(/"/g, '\\"');
-                    code += `    "${headerName}": "${headerValue}",\n`;
-                }
-                code += `}\n`;
-                if (details.requestBody) {
-                    if (details.requestBody.formData) {
-                        const formData = details.requestBody.formData;
-                        let formDataString = '';
-                        for (const key in formData) {
-                            formDataString += `${key}: ${formData[key]}, `;
-                        }
-                        code += `data = '${formDataString}'\n`;
-                    } else if (details.requestBody.raw) {
-                        const decoder = new TextDecoder("utf-8");
-                        const rawData = details.requestBody.raw[0].bytes;
-                        const bodyText = decoder.decode(rawData);
-                        code += `data = '${bodyText}'\n`;
-                    }
-                }
-                code += `response = requests.request("${details.method}", url, headers=headers, data=data)\n`;
-                code += `print(response.status_code, response.text)\n`;
-                
-                cd.value = code;
-                cd.style.width = "80vw";
-
-                // Copy the code to clipboard by focusing on cd and executing document.execCommand('copy')
-                cd.focus();
-                document.execCommand('selectAll');
-                document.execCommand('copy');
-                showNotification("Copied to clipboard");
-                cd.style.whiteSpace = 'pre-wrap'; // or 'pre-line'
+        } else if (input.tagName.toLowerCase() === 'select') {
+            // For select elements, select the first option if none is selected
+            if (input.selectedIndex === -1 && input.options.length > 0) {
+                input.selectedIndex = 0; // Select the first option
             }
-        });
-        // Hint Text
-        const br = document.createElement("br");
-        detailsCell.appendChild(br);
-        const hint = document.createElement("small");
-        hint.textContent = "Click to expand";
-        detailsCell.appendChild(hint)
-        // REQUEST BODY
-        const bodyDiv = document.createElement("div");
-        const bodyLabel = document.createElement("h3");
-        bodyLabel.textContent = "Request Body";
-        bodyDiv.appendChild(bodyLabel);
-        detailsCell.appendChild(bodyDiv);
-        let body = null;
-
-        // if bodyLabel is clicked, toggle body
-        bodyLabel.addEventListener("click", function() {
-            if (body) {
-                body.remove();
-                body = null;
-            } else {
-                body = document.createElement("div");
-                body.style.width = "80vw";
-                try {
-                    const formData = details.requestBody.formData;
-                    for (const key in formData) {
-                        const p = document.createElement("p");
-                        p.textContent = key + ": " + formData[key];
-                        body.appendChild(p);
+        } else if (input.tagName.toLowerCase() === 'input') {
+            // Handle different types of input elements
+            switch (input.type) {
+                case 'text':
+                    if (!input.value.trim()) {
+                        input.value = 'wiener';
                     }
-                    if (! formData) {
-                        const decoder = new TextDecoder("utf-8");
-                        const rawData = details.requestBody.raw[0].bytes;
-                        const bodyText = decoder.decode(rawData);
-                        body.textContent = bodyText;
+                    break;
+                case 'number':
+                    if (!input.value.trim()) {
+                        input.value = '123';
                     }
-                } catch (e) {
-                    body.textContent = "No form data";
-                }
-                bodyDiv.appendChild(body);
+                    break;
+                case 'email':
+                    if (!input.value.trim()) {
+                        input.value = 'sample@example.com';
+                    }
+                    break;
+                case 'password':
+                    if (!input.value.trim()) {
+                        input.value = 'peter';
+                    }
+                    break;
+                case 'checkbox':
+                case 'radio':
+                    if (!input.checked) {
+                        input.checked = true; // Check all checkboxes and radio buttons if not already checked
+                    }
+                    break;
+                case 'date':
+                    if (!input.value.trim()) {
+                        input.value = '2024-01-01'; // Sample date
+                    }
+                    break;
+                case 'url':
+                    if (!input.value.trim()) {
+                        input.value = 'https://example.com';
+                    }
+                    break;
+                case 'tel':
+                    if (!input.value.trim()) {
+                        input.value = '+1234567890';
+                    }
+                    break;
+                case 'range':
+                    if (!input.value.trim()) {
+                        input.value = input.max ? input.max : '50'; // Set to max or 50 if max is not defined
+                    }
+                    break;
+                default:
+                    if (!input.value.trim()) {
+                        input.value = 'Sample data'; // Default for other input types
+                    }
             }
+        }
+    });
+
+    console.log("All inputs have been filled with sample data where blank.");
+}
+
+function replaceSelectElements() {
+    // Find all select elements in the document
+    const selectElements = document.querySelectorAll('select');
+
+    selectElements.forEach(select => {
+        // Get the selected value and name attribute of the select element
+        const selectedValue = select.value;
+        const selectName = select.name;
+
+        // Create a new input element
+        const inputElement = document.createElement('input');
+        inputElement.type = 'text';
+        inputElement.value = selectedValue;
+        inputElement.name = selectName;
+
+        // Replace the select element with the input element
+        select.parentNode.replaceChild(inputElement, select);
+    });
+    // Find all radio button groups by their name
+    const radioGroups = {};
+    const radioButtons = document.querySelectorAll('input[type="radio"]');
+
+    radioButtons.forEach(radio => {
+        // Group radio buttons by their name attribute
+        const name = radio.name;
+        if (!radioGroups[name]) {
+            radioGroups[name] = [];
+        }
+        radioGroups[name].push(radio);
+    });
+
+    // Replace each group of radio buttons
+    Object.keys(radioGroups).forEach(name => {
+        const radios = radioGroups[name];
+
+        // Find the checked radio button in the group
+        const checkedRadio = radios.find(radio => radio.checked);
+        const selectedValue = checkedRadio ? checkedRadio.value : '';
+
+        // Create a new input element for the group
+        const inputElement = document.createElement('input');
+        inputElement.type = 'text';
+        inputElement.value = selectedValue;
+        inputElement.name = name;
+
+        // Replace the first radio button with the input element
+        // and remove the rest from the DOM
+        if (radios.length > 0) {
+            radios[0].parentNode.replaceChild(inputElement, radios[0]);
+            radios.slice(1).forEach(radio => radio.remove());
+        }
+    });
+}
+
+// Function to remove HTML validations like 'required', 'minlength', etc.
+function removeHtmlValidations() {
+    const inputs = document.querySelectorAll('input, textarea, select');
+    inputs.forEach(input => {
+        // Remove various validation attributes
+        input.removeAttribute('required');
+        input.removeAttribute('minlength');
+        input.removeAttribute('maxlength');
+        input.removeAttribute('pattern');
+        input.removeAttribute('step');
+        input.removeAttribute('min');
+        input.removeAttribute('max');
+
+        // List of input types to be converted to text
+        const typesToConvert = ['email', 'color', 'date', 'datetime-local', 'number', 'range', 'tel', 'url', 'week', 'time'];
+
+        // Check if input is of a type that needs to be converted to text
+        if (input.tagName.toLowerCase() === 'input' && typesToConvert.includes(input.type)) {
+            input.type = 'text';
+        }
+    });
+    console.log("HTML input validations removed.");
+}
+
+function removeHiddenFields() {
+    const inputs = document.querySelectorAll('input, textarea, select');
+    inputs.forEach(input => {
+        if (input.style.display === "none") {
+            input.style.display = "block"
+        }
+        if (input.tagName.toLowerCase() === 'input' && input.type === 'hidden') {
+            input.type = 'text';
+        }
+    });
+    console.log("Hidden Fields Shown.");
+}
+
+// Function to remove JavaScript validations by disabling event listeners related to validation
+function removeJsValidations() {
+    const inputs = document.querySelectorAll('input, textarea, select');
+    inputs.forEach(input => {
+        const clone = input.cloneNode(true);
+        input.parentNode.replaceChild(clone, input);
+    });
+    console.log("JavaScript input validations removed.");
+}
+
+// Function to remove 'no-paste' restrictions on input fields
+function removeNoPasteRestrictions() {
+    const inputs = document.querySelectorAll('input, textarea');
+    inputs.forEach(input => {
+        input.removeAttribute('onpaste');
+        input.onpaste = null;
+    });
+    console.log("No-paste restrictions removed.");
+}
+
+function loadCookies() {
+    const site_only = true;
+    if (site_only) {
+        chrome.tabs.query({
+            active: true,
+            currentWindow: true
+        }, function (tabs) {
+            const url = new URL(tabs[0].url);
+            const domain = url.hostname;
+            chrome.cookies.getAll({
+                domain: domain
+            }, function (cookies) {
+                displayCookies(cookies);
+            });
         });
+    } else {
+        chrome.cookies.getAll({}, function (cookies) {
+            displayCookies(cookies);
+        });
+    }
+}
+
+
+function displayCookies(cookies) {
+    // Edit and Delete not working, need to style list items
+    const list = document.getElementById('cookie-list');
+    list.innerHTML = ''; // clear the list
+
+    for (let cookie of cookies) {
+        // Create a list item for each cookie
+        const listItem = document.createElement('li');
+        listItem.classList.add('cookie-item');
+
+        // Create a button to toggle the visibility of the cookie details
+        const toggleButton = document.createElement('button');
+        toggleButton.textContent = `${truncateString(cookie.name, 25)} - ${truncateString(cookie.value, 25)} ${truncateString(cookie.domain, 25)}`;
+        toggleButton.addEventListener('click', () => {
+            detailDiv.style.display = detailDiv.style.display === 'none' ? '' : 'none';
+        });
+        toggleButton.classList.add("subtle-button")
+        listItem.appendChild(toggleButton);
+
+        const detailDiv = document.createElement('div');
+        detailDiv.style.display = 'none';
+
+        // Create a table to hold the cookie details
+        const cookieTable = document.createElement('table');
+        cookieTable.style.borderCollapse = 'collapse';
+        cookieTable.style.width = '100%';
+
+        // Populate the table with cookie details
+        for (const [key, value] of Object.entries(cookie)) {
+            const row = createTableRow(key, value);
+            cookieTable.appendChild(row);
+        }
+
+        // Add the table to the detailDiv
+        detailDiv.appendChild(cookieTable);
+
+        // Create an edit button
+        if (cookie.httpOnly) {
+            const httpOnlyWarning = document.createElement('small');
+            httpOnlyWarning.textContent = "  Can't edit: httpOnly";
+            detailDiv.appendChild(httpOnlyWarning);
+        } else if (cookie.domain.startsWith('.')) {
+            const httpOnlyWarning = document.createElement('small');
+            httpOnlyWarning.textContent = "  Can't edit: Domain starts with '.'";
+            detailDiv.appendChild(httpOnlyWarning);
+        } else {
+            // Add a save button below the table
+            const saveButton = document.createElement('button');
+            saveButton.textContent = 'Save';
+            detailDiv.appendChild(saveButton);
+            // Add event listener to the save button
+            saveButton.addEventListener('click', async () => {
+                const updatedCookie = {};
+
+                // Loop through each input in the table to collect updated values
+                const inputs = cookieTable.querySelectorAll('input');
+                inputs.forEach(input => {
+                    const key = input.getAttribute('data-key');
+                    const value = input.value;
+                    updatedCookie[key] = value;
+                });
+
+                // Call the function to update the cookie
+                await updateCookie(updatedCookie);
+                showNotification('Cookie updated successfully!');
+            });
+        }
+        listItem.appendChild(detailDiv);
+
+        // Create a delete button
+        const deleteButton = document.createElement('button');
+
+        deleteButton.textContent = 'Delete';
+        deleteButton.addEventListener('click', () => {
+            chrome.cookies.remove({
+                url: "http://" + cookie.domain + cookie.path,
+                name: cookie.name
+            }, function (deletedCookie) {
+                if (chrome.runtime.lastError) {
+                    console.error(chrome.runtime.lastError.message);
+                } else {
+                    console.log(deletedCookie);
+                    // Remove the list item from the list
+                    list.removeChild(listItem);
+                }
+            });
+        });
+        // deleteButton.style.display = 'none';
+        detailDiv.appendChild(deleteButton);
+
+        // Add the list item to the list
+        list.appendChild(listItem);
+    }
+}
+
+
+
+// Define a helper function to create a table row
+function createTableRow(key, value) {
+    const row = document.createElement('tr');
+
+    // Create a cell for the cookie attribute name
+    const keyCell = document.createElement('td');
+    keyCell.style.border = '1px solid #ccc';
+    keyCell.style.padding = '8px';
+    keyCell.style.backgroundColor = '#f9f9f9';
+    keyCell.textContent = key;
+
+    // Create a cell for the cookie attribute value (editable)
+    const valueCell = document.createElement('td');
+    valueCell.style.border = '1px solid #ccc';
+    valueCell.style.padding = '8px';
+
+    const input = document.createElement('input');
+    input.type = 'text';
+    input.value = value;
+    input.style.width = '100%';
+
+    // Add an attribute to store the key name for easier retrieval later
+    input.setAttribute('data-key', key);
+
+    valueCell.appendChild(input);
+    row.appendChild(keyCell);
+    row.appendChild(valueCell);
+
+    return row;
+}
+
+
+
+// Function to update the cookie using Chrome Extension API or browser API
+async function updateCookie(updatedCookie) {
+    // Assuming 'updatedCookie' contains all necessary fields such as 'name', 'value', 'domain', 'path', etc.
+    chrome.cookies.set({
+        url: `https://${updatedCookie.domain}`,
+        name: updatedCookie.name,
+        value: updatedCookie.value,
+        domain: updatedCookie.domain,
+        path: updatedCookie.path,
+        secure: updatedCookie.secure === 'true',
+        httpOnly: updatedCookie.httpOnly === 'true',
+        sameSite: updatedCookie.sameSite
+    }, (cookie) => {
+        if (chrome.runtime.lastError) {
+            console.error(chrome.runtime.lastError);
+        } else {
+            console.log('Cookie set:', cookie);
+        }
+    });
+}
+
+
+function truncateString(str, maxLength) {
+    // Check if the string length is greater than the maximum allowed length
+    if (str.length > maxLength) {
+        // Truncate the string and add an ellipsis
+        return str.slice(0, maxLength - 3) + '...';
+    }
+    // Return the original string if no truncation is needed
+    return str;
+}
+//////////////
+// REQUESTS //
+//////////////
+
+let addedRequestsListeners = false;
+
+function addWebAppSecListeners() {
+    if (!addedRequestsListeners) {
+        addedRequestsListeners = true;
         
-    },
-    {urls: ["<all_urls>"]},
-    ["requestBody"]
-);
+        // Get request Body
+        chrome.webRequest.onBeforeRequest.addListener(
+            function (details) {
+                lastRequest = {};
+                lastResponse = {};
 
+                // Extract Content-Type header from request
+                const contentTypeHeader = details.requestHeaders ? 
+                    details.requestHeaders.find(header => header.name.toLowerCase() === 'content-type') : 
+                    null;
+                const contentType = contentTypeHeader ? contentTypeHeader.value : '';
 
-// Use the ID to add the status code after onCompleted
-chrome.webRequest.onSendHeaders.addListener(
-    function(details) {
-        if (! recordRequests) {
-            return
-        }
-        webRequests[details.requestId].requestHeaders = details.requestHeaders;
-        const row = document.getElementById(details.requestId);
-        if (row) {
-            row.cells[2].textContent = details.statusCode;
-        }
-        const detailsCell = document.getElementById("details-" + details.requestId);
-        if (detailsCell) {
-            const headersDiv = document.createElement("div");
-            const headersLabel = document.createElement("h3");
-            headersLabel.textContent = "Request Headers";
-            headersDiv.appendChild(headersLabel);
-            detailsCell.appendChild(headersDiv);
-            let headers = null;
-            headersLabel.addEventListener("click", function() {
-                if (headers) {
-                    headers.remove();
-                    headers = null;
-                } else {
-                    headers = document.createElement("table");
-                    const headersTableHeadersRow = headers.insertRow();
-                    const headersTableHeadersCell1 = document.createElement("th");
-                    const headersTableHeadersCell2 = document.createElement("th");
-                    headersTableHeadersCell1.textContent = "Name";
-                    headersTableHeadersCell2.textContent = "Value";
-                    headersTableHeadersRow.appendChild(headersTableHeadersCell1);
-                    headersTableHeadersRow.appendChild(headersTableHeadersCell2);
-                    const headersTableBody = headers.createTBody();
-                    details.requestHeaders.forEach(header => {
-                        const headerRow = headersTableBody.insertRow();
-                        const headerCell1 = headerRow.insertCell();
-                        const headerCell2 = headerRow.insertCell();
-                        headerCell1.textContent = header.name;
-                        headerCell2.textContent = header.value;
-                    });
-                    headersDiv.appendChild(headers);
+                // Get the current URL's domain
+                getCurrentURL().then(currentURL => {
+                    var currentDomain = ""
+                    try {
+                        currentDomain = new URL(currentURL).hostname;
+                    } catch {
+                        console.log(`Failed to construct URL for ${currentURL}`)
+                        return
+                    }
+
+                    // Filter request based on file types and domain
+                    if (isFilteredRequest(details.url, contentType, currentDomain)) {
+                        console.log(`Filtered request for ${details.url}`)
+                        return; // Skip filtered requests
+                    } else {
+                        console.log(`Unfiltered request for ${details.url}`)
+
+                        lastRequest["body"] = details.requestBody ? details.requestBody.raw : null;
+                        lastRequest["method"] = details.method;
+                        lastRequest["url"] = details.url;
+                        lastRequest["requestId"] = details.requestId;
+
+                        updateRequestResponseTable();
+                    }
+                });
+            },
+            { urls: ["<all_urls>"] },
+            ["requestBody"]
+        );
+
+        // Modify reqeust Headers per settings
+        chrome.webRequest.onBeforeSendHeaders.addListener(
+            // Test here: https://www.whatismybrowser.com/detect/what-http-headers-is-my-browser-sending/
+            function(details) {
+              return getSetting("web-app-sec-header-modifications").then((headerModifications) => {
+                // headerModifications is a dictionary of headers you want to add or modify
+                if (headerModifications && details.requestHeaders) {
+                  // Convert request headers to a map for easier modification
+                  let headersMap = new Map(details.requestHeaders.map(header => [header.name.toLowerCase(), header]));
+          
+                  // Iterate through each header modification
+                  for (const [key, value] of Object.entries(headerModifications)) {
+                    let lowerKey = key.toLowerCase();
+                    if (value === null) {
+                      // If the value is null, remove the header
+                      headersMap.delete(lowerKey);
+                    } else {
+                      // Otherwise, add or update the header
+                      headersMap.set(lowerKey, { name: key, value: value });
+                    }
+                  }
+          
+                  // Convert the map back to an array
+                  details.requestHeaders = Array.from(headersMap.values());
+                //   console.log(`Setting headers to`)
+                //   console.log(details.requestHeaders)
+                }
+          
+                return { requestHeaders: details.requestHeaders };
+              });
+            },
+            { urls: ["<all_urls>"] },
+            ["requestHeaders"]
+          );
+          
+        // Get request headers
+        chrome.webRequest.onSendHeaders.addListener(
+            function (details) {
+                if (details.requestId != lastRequest.requestId) {
+                    return
+                }
+                lastRequest["requestHeaders"] = details.requestHeaders;
+                updateRequestResponseTable();
+            },
+            { urls: ["<all_urls>"] },
+            ["requestHeaders"]
+        );
+
+        chrome.webRequest.onHeadersReceived.addListener(
+            function (details) {
+                 if (details.requestId != lastRequest.requestId) {
+                    return
+                }
+                lastResponse["responseHeaders"] = details.responseHeaders;
+                lastResponse["statusCode"] = details.statusCode; // Ensure statusCode is set
+                updateRequestResponseTable();
+
+                try {
+                    console.log(details.protocol)
+                } catch {
+                    console.log("failed to get protocol")
+                }
+            },
+            { urls: ["<all_urls>"] },
+            ["responseHeaders"]
+        );
+    }
+}
+
+let lastRequest = {};
+let lastResponse = {};
+var excludedContentTypes = [];
+getSetting("requests-excluded-content-types").then((value) => {
+    excludedContentTypes = value;
+});
+let excludedExtensionsRegex;
+getSetting("requests-excluded-extensions").then((value) => {
+    // Convert array of extensions to a regex pattern dynamically
+    if (value && Array.isArray(value) && value.length > 0) {
+        const extensionsPattern = value.map(ext => ext.trim().replace('.', '\\.')).join('|');
+        excludedExtensionsRegex = new RegExp(`\\.(${extensionsPattern})$`, 'i');
+    } else {
+        excludedExtensionsRegex = /\.(png|jpg|jpeg|gif|svg|js|css)$/i; // Default regex pattern
+    }
+});
+var excludedHeaders = [];
+getSetting("requests-excluded-headers").then((value) => {
+    excludedHeaders = value;
+});
+
+// Function to check if the request should be filtered out
+function isFilteredRequest(url, contentType, currentDomain) {
+    try {
+        const urlObject = new URL(url);
+        const domain = urlObject.hostname; // Extract the domain
+        const pathname = urlObject.pathname; // Extract the path
+
+        // Check if the content type is in the excluded list
+        const isExcludedContentType = excludedContentTypes.some(type => contentType.includes(type));
+
+        // Check if the URL path has an excluded file extension
+        const isExcludedExtension = excludedExtensionsRegex.test(pathname);
+
+        // Check if the domain is different from the current domain
+        const isDifferentDomain = domain !== currentDomain;
+
+        // Return true if any of the conditions are met
+        const isExcluded = isExcludedContentType || isExcludedExtension || isDifferentDomain;
+        console.log(`URL ${url} with path ${pathname} excluded: ${isExcluded}. CT: ${isExcludedContentType}, Ext: ${isExcludedExtension}, D: ${isDifferentDomain}`)
+        return isExcluded
+    } catch (e) {
+        console.error('Error processing URL:', url, e);
+        return true; // Consider invalid URLs as filtered out
+    }
+}
+
+function updateRequestResponseTable() {
+    if (lastRequest && lastResponse) {
+        const requestCell = document.getElementById('web-app-sec-request');
+        const responseCell = document.getElementById('web-app-sec-response');
+
+        // Clear previous content
+        requestCell.innerHTML = '';
+        responseCell.innerHTML = '';
+
+        let requestBody = lastRequest.body ? JSON.stringify(lastRequest.body, null, 2) : 'No body';
+
+        // Create and append formatted request details
+        const lineOne = document.createElement("span");
+        lineOne.innerText = `${lastRequest.method} ${lastRequest.url} HTTP/1.1`;
+        requestCell.appendChild(lineOne);
+
+        requestCell.appendChild(document.createElement("br"));
+
+        if (lastRequest.requestHeaders) {
+            lastRequest.requestHeaders.forEach(header => {
+                if (!excludedHeaders.includes(header.name.toLowerCase())) {
+                    const headerLine = document.createElement("span");
+                    headerLine.textContent = `${header.name}: ${header.value}`;
+                    requestCell.appendChild(headerLine);
+                    requestCell.appendChild(document.createElement("br"));
                 }
             });
         }
-    },
-    {urls: ["<all_urls>"]},
-    ["requestHeaders"]
-);
 
-// Use the ID to add the status code after onCompleted
-chrome.webRequest.onHeadersReceived.addListener(
-    function(details) {
-        if (! recordRequests) {
-            return
-        }
-        //console.log(details);
-        const row = document.getElementById(details.requestId);
-        if (row) {
-            row.cells[2].textContent = details.statusCode;
-        }
-        const detailsCell = document.getElementById("details-" + details.requestId);
-        if (detailsCell) {
-            const headersDiv = document.createElement("div");
-            const headersLabel = document.createElement("h3");
-            headersLabel.textContent = "Response Headers";
-            headersDiv.appendChild(headersLabel);
-            detailsCell.appendChild(headersDiv);
-            let headers = null;
-            headersLabel.addEventListener("click", function() {
-                if (headers) {
-                    headers.remove();
-                    headers = null;
-                } else {
-                    headers = document.createElement("table");
-                    const headersTableHeadersRow = headers.insertRow();
-                    const headersTableHeadersCell1 = document.createElement("th");
-                    const headersTableHeadersCell2 = document.createElement("th");
-                    headersTableHeadersCell1.textContent = "Name";
-                    headersTableHeadersCell2.textContent = "Value";
-                    headersTableHeadersRow.appendChild(headersTableHeadersCell1);
-                    headersTableHeadersRow.appendChild(headersTableHeadersCell2);
-                    const headersTableBody = headers.createTBody();
-                    details.responseHeaders.forEach(header => {
-                        const headerRow = headersTableBody.insertRow();
-                        const headerCell1 = headerRow.insertCell();
-                        const headerCell2 = headerRow.insertCell();
-                        headerCell1.textContent = header.name;
-                        headerCell2.textContent = header.value;
-                    });
-                    headersDiv.appendChild(headers);
+        const bodyLine = document.createElement("pre");
+        bodyLine.innerText = `${requestBody}`;
+        requestCell.appendChild(bodyLine);
+
+        // Format response details
+        let responseHeaders = '';
+        if (lastResponse.responseHeaders) {
+            lastResponse.responseHeaders.forEach(header => {
+                if (!excludedHeaders.includes(header.name.toLowerCase())) {
+                    responseHeaders += `${header.name}: ${header.value}<br>`;
                 }
             });
         }
-    },
-    {urls: ["<all_urls>"]},
-    ["responseHeaders"]
-);
+
+        let responseBody = lastResponse.body ? JSON.stringify(lastResponse.body, null, 2) : 'Chrome API does not allow access to response body';
+
+        // Create and append formatted response details
+        const respCode = lastResponse.statusCode ? lastResponse.statusCode:"No Response"
+        const respText = lastResponse.statusCode ? getStatusText(lastResponse.statusCode): ""
+        const responseStatus = `HTTP/1.1 ${respCode} ${respText}`;
+        
+        const responseStatusLine = document.createElement("div");
+        responseStatusLine.innerText = responseStatus;
+        responseCell.appendChild(responseStatusLine);
+
+        responseCell.appendChild(document.createElement("br"));
+
+        const responseHeadersLine = document.createElement("div");
+        responseHeadersLine.innerHTML = `${responseHeaders}<br>Body:<br><pre>${responseBody}</pre>`;
+        responseCell.appendChild(responseHeadersLine);
+    }
+}
 
 
-// Use the input boxes to filter the web requests
-/* <td><input id="requests-url-input"></td>
-<td><input id="requests-method-input"></td>
-<td><input id="requests-status-input"></td> */
-document.getElementById("requests-url-input").addEventListener("keyup", function() {
-    searchRequests();
-});
+// Function to get status text from status code
+function getStatusText(statusCode) {
+    const statusTexts = {
+        200: 'OK',
+        201: 'Created',
+        204: 'No Content',
+        400: 'Bad Request',
+        401: 'Unauthorized',
+        403: 'Forbidden',
+        404: 'Not Found',
+        500: 'Internal Server Error',
+        502: 'Bad Gateway',
+        503: 'Service Unavailable'
+    };
 
-document.getElementById("requests-method-input").addEventListener("keyup", function() {
-    searchRequests();
-});
+    return statusTexts[statusCode] || 'Unknown Status';
+}
 
-document.getElementById("requests-status-input").addEventListener("keyup", function() {
-    searchRequests();
-});
+async function webAppSecAnalyzePage() {
+    const resultDiv = document.getElementById("web-app-sec-anal-results");
+    if (!resultDiv) {
+        console.error("Result div not found!");
+        return;
+    }
 
-function searchRequests() {
-    // Searches requests for all three inputs
-    const urlInput = document.getElementById("requests-url-input").value;
-    const methodInput = document.getElementById("requests-method-input").value;
-    const statusInput = document.getElementById("requests-status-input").value;
-    const rows = document.getElementById("web-requests-table").rows;
-    for (let i = 2; i < rows.length; i++) {
-        try {
-            if (rows[i].cells[0].textContent.includes(urlInput) && rows[i].cells[1].textContent.includes(methodInput) && rows[i].cells[2].textContent.includes(statusInput)) {
-                rows[i].style.display = "";
+    const results = await runFunctionOnPage(webAppSecAnalyzePageOnPage);
+    resultDiv.innerHTML = ""; // Clear any existing content
+    for (const [key, value] of Object.entries(results)) {
+        console.log(key, value)
+        resultDiv.appendChild(createTableWithHeaders(value, key));
+    }
+ 
+}
+
+async function webAppSecAnalyzePageOnPage() {
+    try {
+        // Analyze HTML comments
+        const htmlComments = [];
+        const nodeIterator = document.createNodeIterator(
+            document.documentElement,
+            NodeFilter.SHOW_COMMENT,
+            null,
+            false
+        );
+        let currentNode;
+        while (currentNode = nodeIterator.nextNode()) {
+            htmlComments.push(currentNode.nodeValue.trim());
+        }
+
+        // Analyze scripts
+        const scripts = document.querySelectorAll('script');
+        const externalScripts = [];
+        const inlineScripts = [];
+
+        scripts.forEach(script => {
+            if (script.src) {
+                externalScripts.push(script.src);
             } else {
-                rows[i].style.display = "none";
+                inlineScripts.push(script.textContent.trim());
             }
-        } catch (e) {
-            console.log(e);
+        });
+
+        // Analyze links
+        const links = document.querySelectorAll('a[href]');
+        const externalLinks = [];
+        const internalLinks = [];
+
+        links.forEach(link => {
+            const href = link.href.trim();
+            if (href.startsWith('http') && !href.includes(window.location.hostname)) {
+                externalLinks.push(href);
+            } else {
+                internalLinks.push(href);
+            }
+        });
+
+        // Example analysis of form actions (security best practice checks)
+        const forms = document.querySelectorAll('form');
+        const insecureFormActions = [];
+
+        forms.forEach(form => {
+            const action = form.action.trim();
+            if (action && !action.startsWith('https')) {
+                insecureFormActions.push(action);
+            }
+        });
+
+        // Generate and return results as a JSON object
+        return {
+            htmlComments,
+            externalScripts,
+            inlineScripts,
+            externalLinks,
+            internalLinks,
+            insecureFormActions,
+        };
+    } catch (error) {
+        console.error("An error occurred:", error);
+        return { error: "An Error Occurred" };
+    }
+}
+
+function camelCaseToTitleCase(text) {
+    // Step 1: Insert spaces before capital letters
+    let formattedText = text.replace(/([A-Z])/g, ' $1');
+    // Step 2: Capitalize the first letter of the string and make the rest lowercase
+    formattedText = formattedText.charAt(0).toUpperCase() + formattedText.slice(1).toLowerCase();
+    return formattedText;
+}
+
+function createTableWithHeaders(data, header) {
+    const table = document.createElement('table');
+    table.style = "width: 100%;table-layout: fixed;overflow-wrap: break-word;word-wrap: break-word;white-space: normal;"
+
+    // Helper function to create a header row
+    const createHeaderRow = (title) => {
+        const headerRow = document.createElement('tr');
+        const headerCell = document.createElement('th');
+        headerCell.textContent = camelCaseToTitleCase(header);
+        headerRow.appendChild(headerCell);
+        table.appendChild(headerRow);
+    };
+
+    // Helper function to create a data row
+    const createDataRow = (d) => {
+        const row = document.createElement('tr');
+        const dataCell = document.createElement('td');
+        // const pre = document.createElement("pre");
+        // pre.textContent = d
+        dataCell.textContent = d
+        // dataCell.appendChild(pre)
+        dataCell.style = "max-width: 100%;"
+        row.appendChild(dataCell)
+        table.appendChild(row);
+    };
+
+    createHeaderRow(header);
+    if (data.length) {
+        data.forEach(d => createDataRow(d));
+    } else {
+        createDataRow('Nothing found.');
+    }
+    return table;
+}
+
+// Helper function to escape HTML content
+function escapeHTML(str) {
+    const div = document.createElement('div');
+    div.textContent = str;
+    return div.innerHTML;
+}
+
+
+
+// EDGE SPECIFIC
+if (navigator.userAgent.includes("Edg")) {
+    console.log("Edge settings running")
+    // Zoom in/out since not supported in Edge
+    // Add event listener to detect key presses
+    customZoom()
+}
+
+async function customZoom() {
+    zoomSetting = await getSetting("zoomSetting", 1)
+    document.body.style.zoom = zoomSetting
+
+    document.addEventListener('keydown', function (event) {
+        if (event.ctrlKey) {
+            if (event.key === '+') {
+                // Zoom in logic
+                document.body.style.zoom = parseFloat(getComputedStyle(document.body).zoom) + 0.1;
+                console.log("in")
+            } else if (event.key === '-') {
+                // Zoom out logic
+                document.body.style.zoom = parseFloat(getComputedStyle(document.body).zoom) - 0.1;
+                console.log("out")
+            }
+            storeSetting("zoomSetting", parseFloat(getComputedStyle(document.body).zoom))
+        }
+    });
+}
+
+
+//////////////////////
+// DOMContentLoaded //
+//////////////////////
+
+window.addEventListener("DOMContentLoaded", function() {
+
+    ////////////////////////////////
+    // Change Visible Tab Buttons //
+    ////////////////////////////////
+    const switchButtons = document.querySelectorAll(".switch-button")
+    const regexSearchTabButton = document.getElementById("regex-search-tab-button")
+    const group1 = document.querySelector(".group1")
+    const group2 = document.querySelector(".group2")
+
+    switchButtons.forEach(async function (button) {
+        button.addEventListener("click", async function () {
+            if (button.classList.contains("group1")) {
+                group1.classList.add("hidden")
+                group2.classList.remove("hidden")
+                regexSearchTabButton.click()
+            } else {
+                group2.classList.add("hidden")
+                group1.classList.remove("hidden")
+                openPageNoteButton.click()
+            }
+        })
+    })
+
+    /////////////////
+    // Web App Sec //
+    /////////////////
+
+    document.getElementById("web-app-sec-anal-button").addEventListener("click", webAppSecAnalyzePage);
+
+    document.getElementById("web-app-sec-tab-button").addEventListener("click", addWebAppSecListeners);
+
+    document.getElementById("web-app-sec-html-val").addEventListener("click", async function () {
+        await runFunctionOnPage(removeHtmlValidations);
+    });
+
+    document.getElementById("web-app-sec-html-val-ckbx").addEventListener("change", function () {
+        webAppSecHtmlValContinuous = this.checked;
+        runFunctionOnPage(removeHtmlValidations);
+    });
+
+    document.getElementById("web-app-sec-js-val").addEventListener("click", async function () {
+        await runFunctionOnPage(removeJsValidations);
+    });
+
+    document.getElementById("web-app-sec-js-val-ckbx").addEventListener("change", function () {
+        webAppSecJsValContinuous = this.checked;
+        runFunctionOnPage(removeJsValidations);
+    });
+
+    document.getElementById("web-app-sec-sample-data").addEventListener("click", async function () {
+        await runFunctionOnPage(fillWithSampleData);
+    });
+
+    document.getElementById("web-app-sec-sample-data-ckbx").addEventListener("change", function () {
+        webAppSecSampleDataContinuous = this.checked;
+        runFunctionOnPage(fillWithSampleData);
+    });
+
+    document.getElementById("web-app-sec-select-off").addEventListener("click", async function () {
+        await runFunctionOnPage(replaceSelectElements);
+    });
+
+    document.getElementById("web-app-sec-select-off-ckbx").addEventListener("change", function () {
+        webAppSecSelectOffContinuous = this.checked;
+        runFunctionOnPage(replaceSelectElements);
+    });
+
+    document.getElementById("web-app-sec-hidden-off").addEventListener("click", async function () {
+        await runFunctionOnPage(removeHiddenFields);
+    });
+
+    document.getElementById("web-app-sec-hidden-off-ckbx").addEventListener("change", function () {
+        webAppSecHiddenOffContinuous = this.checked;
+        runFunctionOnPage(removeHiddenFields);
+    });
+
+    document.getElementById("web-app-sec-no-paste").addEventListener("click", async function () {
+        await runFunctionOnPage(removeNoPasteRestrictions);
+    });
+
+    document.getElementById("web-app-sec-no-paste-ckbx").addEventListener("change", function () {
+        webAppSecNoPasteContinuous = this.checked;
+        runFunctionOnPage(removeNoPasteRestrictions);
+    });
+
+    const encoderElement = document.getElementById("web-app-sec-encoder");
+    const decoderElement = document.getElementById("web-app-sec-decoder");
+
+    async function webAppSecEncode() {
+        // Get the encoding type (HTML or URL) selected by the user
+        var encType = document.getElementById("web-app-sec-encoder-type").value;
+
+        // Encode the textContent and set web-app-sec-decoder's text content as the encoded value
+        if (encType === "HTML") {
+            decoderElement.value = htmlEncode(encoderElement.value);
+        } else if (encType === "HTMLe") {
+            decoderElement.value = htmlEntityEncode(encoderElement.value);
+        } else if (encType === "URL") {
+            decoderElement.value = encodeURIComponent(encoderElement.value);
+        } else if (encType === "*URL") {
+            decoderElement.value = urlEncodeAll(encoderElement.value);
+        } else if (encType === "2*URL") {
+            decoderElement.value = urlEncodeAll(urlEncodeAll(encoderElement.value));
+        } else if (encType === "Hex") {
+            decoderElement.value = hexEncode(encoderElement.value);
+        } else if (encType === "Dec") {
+            decoderElement.value = decEncode(encoderElement.value);
+        } else if (encType === "B64") {
+            decoderElement.value = b64Encode(encoderElement.value);
         }
     }
-};
+
+    async function webAppSecDecode() {
+        // Get the encoding type (HTML or URL) selected by the user
+        var encType = document.getElementById("web-app-sec-encoder-type").value;
+
+        // Decode the textContent and set web-app-sec-encoder's text content as the decoded value
+        if (encType === "HTML") {
+            encoderElement.value = htmlDecode(decoderElement.value);
+        } else if (encType === "HTMLe") {
+            encoderElement.value = htmlEntityDecode(decoderElement.value);
+        } else if (encType === "URL") {
+            encoderElement.value = decodeURIComponent(decoderElement.value);
+        } else if (encType === "*URL") {
+            encoderElement.value = urlDecodeAll(decoderElement.value);
+        } else if (encType === "2*URL") {
+            encoderElement.value = urlDecodeAll(urlDecodeAll(decoderElement.value));
+        } else if (encType === "Hex") {
+            encoderElement.value = hexDecode(decoderElement.value);
+        } else if (encType === "Dec") {
+            decoderElement.value = decDecode(encoderElement.value);
+        } else if (encType === "B64") {
+            decoderElement.value = b64Decode(encoderElement.value);
+        }
+    }
+
+    encoderElement.addEventListener("input", webAppSecEncode);
+
+    decoderElement.addEventListener("input", webAppSecDecode);
+
+    document.getElementById("web-app-sec-cookies-fetch").addEventListener("click", loadCookies)
+
+    document.getElementById("web-app-sec-enc-cpy").addEventListener("click", async function () {
+        copyValue(encoderElement)
+    })
+    document.getElementById("web-app-sec-dec-cpy").addEventListener("click", async function () {
+        copyValue(decoderElement)
+    })
+    document.getElementById("web-app-sec-enc-pst").addEventListener("click", async function () {
+        pasteValue(encoderElement).then((value) => {
+            webAppSecEncode()
+        })
+    })
+    document.getElementById("web-app-sec-dec-pst").addEventListener("click", async function () {
+        pasteValue(decoderElement).then((value) => {
+            webAppSecDecode()
+        })
+    })
+
+    const commonTestingTable = document.getElementById("web-app-sec-common-testing-table")
+
+    getSetting("web-app-sec-common-testing-inputs").then((value)=> {
+        value.forEach(element => {
+           const tr = document.createElement('tr')
+           const td = document.createElement("td")
+           td.classList.add("copy-on-click")
+           td.textContent = element
+           tr.appendChild(td)
+           commonTestingTable.appendChild(tr)
+        });
+    })
+
+
+    /////////
+    // TOC //
+    /////////
+    const tocArea = document.getElementById("toc-area")
+    const tocTabButton = document.getElementById("toc-tab-button")
+
+    tocTabButton.addEventListener("click", async function () {
+        let [tab] = await chrome.tabs.query({
+            active: true,
+            currentWindow: true
+        });
+        chrome.scripting.executeScript({
+            target: {
+                tabId: tab.id
+            },
+            function: getTOC,
+            args: []
+        }, (results) => {
+            console.log(results)
+            tocArea.innerHTML = results[0].result;
+            document.querySelectorAll(".toc-element").forEach(async function (element) {
+                element.addEventListener("click", async function () {
+                    openTocElement(element)
+                })
+            })
+        });
+    });
+
+    //////////////////
+    // REGEX Search //
+    //////////////////
+
+    document.getElementById('regex-search').addEventListener('keydown', async (event) => {
+        if (event.key === "Enter") {
+            event.preventDefault();
+            regexSearch()
+        }
+    });
+
+    inclusiveSearch = document.getElementById("regex-inclusive");
+    back = document.getElementById("regex-search-back")
+    next = document.getElementById("regex-search-next")
+    back.addEventListener("click", async function () {
+        const last = document.querySelector(".match-item.bold");
+        // Get the row before "last"
+        const previousRow = last.previousElementSibling;
+        if (previousRow) {
+            previousRow.click()
+        }
+    })
+    next.addEventListener("click", async function () {
+        const last = document.querySelector(".match-item.bold");
+        // Get the row after "last"
+        const nextRow = last.nextElementSibling;
+        if (nextRow) {
+            nextRow.click()
+        }
+    })
+
+    ////////////////
+    // Page Notes //
+    ////////////////
+
+    document.getElementById("add-current-url").addEventListener("click", async function () {
+        const url = await getCurrentURL()
+        let url_pattern = await get_default_pattern(url)
+        url_pattern = url_pattern.substring(0, maxPageNotesURLChar - 1);
+        url_pattern = urlPatternElement.value + "|" + url_pattern
+        urlPatternElement.value = url_pattern
+
+        saveNoteTimeOut()
+
+    })
+    
+    document.getElementById("add-current-domain").addEventListener("click", async function () {
+        const url = await getCurrentURL()
+        let domain = await get_default_title(url)
+        let url_pattern = await get_default_pattern(domain)
+        url_pattern = url_pattern.substring(0, maxPageNotesURLChar - 1);
+        url_pattern = urlPatternElement.value + "|" + url_pattern
+        urlPatternElement.value = url_pattern
+
+        saveNoteTimeOut()
+    })
+    
+    getRecentPageNotes()
+    updatePageNoteURL()
+
+})
+
+
+////////////////////////
+// DOMContentModified //
+////////////////////////
+
+// // Uncomment the below to add stuff after initial DOM Changes occur. It's a custom event. 
+// window.addEventListener("DOMContentModified", function() {
+    
+// })
+
+/////////////////
+// tabsChanged //
+/////////////////
+
+document.addEventListener('tabsChanged', async (event) => {
+
+    /////////////////
+    // Web App Sec //
+    /////////////////
+
+    const tab = event.detail.tab;
+    if (tab.active) {
+        if (webAppSecHtmlValContinuous) {
+            await runFunctionOnPage(removeHtmlValidations);
+        }
+        if (webAppSecJsValContinuous) {
+            await runFunctionOnPage(removeJsValidations);
+        }
+        if (webAppSecSampleDataContinuous) {
+            await runFunctionOnPage(fillWithSampleData);
+        }
+        if (webAppSecSelectOffContinuous) {
+            await runFunctionOnPage(replaceSelectElements);
+        }
+        if (webAppSecHiddenOffContinuous) {
+            await runFunctionOnPage(removeHiddenFields);
+        }
+        if (webAppSecNoPasteContinuous) {
+            await runFunctionOnPage(removeNoPasteRestrictions);
+        }
+    }
+
+    ////////////////
+    // Page Notes //
+    ////////////////
+
+    updatePageNoteURL()
+
+});

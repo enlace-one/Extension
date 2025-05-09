@@ -1,10 +1,46 @@
+///////////////////
+// Custom Events //
+///////////////////
+
+document.addEventListener("DOMContentLoaded", function () {
+    console.log("Fired DOMContentLoaded")
+    // Set a timeout to trigger the custom event after 2 seconds
+    setTimeout(() => {
+        // Create the custom event
+        const customEvent = new Event('DOMContentModified');
+        console.log("Firing DOMContentModified")
+        // Dispatch the custom event
+        document.dispatchEvent(customEvent);
+    }, 1000); // 2000 milliseconds = 2 seconds
+  });
+
+// Function to dispatch the custom 'tabsChanged' event
+function dispatchTabsChangedEvent(tab) {
+    const tabsChangedEvent = new CustomEvent('tabsChanged', { detail: { tab } });
+    document.dispatchEvent(tabsChangedEvent);
+}
+
+// Listen for tab activation and update events
+chrome.tabs.onActivated.addListener(async (activeInfo) => {
+    const tab = await chrome.tabs.get(activeInfo.tabId);
+    dispatchTabsChangedEvent(tab);  // Dispatch the custom event
+});
+
+chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
+    dispatchTabsChangedEvent(tab);  // Dispatch the custom event
+});
+
+
 // If I use optional permissions, consider:
 //chrome.permissions.contains({ permissions: ['topSites'] }).then((result) => { if (result) {
 
-// Set Variables
+///////////////////
+// Set Variables //
+///////////////////
 const variables = {
-    extensionName: "Enlace Assistant",
-    clipboardName: "Clipboard",
+    extensionName: "Page Notes",
+    extensionShortName: "PN",
+    clipboardName: "Clipbox",
     snippetsName: "Snippets",
     pageNotesName: "Page Notes",
     settingsName: "Settings",
@@ -21,15 +57,10 @@ const variables = {
     webRequestsName: "Requests",
     referencesName: "References",
     scriptName: "Script",
+    regexSearchName: "re-Search",
+    tocName: "TOC", 
+    webAppSecName: "WebAppSec"
   }
-  
-window.addEventListener("DOMContentLoaded", function() {
-for (const v in variables) {
-    Array.from(document.getElementsByClassName(v)).forEach(element => {
-        element.innerHTML = variables[v];
-    });
-}
-});
 
 /////////////////
 // Lock/Unlock //
@@ -89,26 +120,8 @@ async function onStart() {
     }
 }
 
-onStart()
 
 
-// Enter password on "Enter"
-document.getElementById("password").addEventListener('keydown', async function(event) {
-    if (event.key === 'Enter') {
-        if (document.getElementById('set-reset-pw').checked) {
-            await setPassword(document.getElementById("password").value)
-            await unlock(document.getElementById("password").value)
-            document.getElementById('set-reset-pw').checked = false
-        } else {
-            await unlock(document.getElementById("password").value)
-        }
-    }
-});
-
-// Lock
-document.getElementById("lock-button").addEventListener('click', async function () {
-    lock()
-})
 
 
 async function runOnUnlock() {
@@ -121,11 +134,23 @@ async function runOnUnlock() {
     showhide("unlocked-div");
     document.getElementById("password").value = "";
 
-    // In your app
-    navigator.serviceWorker.controller.postMessage({
-        action: 'appStateChanged',
-        isUnlocked: true
-    });
+    // Send message to service worker
+    if (navigator.serviceWorker && navigator.serviceWorker.controller) {
+        navigator.serviceWorker.controller.postMessage({
+            action: 'appStateChanged',
+            isUnlocked: true
+        });
+    } else {
+        console.log("Service worker controller is not available.");
+        navigator.serviceWorker.ready.then(function(registration) {
+            registration.active.postMessage({
+                action: 'appStateChanged',
+                isUnlocked: true
+            });
+        }).catch(function(error) {
+            console.error("Failed to send message to service worker:", error);
+        });
+    }
 }
 
 async function setPassword(key) {
@@ -144,35 +169,6 @@ function showhide(hideId) {
     var div = document.getElementById(hideId);
     div.classList.toggle('hidden'); 
   }
-
-// Commented out 2/3/24, waiting for sthtf
-// Hide stuff
-// window.addEventListener("DOMContentLoaded", function() {
-//     Array.from(document.getElementsByClassName("hide-trigger")).forEach(element => {
-//         element.addEventListener("click", function() {
-            
-//             Array.from(document.getElementsByClassName(element.getAttribute("hide-class"))).forEach(element => {
-//                 element.classList.add("hidden")
-//             });
-
-//             showhide(element.getAttribute("hide-id"))
-//         });
-//     });
-// });
-
-window.addEventListener("DOMContentLoaded", function() {
-    Array.from(document.querySelectorAll("[show-hide-class-on-click]")).forEach(element => {
-        element.addEventListener("click", function() {
-            Array.from(document.getElementsByClassName(element.getAttribute("show-hide-class-on-click"))).forEach(element => {
-                element.classList.toggle("hidden")
-                console.log("toggled")
-            });
-        });
-    });
-});
-
-
-
 
 function changeTabs(button) {
     return function() {
@@ -200,28 +196,82 @@ function changeTabs(button) {
     };
 }
 
-// Handle tab switching
-document.addEventListener("DOMContentLoaded", function () {
+async function copyValue(element) {
+    try {
+        // Check if Clipboard API is available
+        if (!navigator.clipboard) {
+            console.error("Clipboard API is not available.");
+            showNotification("Clipboard API is not supported by this browser.");
+            return;
+        }
+
+        // Concatenate value and innerText if they exist
+        const textToCopy = (element.value || '') + (element.innerText || '');
+
+        await navigator.clipboard.writeText(textToCopy);
+        console.log("Content copied!");
+        showNotification("Content Copied");
+    } catch (error) {
+        console.error("Failed to copy content: ", error);
+        showNotification("Failed to copy content");
+    }
+}
+
+
+async function pasteValue(element) {
+    const text = await navigator.clipboard.readText();
+    element.value = text;
+    showNotification("Pasted");
+}
+
+//////////////////////
+// DOMContentLoaded //
+//////////////////////
+
+window.addEventListener("DOMContentLoaded", function() {
+    for (const v in variables) {
+        Array.from(document.getElementsByClassName(v)).forEach(element => {
+            element.innerHTML = variables[v];
+        });
+    }
+
+    onStart()
+
+    // Add Keyboard Shortcuts
+    chrome.commands.getAll(function(commands) {
+        commands.forEach(function(command) {
+            // console.log('Command: ' + command.name);
+            // console.log('Shortcut: ' + command.shortcut);
+            Array.from(document.getElementsByClassName(command.name)).forEach(element => {
+                if (element && command.shortcut) {
+                    element.innerHTML = command.shortcut
+                }
+            });
+        });
+    });
+
+    /////////////////
+    // Tab buttons //
+    /////////////////
+
     // Get all tab buttons
     const tabButtons = document.querySelectorAll(".tab-button");
-
     // Add click event listener to each tab button
     tabButtons.forEach(function (button) {
         button.addEventListener("click", changeTabs(button));
     });
-});
 
-
-// Handle subtab switching
-document.addEventListener("DOMContentLoaded", function () {
-    // Get all tab buttons
-    const tabButtons = document.querySelectorAll(".subtab-button");
-
-    // Add click event listener to each tab button
-    tabButtons.forEach(function (button) {
+    const subtabButtons = document.querySelectorAll(".subtab-button");
+    subtabButtons.forEach(function (button) {
         button.addEventListener("click", function () {
-            // Remove 'active' class from all tab buttons
-            tabButtons.forEach(function (btn) {
+            // Get the subtab group from the clicked button
+            const group = button.getAttribute("group");
+
+            // Filter tab buttons by group
+            const groupButtons = document.querySelectorAll(`.subtab-button[group="${group}"]`);
+
+            // Remove 'active' class from all tab buttons in that group
+            groupButtons.forEach(function (btn) {
                 btn.classList.remove("active");
             });
 
@@ -231,9 +281,11 @@ document.addEventListener("DOMContentLoaded", function () {
             // Get the ID of the tab to show
             const tabId = button.getAttribute("data-tab");
 
-            // Hide all tab contents
-            const tabContents = document.querySelectorAll(".subtab-content");
-            tabContents.forEach(function (content) {
+            // Filter tab contents by group
+            const groupContents = document.querySelectorAll(`.subtab-content[group="${group}"]`);
+
+            // Hide all tab contents of that group
+            groupContents.forEach(function (content) {
                 content.classList.remove("active");
             });
 
@@ -242,31 +294,102 @@ document.addEventListener("DOMContentLoaded", function () {
             tabContentToShow.classList.add("active");
         });
     });
-});
 
-// Hover over help Text
-document.addEventListener('DOMContentLoaded', function () {
-    var tooltips = document.querySelectorAll('[hover-text]');
-
-    tooltips.forEach(function (tooltip) {
-        tooltip.classList.add('hover-text-trigger')
-        var tooltipText = tooltip.getAttribute('hover-text');
-        var tooltipElement = document.createElement('div');
-        tooltipElement.classList.add('tooltiptext');
-        tooltipElement.textContent = tooltipText;
-        tooltip.appendChild(tooltipElement);
-    });
-});
-
-// Add Keyboard Shortcuts
-chrome.commands.getAll(function(commands) {
-    commands.forEach(function(command) {
-        console.log('Command: ' + command.name);
-        console.log('Shortcut: ' + command.shortcut);
-        Array.from(document.getElementsByClassName(command.name)).forEach(element => {
-            if (element && command.shortcut) {
-                element.innerHTML = command.shortcut
+    // Enter password on "Enter"
+    document.getElementById("password").addEventListener('keydown', async function(event) {
+        if (event.key === 'Enter') {
+            if (document.getElementById('set-reset-pw').checked) {
+                await setPassword(document.getElementById("password").value)
+                await unlock(document.getElementById("password").value)
+                document.getElementById('set-reset-pw').checked = false
+            } else {
+                await unlock(document.getElementById("password").value)
             }
+        }
+    });
+
+    // Lock
+    document.getElementById("lock-button").addEventListener('click', async function () {
+        lock()
+    })
+    
+});
+
+////////////////////////
+// DOMContentModified //
+////////////////////////
+
+document.addEventListener("DOMContentModified", function() {
+    console.log("Running 'DOMContentModified' actions")
+    
+    // Copy on Click
+    const copyOnClickElements = document.querySelectorAll('.copy-on-click');
+    // Loop through each element and add a click event listener
+    copyOnClickElements.forEach(button => {
+        button.addEventListener('click', function() {       
+            // Copy the text content of the clicked element to the clipboard
+            copyValue(this);
         });
     });
+
+
+    // Copy Buttons
+    var copy_blocks = document.querySelectorAll(".copy-block");
+    copy_blocks.forEach(function(copy_block) {
+
+        var copyBtn = document.createElement("button");
+
+        copyBtn.innerHTML =
+        '<img style="height: 15px;" src="images/copy-icon.svg" alt="Icon"></img>';
+        copyBtn.style =
+        "float: right; margin-left: 10px; font-size: 15px; padding: 1px; vertical-align: top;";
+        copy_block.parentNode.insertBefore(copyBtn, copy_block.nextSibling); // Insert the button after the code block
+
+        copyBtn.addEventListener("click", function () {
+            copyValue(copy_block)
+        });
+    });
+
+    // Hover over help Text
+   
+        var tooltips = document.querySelectorAll('[hover-text]');
+
+        tooltips.forEach(function (tooltip) {
+            tooltip.classList.add('hover-text-trigger')
+            var tooltipText = tooltip.getAttribute('hover-text');
+            var tooltipElement = document.createElement('div');
+            tooltipElement.classList.add('tooltiptext');
+            tooltipElement.textContent = tooltipText;
+            tooltip.appendChild(tooltipElement);
+        });
+  
+
+    // Show Hide Class on Click
+    Array.from(document.querySelectorAll("[show-hide-class-on-click]")).forEach(element => {
+        element.addEventListener("click", function() {
+            Array.from(document.getElementsByClassName(element.getAttribute("show-hide-class-on-click"))).forEach(element => {
+                element.classList.toggle("hidden")
+                console.log("toggled")
+            });
+        });
+    });
+
+    // Function to toggle dropdown content visibility
+    function toggleDropdown() {
+        // Toggle the 'undropped' class on the clicked button
+        this.classList.toggle("undropped");
+
+        // Find the associated dropdown content
+        const dropdownContent = this.nextElementSibling;
+
+        // Toggle the 'hidden' class on the associated dropdown content
+        dropdownContent.classList.toggle('hidden');
+    }
+
+    // Event listeners for all dropdown buttons
+    const dropdownButtons = document.querySelectorAll('.dropdown-button');
+    dropdownButtons.forEach(button => {
+        button.addEventListener('click', toggleDropdown);
+    });
+
 });

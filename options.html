@@ -3,7 +3,15 @@
 
 <head>
     <title>Options Page</title>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="/third_party/easymde.min.css">
+    <link rel="stylesheet" href="/third_party/highlight.min.css">
+
+    <script src="/third_party/easymde.min.js"></script>
+    <script src="/third_party/highlight.min.js"></script>
+
     <link rel="stylesheet" href="default.css">
+
     <style>
         /* Overrides default */
         .container {
@@ -14,6 +22,7 @@
             padding: 20px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
         }
+
         /* Small text below options */
         .option small {
             margin-left: 5px;
@@ -120,7 +129,7 @@
             <div style="display: inline-block">
                 <input id="password" type="password" class="" key="" />
                 <p hover-text="First time? Check the box and make up a password">
-                    (i)
+                    <img style="width: 15px; height: auto;" src="images/info-icon.svg" alt="Icon">
                 </p>
             </div>
             <div style="display: inline-block">
@@ -138,574 +147,164 @@
                 <button class="tab-button settingsName" data-tab="settings-tab">
                     Settings
                 </button>
-                <button class="tab-button regexName" data-tab="regex-tab">
+                <button class="tab-button regexName hidden" data-tab="regex-tab">
                     Regex
                 </button>
-                <button class="tab-button htmlName" data-tab="html-tab">
+                <button class="tab-button htmlName hidden" data-tab="html-tab">
                     Html
                 </button>
-                <button class="tab-button referencesName" data-tab="references-tab">
-                  References
+                <button id="page-notes-super-tab" class="tab-button pageNotesName" data-tab="page-notes-supertab">
+                    Page Notes
                 </button>
                 <button class="tab-button scriptName hidden" data-tab="script-tab">
-                  Script
+                    Script
                 </button>
                 <input type="button" value="Lock" id="lock-button" />
             </div>
             <div class="tab-content" id="script-tab">
-              <h2 class="scriptName"></h2>
-              <small>Save this script once (and after each update), and it should run on any page you visit.</small>
-              <textarea id="script-editor" style="width:92vw; height: 80vh;"></textarea>
-              <small>Press CTRL+Enter to Save</small>
-            </div>
-            <div class="tab-content" id="references-tab">
-              <h2 class="referencesName">References</h2>
-              <table>
-                <row>
-                  
-                  <td>
-                    <div id="references-list">
-                      <input type="text" id="references-search" placeholder="Search references">
-                      <ul id="references-ul" style="padding-left: 0px; margin-left: 0px">
-                      </ul>
-                    </div>
-                  </td>
-                  <td>
-                    <h3>File: <span id="references-title"></span></h3>
-                  </td>
-                  <td>
-                    <div class="hidden" id="references-edit-buttons">
-                        <button id="references-edit">Edit</button>
-                        <button id="references-save">Save</button>
-                        <button id="references-new">New</button>
-                    </div>
-                  </td>
-                </row>
-              </table>  
-                <div id="references-display">
-                    
-                    <div id="references-content">
-                        <textarea id="references-text" style="width:92vw; height: 80vh;" readonly>
-
-                        </textarea>
-                    </div>
-                </div>
+                <h2 class="scriptName"></h2>
+                <small>Save this script once (and after each update), and it should run on any page you visit.</small>
+                <textarea id="script-editor" style="width:92vw; height: 80vh;"></textarea>
+                <small>Press CTRL+Enter to Save</small>
             </div>
             <div class="tab-content" id="html-tab">
-                <div style="display: flex;"> 
-                    <div class="css-selectors"
-                        style="flex: .4;background-color: lightgray; border-radius: 10px; margin: 10px; height: 400px; overflow: auto;">
-                        <table>
-                            <tr>
-                              <th>CSS Selector</th>
-                              <th>HTML Attribute or Element</th>
-                            </tr>
-                            <tr>
-                              <td>.class1</td>
-                              <td>class="class1"</td>
-                            </tr>
-                            <tr>
-                              <td>.class1.class2</td>
-                              <td>class="class1 class2"</td>
-                            </tr>
-                            <tr>
-                              <td>.class1 .class2</td>
-                              <td>class="class1" (descendant of class="class2")</td>
-                            </tr>
-                            <tr>
-                              <td>#id</td>
-                              <td>id="id"</td>
-                            </tr>
-                            <tr>
-                              <td>*</td>
-                              <td>All elements</td>
-                            </tr>
-                            <tr>
-                              <td>element</td>
-                              <td>&lt;element&gt;</td>
-                            </tr>
-                            <tr>
-                              <td>element.class</td>
-                              <td>&lt;element class="class"&gt;</td>
-                            </tr>
-                            <tr>
-                              <td>div, p</td>
-                              <td>&lt;div&gt; and/or &lt;p&gt;</td>
-                            </tr>
-                            <tr>
-                              <td>div p</td>
-                              <td>All &lt;p&gt; inside &lt;div&gt;s</td>
-                            </tr>
-                            <tr>
-                              <td>div > p</td>
-                              <td>All &lt;p&gt; directly inside &lt;div&gt;s</td>
-                            </tr>
-                            <tr>
-                              <td>div + p</td>
-                              <td>The first &lt;p&gt; directly inside &lt;div&gt;s</td>
-                            </tr>
-                            <tr>
-                              <td>element1~element2</td>
-                              <td>All element2s preceded by element1</td>
-                            </tr>
-                            <tr>
-                              <td>[target]</td>
-                              <td>target=""</td>
-                            </tr>
-                            <tr>
-                              <td>[target="_blank"]</td>
-                              <td>target="_blank"</td>
-                            </tr>
-                            <tr>
-                              <td>[title~="flower"]</td>
-                              <td>title="the-flower-maker"</td>
-                            </tr>
-                            <tr>
-                              <td>[lang|="en"]</td>
-                              <td>lang="english"</td>
-                            </tr>
-                            <tr>
-                              <td>a[href^="https"]</td>
-                              <td>&lt;a href="https://gg"&gt;</td>
-                            </tr>
-                            <tr>
-                                <td>:active</td>
-                                <td>a:active</td>
-                              </tr>
-                              <tr>
-                                <td>::after</td>
-                                <td>p::after</td>
-                              </tr>
-                              <tr>
-                                <td>::before</td>
-                                <td>p::before</td>
-                              </tr>
-                              <tr>
-                                <td>:checked</td>
-                                <td>input:checked</td>
-                              </tr>
-                              <tr>
-                                <td>:default</td>
-                                <td>input:default</td>
-                              </tr>
-                              <tr>
-                                <td>:disabled</td>
-                                <td>input:disabled</td>
-                              </tr>
-                              <tr>
-                                <td>:empty</td>
-                                <td>p:empty</td>
-                              </tr>
-                              <tr>
-                                <td>:enabled</td>
-                                <td>input:enabled</td>
-                              </tr>
-                              <tr>
-                                <td>:first-child</td>
-                                <td>p:first-child</td>
-                              </tr>
-                              <tr>
-                                <td>::first-letter</td>
-                                <td>p::first-letter</td>
-                              </tr>
-                              <tr>
-                                <td>::first-line</td>
-                                <td>p::first-line</td>
-                              </tr>
-                              <tr>
-                                <td>:first-of-type</td>
-                                <td>p:first-of-type</td>
-                              </tr>
-                              <tr>
-                                <td>:focus</td>
-                                <td>input:focus</td>
-                              </tr>
-                              <tr>
-                                <td>:fullscreen</td>
-                                <td>:fullscreen</td>
-                              </tr>
-                              <tr>
-                                <td>:hover</td>
-                                <td>a:hover</td>
-                              </tr>
-                              <tr>
-                                <td>:in-range</td>
-                                <td>input:in-range</td>
-                              </tr>
-                              <tr>
-                                <td>:indeterminate</td>
-                                <td>input:indeterminate</td>
-                              </tr>
-                              <tr>
-                                <td>:invalid</td>
-                                <td>input:invalid</td>
-                              </tr>
-                              <tr>
-                                <td>:lang(language)</td>
-                                <td>p:lang(it)</td>
-                              </tr>
-                              <tr>
-                                <td>:last-child</td>
-                                <td>p:last-child</td>
-                              </tr>
-                              <tr>
-                                <td>:last-of-type</td>
-                                <td>p:last-of-type</td>
-                              </tr>
-                              <tr>
-                                <td>:link</td>
-                                <td>a:link</td>
-                              </tr>
-                              <tr>
-                                <td>::marker</td>
-                                <td>::marker</td>
-                              </tr>
-                              <tr>
-                                <td>:not(selector)</td>
-                                <td>:not(p)</td>
-                              </tr>
-                              <tr>
-                                <td>:nth-child(n)</td>
-                                <td>p:nth-child(2)</td>
-                              </tr>
-                              <tr>
-                                <td>:nth-last-child(n)</td>
-                                <td>p:nth-last-child(2)</td>
-                              </tr>
-                              <tr>
-                                <td>:nth-last-of-type(n)</td>
-                                <td>p:nth-last-of-type(2)</td>
-                              </tr>
-                              <tr>
-                                <td>:nth-of-type(n)</td>
-                                <td>p:nth-of-type(2)</td>
-                              </tr>
-                              <tr>
-                                <td>:only-of-type</td>
-                                <td>p:only-of-type</td>
-                              </tr>
-                              <tr>
-                                <td>:only-child</td>
-                                <td>p:only-child</td>
-                              </tr>
-                              <tr>
-                                <td>:optional</td>
-                                <td>input:optional</td>
-                              </tr>
-                              <tr>
-                                <td>:out-of-range</td>
-                                <td>input:out-of-range</td>
-                              </tr>
-                              <tr>
-                                <td>::placeholder</td>
-                                <td>input::placeholder</td>
-                              </tr>
-                              <tr>
-                                <td>:read-only</td>
-                                <td>input:read-only</td>
-                              </tr>
-                              <tr>
-                                <td>:read-write</td>
-                                <td>input:read-write</td>
-                              </tr>
-                              <tr>
-                                <td>:required</td>
-                                <td>input:required</td>
-                              </tr>
-                              <tr>
-                                <td>:root</td>
-                                <td>:root</td>
-                              </tr>
-                              <tr>
-                                <td>::selection</td>
-                                <td>::selection</td>
-                              </tr>
-                              <tr>
-                                <td>:target</td>
-                                <td>#news:target</td>
-                              </tr>
-                              <tr>
-                                <td>:valid</td>
-                                <td>input:valid</td>
-                              </tr>
-                              <tr>
-                                <td>:visited</td>
-                                <td>a:visited</td>
-                              </tr>
-                          </table>     
-                          <a href="https://www.w3schools.com/cssref/css_selectors.php">Source</a>                     
-                    </div>
-                    <div style="flex: 1; text-align: right; width: 100%">
-                        
-                        <textarea id="html-editor" contenteditable="true">
+
+                <div style="flex: 1; text-align: right; width: 100%">
+
+                    <textarea id="html-editor" contenteditable="true">
 &lt;style&gt; 
-    .myClass { 
-        background-color: grey; 
-    } 
+.myClass { 
+  background-color: grey; 
+} 
 &lt;/style&gt; 
 &lt;p class=&quot;myClass&quot;&gt;
-    Hello &lt;b&gt;world!&lt;/b&gt;
+  Hello &lt;b&gt;world!&lt;/b&gt;
 &lt;p&gt;
-                        </textarea>
-                        <iframe id="html-viewer">
+                  </textarea>
+                    <iframe id="html-viewer">
 
-                        </iframe>
-                    </div>
+                    </iframe>
                 </div>
-                <button show-hide-class-on-click="css-selectors">Show/Hide CSS reference</button>
-                        <small>As you type on the left, it will render html on the right. Javascript will not work</small>
+                <small>As you type on the left, it will render html on the right. Javascript will not work</small>
             </div>
             <div class="tab-content" id="regex-tab">
-                <div style="display: flex;">
-                    <div
-                        style="flex: .4;background-color: lightgray; border-radius: 10px; margin: 10px; height: 400px; overflow: auto;">
-                        <!-- <h3>Advanced Examples</h3> -->
-                        <table>
-                            <caption>
-                                <h3>Basic</h3>
-                            </caption>
-                            <tr>
-                                <th>Item</th>
-                                <th>Description</th>
-                                <th>Example</th>
-                            </tr>
-                            <tr>
-                                <td>.</td>
-                                <td><i>Any single character</i></td>
-                                <td>. <i>matches</i> 'g', '5', '_'</td>
-                            </tr>
-                            <tr>
-                                <td>\d</td>
-                                <td><i>Any number [0-9]</i></td>
-                                <td>\d <i>matches</i> '0', '4', '8'</td>
-                            </tr>
-                            <tr>
-                                <td>\D</td>
-                                <td><i>NOT any number [0-9]</i></td>
-                                <td>\D <i>matches</i> ':', '_', 'h'</td>
-                            </tr>
-                            <tr>
-                                <td>\s</td>
-                                <td><i>Whitespace</i></td>
-                                <td>\s <i>matches</i> ' ', newlines</td>
-                            </tr>
-                            <tr>
-                                <td>\S</td>
-                                <td><i>NOT whitespace</i></td>
-                                <td>\S <i>matches</i> ':', '0', 'h'</td>
-                            </tr>
-                            <tr>
-                                <td>\w</td>
-                                <td><i>ASCII letter, digit or underscore</i></td>
-                                <td><i>Newline</i></td>
-                            </tr>
-                            <tr>
-                                <td>\W</td>
-                                <td><i>NOT ASCII, digit, underscore</i></td>
-                                <td>\W <i>matches</i> '*', '-', '+', '=', ')'</td>
-                            </tr>
-                        </table>
-                        <table>
-                            <caption>
-                                <h3>Qualifers</h3>
-                            </caption>
-                            <tr>
-                                <th>Item</th>
-                                <th>Description</th>
-                                <th>Example</th>
-                            </tr>
-                            <tr>
-                                <td>*</td>
-                                <td><i>Zero or more times</i></td>
-                                <td>f* <i>matches</i> '', 'f', 'ffff'</td>
-                            </tr>
-                            <tr>
-                                <td>?</td>
-                                <td><i>Once or None</i></td>
-                                <td>f? <i>matches</i> '', 'f'</td>
-                            </tr>
-                            <tr>
-                                <td>?</td>
-                                <td><i>Once or None</i></td>
-                                <td>f? <i>matches</i> '', 'f'</td>
-                            </tr>
-                            <tr>
-                                <td>+</td>
-                                <td><i>One or more times</i></td>
-                                <td>f+ <i>matches</i> 'f', 'ffff'</td>
-                            </tr>
-                            <tr>
-                                <td>{3}</td>
-                                <td><i>3 times</i></td>
-                                <td>f{3} <i>matches</i> 'fff'</td>
-                            </tr>
-                            <tr>
-                                <td>{2, 4}</td>
-                                <td><i>2, 3, or 4 times</i></td>
-                                <td>f{2, 4} <i>matches</i> 'ff', 'fff', 'ffff'</td>
-                            </tr>
-                            <tr>
-                                <td>{2,}</td>
-                                <td><i>2, or more times</i></td>
-                                <td>f{2,} <i>matches</i> 'ff', 'fffff'</td>
-                            </tr>
-                        </table>
-                        <table>
-                            <caption>
-                                <h3>Other</h3>
-                            </caption>
-                            <tr>
-                                <th>Item</th>
-                                <th>Description</th>
-                                <th>Example</th>
-                            </tr>
-                            <tr>
-                                <td>$</td>
-                                <td><i>End of line</i></td>
-                                <td>f$ <i>matches</i> 'f', but not 'fb'</td>
-                            </tr>
-                            <tr>
-                                <td>^</td>
-                                <td><i>Start of line</i></td>
-                                <td>^f <i>matches</i> 'fb', but not 'bf'</td>
-                            </tr>
-                            <tr>
-                                <td>\n</td>
-                                <td><i>Newline</i></td>
-                                <td></td>
-                            </tr>
-                            <tr>
-                                <td>\</td>
-                                <td><i>Escape character</i></td>
-                                <td>\. <i>matches</i> '.', not any character</td>
-                            </tr>
-                            <tr>
-                                <td>[]</td>
-                                <td><i>Any character in brackets</i></td>
-                                <td>[ghf] <i>matches</i> 'g', 'h', 'f'</td>
-                            </tr>
-                            <tr>
-                                <td>[a-z]</td>
-                                <td><i>Any character in range</i></td>
-                                <td>[a-c] <i>matches</i> 'a', 'b', 'c'</td>
-                            </tr>
-                            <tr>
-                                <td>[^a-z]</td>
-                                <td><i>Not any character in range</i></td>
-                                <td>[^a-c] <i>matches</i> 'z', not 'a'</td>
-                            </tr>
-                            <tr>
-                                <td>(?=...)</td>
-                                <td><i>Positive lookahead</i></td>
-                                <td></td>
-                            </tr>
-                            <tr>
-                                <td>(?<=...)< /td>
-                                <td><i>Positive lookbehind</i></td>
-                                <td></td>
-                            </tr>
-                            <tr>
-                                <td>(?!...)</td>
-                                <td><i>Negative lookahead</i></td>
-                                <td></td>
-                            </tr>
-                            <tr>
-                                <td>(?=...)</td>
-                                <td><i>Negative lookbehind</i></td>
-                                <td></td>
-                            </tr>
-                        </table>
 
-                        <table>
-                            <caption>
-                                <h3>Advanced Examples</h3>
-                            </caption>
+                <div style="flex: 1; text-align: right;">
+                    <hr>
+                    <div class="subtabs">
+                        <button class="subtab-button regexTesterName active" group="regex" data-tab="regex-subtab">
+                            Regex Tester
+                        </button>
+                        <button class="subtab-button replacerName" group="regex" data-tab="replacer-subtab">
+                            Re-placer
+                        </button>
+                    </div>
+                    <div class="subtab-content" group="regex"  id="replacer-subtab">
+                        <h1 class="replacerName">Re-placer</h1>
+                        <table id="replacerTable">
                             <tr>
-                                <th>Pattern</th>
-                                <th>Matches</th>
-                                <th>Fails</th>
+                                <th>Find</th>
+                                <th></th>
+                                <th>Replace With</th>
                             </tr>
                             <tr>
-                                <td>^(?:(?!(\w)(\w)\2\1).)+$</td>
-                                <td>effusive</td>
-                                <td>labba</td>
-                            </tr>
-                            <tr>
-                                <td>^"[^"]+$</td>
-                                <td>"effusive" OR "23:."</td>
-                                <td>'effusive'</td>
-                            </tr>
-                            <tr>
-                                <td>(?<!"(?=Tarzan"))Tarzan< /td>
-                                <td>Tarzan</td>
-                                <td>"Tarzan"</td>
-                            </tr>
-                            <tr>
-                                <td>^(?!(xx+)\1+$)</td>
-                                <td><i>Matches prime numbers of 'x'</i></td>
-                                <td><i>Non-prime counts</i></td>
+                                <td><textarea id="replacer-find" rows="1"></textarea></td>
+                                <td style="width: 82px"><input type="button" id="replacer-regex-switch" value="&lt; Switch &gt;"/></td>
+                                <td><textarea id="replacer-replace-with" rows="1"></textarea></td>
                             </tr>
                         </table>
-                        <a href="https://www.rexegg.com/regex-quickstart.html">Source</a>
-                    </div>
-                  
-                    <div style="flex: 1; text-align: right;">
-                      <hr>
-                        <div class="subtabs">
-                            <button class="subtab-button regexTesterName active" data-tab="regex-subtab">
-                                Regex Tester
-                            </button>
-                            <button class="subtab-button replacerName" data-tab="replacer-subtab">
-                                Re-placer
-                            </button>
-                        </div>
-                        <div class="subtab-content" id="replacer-subtab">
-                            <h1 class="replacerName">Re-placer</h1>
-                            <table id="replacerTable">
-                                <tr>
-                                    <th>Find</th>
-                                    <th>Replace With</th>
-                                </tr>
-                                <tr>
-                                    <td><textarea id="replacer-find" rows="1"></textarea></td>
-                                    <td><textarea id="replacer-replace-with" rows="1"></textarea></td>
-                                </tr>
-                            </table>
-                            <input type="button" id="runReplacer" value="Replace" />
+                        <input type="button" id="runReplacer" value="Replace" />
 
-                            <textarea id="replacer-input" rows="5" placeholder="input"></textarea>
-                            <textarea id="replacer-output" rows="5" placeholder="output"></textarea>
-                        </div>
-                        <div class="subtab-content active" id="regex-subtab">
-                            <h1 class="regexTesterName">Regex Tester</h1>
-                            <textarea id="regexCode" rows="5" placeholder="h.llo"></textarea>
-                            <br />
-                            <small>Press "Enter" to run</small>
-                            <!-- <button id="runButton">Run</button> -->
-                            <table id="regexTable">
-                                <tr>
-                                    <th>To Match</th>
-                                    <th>To Fail</th>
-                                    <th>Hide</th>
-                                </tr>
-                                <tr id="sampleRegexRow" class="regexTest">
-                                    <td><textarea class="regexTest regexMatch" rows="3" placeholder="hello"></textarea>
-                                    </td>
-                                    <td><textarea class="regexTest regexFail" rows="3" placeholder="hi"></textarea></td>
-                                    <td>X</td>
-                                </tr>
-                            </table>
-                            <button id="addRowButton">Add Row</button>
-                            <br>
-                            <small>Items on the left will show green when they match, items on the right will show green when they don't match</small>
-                        </div>
+                        <textarea id="replacer-input" rows="5" class="copy-block" placeholder="input"></textarea>
+                        <input id="replacer-switch" type="button" style="display: block;
+                        margin: 10px auto; /* Center the button */
+                        padding: 8px 16px;" value="^ Switch v"/>
+                        <textarea id="replacer-output" rows="5" class="copy-block" placeholder="output"></textarea>
                     </div>
+                    <div class="subtab-content active" group="regex" id="regex-subtab">
+                        <h1 class="regexTesterName">Regex Tester</h1>
+                        <textarea id="regexCode" class="copy-block"  rows="5" placeholder="h.llo"></textarea>
+                        <br />
+                        <small>Press "Enter" to run</small>
+                        <!-- <button id="runButton">Run</button> -->
+                        <table id="regexTable">
+                            <tr>
+                                <th>To Match</th>
+                                <th>To Fail</th>
+                                <th>Hide</th>
+                            </tr>
+                            <tr id="sampleRegexRow" class="regexTest">
+                                <td><textarea class="regexTest regexMatch" rows="3" placeholder="hello"></textarea>
+                                </td>
+                                <td><textarea class="regexTest regexFail" rows="3" placeholder="hi"></textarea></td>
+                                <td>X</td>
+                            </tr>
+                        </table>
+                        <input type="button" id="addRowButton" style="margin-bottom: 10px; padding: 8px; width: 100%;" value="Add Row"/>
+                        <br>
+                        <small>Items on the left will show green when they match, items on the right will show green
+                            when they don't match</small>
+                    </div>
+                </div>
+            </div>
+            <div class="tab-content" id="page-notes-supertab">
+                <hr>
+                <div class="subtabs">
+                    <button id="page-notes-tab-button" group="page-notes" class="subtab-button hidden" data-tab="page-notes-tab">
+                        Page Note
+                    </button>
+                    <button id="new-page-notes-tab-button" group="page-notes" class="subtab-button" data-tab="page-notes-tab">
+                        New
+                    </button>
+                    <button id="open-page-notes-tab-button" group="page-notes" class="subtab-button active" data-tab="open-page-notes-tab">
+                        Open <span id="page-notes-indicator"></span>
+                    </button>
+                </div>
+                <div class="subtab-content active" group="page-notes" id="open-page-notes-tab">
+                    <!-- <h3>Search</h3> -->
+                    <input id="page-notes-search" placeholder="Search..."
+                        style="margin-bottom: 10px; padding: 8px; border: 1px solid #ccc; border-radius: 4px; width: 50%;">
+                    <p
+                        hover-text="The search here is more powerful than in the sidebar. It searches the patterns and notes (when not encrypted) as well as the titles.">
+                        <img style="width: 15px; height: auto;" src="images/info-icon.svg" alt="Icon">
+                    </p>
+                    <br>
+                    <p class="hidden" id="no-search-results-page-notes">None found</p>
+                    <div id="page-notes-search-results">
+                        <table id="page-notes-result-table"></table>
+                    </div>
+                    <hr style="margin:10px">
+                    <div id="page-notes-matching-url">
+                        <h3>Recent Page Notes</h3>
+                        <p id="recent-page-notes">None found</p>
+                        <table id="recent-page-notes-table"></table>
+                    </div>
+                    <!-- <small class="m-3">Press "Enter" to search.</small> -->
+                </div>
+                <div class="subtab-content" group="page-notes" id="page-notes-tab">
+                    <label>Title</label>
+                    <input class="pretty-text-box" id="page-notes-title" style="width: 80vw;" />
+                    <br>
+                    <br>
+                    <label>URL Pattern</label>
+                    
+                    <div class="input-group">
+                        <textarea id="url-pattern" rows=1 style="padding: 6px; width: calc(100% - 50px); border: 1px solid #ccc; border-radius: 4px;"></textarea>
+                        <button id="open-url-pattern"
+                        hover-text="Open the first URL pattern included in a new tab.">Open</button>
+                    </div>
+                    <span class="hidden" id="page-note-id"></span>
+
+                    <br />
+                    <textarea id="page-notes-textarea" style="width: 70vw; height: 70vh;"></textarea>
+                    <br />
+                    <small>Ctrl-? for help page.</small>
                 </div>
             </div>
             <div class="tab-content active" id="about-tab">
                 <p>
                     Welcome to <i class="extensionName"></i>! We aim to offer useful features ran entirely locally with
-                    encryption.
+                    optional encryption.
                     You'll notice this extension has three views, each with its own features. This is the options view
                     or extension
                     tab view (<i class="open-extension-tab"></i>). If you press the <i class="extensionName"></i> icon
@@ -741,93 +340,113 @@
 
                 <h3>Options View</h3> (<i class="open-extension-tab"></i>)
                 <p>
-                    This is where you go for information, setting changes, and some developer tools like html and regex. 
+                    This is the tab you are in right now. It is where you go for information, setting changes, and some developer tools
+                    (regex, html, js scripts)
+                    that will only show up if you have the developer mode turned on for your browser.
+                    Go to Extensions -> Developer Mode to enable it.
                 </p>
 
                 <h3>Popup View</h3> (<i class="_execute_action"></i>)
                 <p>
-                    This is where you go for the apps related to your clipboard, password generator, or cookies.
+                    This is where you go for the apps related to your clipboard.
                 </p>
 
                 <h3>Sidebar View</h3> (<i class="open-side-panel"></i>)
                 <p>
                     This is where you go for <i class="pageNotesName"></i>, which allows you to make notes
-                    connected to a url or url pattern (it's regex, for the nerds out there). Perhaps you 
+                    connected to a url or url pattern (regex). Perhaps you
                     want to make a private note on a ticket or profile page, this would be the place.
-                    <br>
-                    You can also find the <i class="pageSettingsName"></i>, which allows you to 
-                    easily change the settings of a website.
                 </p>
+
+                <h3>Contact</h3>
+                <p>To contribute, donate, ask a question, or provide feedback
+                    please see our <a href="https://enlace.one/">website</a>.</p>
 
                 <h3>More Info</h3>
                 <p>
                     Data storage is set to sync using the browser's built in sync storage method.
                     So it may work across your devices. If the information itself is necessary,
-                    KEEP A COPY SOMEWHERE ELSE. This is designed for convienence, not long-term storage.
+                    I recommend you keep a copy somewhere else as well. This is designed for convienence, not long-term storage.
                 </p>
                 <p>
-                    Data is encrypted with AES256 encryption using a key
+                    Data is encrypted with AES256 encryption by default (though you can 
+                    change it in settings). It uses a key
                     generated via the salted password you enter. Without the
                     password, it is irrecoverable. There is currently no way to
                     recover your password. If that data is set to be encrypted, then
                     the data will always be encrypted before stored. (See settings)
                 </p>
+                <p>
+                    Some third party libraries are used. They may have their own licenses available at the links below. 
+                    <a href="https://github.com/Ionaru/easy-markdown-editor">easyMDE</a>
+                     which is a fork of <a href="https://simplemde.com/">simpleMDE</a> which are both based on 
+                    <a href="https://codemirror.net/5/doc/manual.html">CodeMirror</a>
+                     is used for page notes. Additionally, <a href="https://www.npmjs.com/package/crypto-js">crypto-js</a> is used for 
+                    encryption. If I am missing any references, please contact me. 
+                    easyMDE and crypto-js are downloaded and included with this, 
+                    but CodeMirror is retrieved from a CDN.
+                </p>
 
                 <h3>Permissions and Privacy</h3>
                 <p>
-                  This extension does not collect any personal data. It does not track your browsing history. In fact, everything runs locally on your machine.
-                </p>
-                <p>
-                  This extension requires the following permissions:<br>
-                  "&lt;all_urls&gt;" is required for the <i class="pageNotesName"></i> and <i class="cookiesName">cookies</i> features to work.<br>
-                  "storage" is required for the <i class="clipboardName"></i>, <i class="snippetsName"></i>, and <i class="pageNotesName"></i> features to work.<br>
-                  "offscreen" is required for the <i class="clipboardName"></i> feature to work.<br>
-                  "clipboardWrite" is required for the <i class="clipboardName"></i> feature to work.<br>
-                  "sidePanel" is required for the <i class="pageNotesName"></i> feature to work.<br>
-                  "tabs" is required for the <i class="cookiesName">cookies</i> and <i class="pageNotesName"></i> features to work.<br>
-                  "cookies" is required for the <i class="cookiesName">cookies</i> feature to work.<br>
-                  "contentSettings" is required for the <i class="pageSettingsName"></i> feature to work.<br>
+                    This extension does not collect any personal data. It does not track your browsing history. In fact,
+                    everything runs locally on your machine.
                 </p>
 
-                <h3>Contact</h3>
-                <p>To contribute, donate, ask a question, provide positive feedback, or offer a request for improvement,
-                    please contact enlace.aman@gmail.com.</p>
-                <p>To complain, please visit the local DMV and ask for John.</p>
+                
+                
 
             </div>
             <div class="tab-content" id="settings-tab">
                 <div class="statistics">
                     <h2>Statistics</h2>
                     <table>
-                      <tr>
-                          <th>Category</th>
-                          <th>Stored</th>
-                          <th>Limit</th>
-                      </tr>
-                      <tr>
-                          <td>Total Storage Space</td>
-                          <td><span id="total-storage-space"></span></td>
-                          <td>102400</td>
-                      </tr>
-                      <tr>
-                          <td>Total Storage Item Count</td>
-                          <td><span id="total-storage-count"></span></td>
-                          <td>512</td>
-                      </tr>
-                      <!-- <tr>
+                        <tr>
+                            <th>Category</th>
+                            <th>Stored</th>
+                            <th>Limit</th>
+                        </tr>
+                        <tr>
+                            <td>Total Storage Space</td>
+                            <td><span id="total-storage-space"></span></td>
+                            <td>102400</td>
+                        </tr>
+                        <tr>
+                            <td>Total Storage Item Count</td>
+                            <td><span id="total-storage-count"></span></td>
+                            <td>512</td>
+                        </tr>
+                        <!-- <tr>
                           <td>Page Notes Space</td>
                           <td><span id="page-notes-space"></span></td>
                           <td>8192</td>
                       </tr> -->
-                      <tr>
-                          <td>Snippets Space</td>
-                          <td><span id="snippets-space"></span></td>
-                          <td>8192</td>
-                      </tr>
-                  </table>
-                  <small>You can delete page notes, snippets, turn off encryption, or use Google Drive to reduce space. Storage Item Count is mainly affected by page note count.</small>
+                        <!-- <tr>
+                            <td>Snippets Space</td>
+                            <td><span id="snippets-space"></span></td>
+                            <td>8192</td>
+                        </tr> -->
+                    </table>
+                    <small>You can delete items or turn off encryption to reduce
+                        space.</small>
                 </div>
                 <div>
+                    <h2>Page Note Config</h2>
+                    <div class="page-note-settings hidden">
+                        <textarea id="page-note-json" rows="5">
+                        </textarea>
+                        <small>Toolbar options: ["bold","italic","strikethrough","heading","code","quote","ordered-list","unordered-list","clean-block","horizontal-rule","undo","redo","link","image","preview","side-by-side","fullscreen","guide","table",]</small>
+                        <br/>
+                        <small>Status options: ["lines", "words"]</small>
+                        <br/>
+                        <button id="reset-page-note-config">Reset Config</button>
+                        <a href="https://github.com/Ionaru/easy-markdown-editor?tab=readme-ov-file#install-easymde">More
+                            Info</a>
+                    </div>
+                    <button style="margin-top: 10px" id="delete-expired-page-note-button">Delete expired page
+                        notes</button>
+                </div>
+                <!-- <div>
                   <h2>Google Drive</h2>
                   <p>By default, you are not signed in via Google Drive. If you choose to sign in, 
                     then Google Drive will be used to store <i class="referencesName"></i> 
@@ -837,82 +456,101 @@
                   <br>
                   <button id="sign-in-button">Sign into Google Drive</button>
                   <button id="sign-out-button" class="hidden">Sign out of Google Drive</button>
-                </div>
+                </div> -->
                 <div class="danger-zone" style="border-color:yellow; border-style: dotted;">
-                  <h2>Caution</h2>
-                  <small>Changing these could cause performance or memory issues</small>
-                  <div class="danger-option">
-                      <label for="max-char-clipboard">Max Characters for <i class="clipboardName"></i></label>
-                      <input id="max-char-clipboard" type="number">
-                  </div>
-                  <div class="danger-option">
-                      <label for="max-key-char-snippets">Max Key Characters for <i class="snippetsName"></i> </label>
-                      <input id="max-key-char-snippets" type="number">
-                  </div>
-                  <div class="danger-option">
-                      <label for="max-value-char-snippets">Max Value Characters for <i
-                              class="snippetsName"></i></label>
-                      <input id="max-value-char-snippets" type="number">
-                  </div>
-                  <div class="danger-option">
-                      <label for="max-key-char-page-notes">Max URL Characters for <i
-                              class="pageNotesName"></i></label>
-                      <input id="max-key-char-page-notes" type="number">
-                  </div>
-                  <div class="danger-option">
-                      <label for="max-value-char-page-notes">Max Notes Characters for <i
-                              class="pageNotesName"></i></label>
-                      <input id="max-value-char-page-notes" type="number">
-                  </div>
-              </div>
-              <br>
-              <div class="danger-zone" style="border-color: orange; border-style: dotted;">
-                <h2>Beware</h2>
-                <small>Be advised that changing these may prevent you from accessing the previously stored
-                    values.</small>
-                <h3>Encryption</h3>
-                <div class="option">
-                    <input id="encrypt-clipboard" type="checkbox" value="encrypt-clipboard">
-                    <label for="encrypt-clipboard">Encrypt <i class="clipboardName"></i></label>
-                    <small>(Default: Yes)</small>
+                    <h2>Caution</h2>
+                    <small>Changing these could cause performance or memory issues</small>
+                    <div class="danger-option">
+                        <label for="max-char-clipboard">Max Characters for <i class="clipboardName"></i></label>
+                        <input id="max-char-clipboard" type="number">
+                    </div>
+                    <!-- <div class="danger-option">
+                        <label for="max-key-char-snippets">Max Key Characters for <i class="snippetsName"></i> </label>
+                        <input id="max-key-char-snippets" type="number">
+                    </div>
+                    <div class="danger-option">
+                        <label for="max-value-char-snippets">Max Value Characters for <i
+                                class="snippetsName"></i></label>
+                        <input id="max-value-char-snippets" type="number">
+                    </div> -->
+                    <div class="danger-option">
+                        <label for="max-title-char-page-notes">Max Title Characters for <i
+                                class="pageNotesName"></i></label>
+                        <input id="max-title-char-page-notes" type="number">
+                    </div>
+                    <div class="danger-option">
+                        <label for="max-key-char-page-notes">Max URL Characters for <i
+                                class="pageNotesName"></i></label>
+                        <input id="max-key-char-page-notes" type="number">
+                    </div>
+                    <div class="danger-option">
+                        <label for="max-value-char-page-notes">Max Notes Characters for <i
+                                class="pageNotesName"></i></label>
+                        <input id="max-value-char-page-notes" type="number">
+                    </div>
+                    <small>
+                        These numbers may appear smaller in notifications if encryption is applied. 
+                        Encryption adds an estimated 1/3 length so the max figures are reduced by 1/3.
+                    </small>
                 </div>
-                <div class="option">
-                    <input id="encrypt-snippets" type="checkbox" value="encrypt-snippets">
-                    <label for="encrypt-snippets">Encrypt <i class="snippetsName"></i></label>
-                    <small>(Default: No)</small>
+                
+                <br>
+                <div class="danger-zone" style="border-color: orange; border-style: dotted;">
+                    <h2>Beware</h2>
+                    <small>Be advised that changing these may prevent you from accessing the previously stored
+                        values.</small>
+                    <h3>Encryption</h3>
+                    <div class="option">
+                        <input id="encrypt-clipboard" type="checkbox" value="encrypt-clipboard">
+                        <label for="encrypt-clipboard">Encrypt <i class="clipboardName"></i></label>
+                        <small>(Default: Yes)</small>
+                    </div>
+                    <!-- <div class="option">
+                        <input id="encrypt-snippets" type="checkbox" value="encrypt-snippets">
+                        <label for="encrypt-snippets">Encrypt <i class="snippetsName"></i></label>
+                        <small>(Default: No)</small>
+                    </div> -->
+                    <div class="option">
+                        <input id="encrypt-page-notes" type="checkbox" value="encrypt-page-notes">
+                        <label for="encrypt-page-notes">Encrypt <i class="pageNotesName"></i></label>
+                        <small>(Default: No)</small>
+                    </div>
+                    <div>
+                        <label for="encryption-algorithm"><b>Encryption Algorithm:</b></label>
+                        <select id="encryption-algorithm">
+                            <option value="DES">DES</option>
+                            <option value="AES">AES</option>
+                            <option value="3DES">TripleDES</option>
+                        </select>
+                    </div>
                 </div>
-                <div class="option">
-                    <input id="encrypt-page-notes" type="checkbox" value="encrypt-page-notes">
-                    <label for="encrypt-page-notes">Encrypt <i class="pageNotesName"></i></label>
-                    <small>(Default: No)</small>
-                </div>
-                <div>
-                    <label for="encryption-algorithm"><b>Encryption Algorithm:</b></label>
-                    <select id="encryption-algorithm">
-                        <option value="DES">DES</option>
-                        <option value="AES">AES</option>
-                        <option value="3DES">TripleDES</option>
-                    </select>
-                </div>
-            </div>
-              <br>
-              <input class="m-3" type="submit" value="Submit" id="save_settings" />
-              <br>
+                <br>
+                <input class="m-3" type="submit" value="Submit" id="save_settings" />
+                <br>
                 <div class="danger-zone" style="border-color: red; border-style: dotted;">
                     <h2>Danger Zone</h2>
                     <small>These delete your data</small>
                     <br>
                     <input type="button" id="reset-settings" value="Reset Settings" />
                     <input type="button" id="reset-clipboard" value="Reset Clipboard" />
-                    <input type="button" id="reset-snippets" value="Reset Snippets" />
+                    <!-- <input type="button" id="reset-snippets" value="Reset Snippets" /> -->
                     <input type="button" id="reset-page-notes" value="Reset Page Notes" />
+                    <h2>Edit All Settings As JSON</h2>
+                    <small>Don't touch this unless you know what you are doing</small>
+                    <textarea id="all-settings-json" rows="30">
+                    </textarea>
+                    <br>
+                    <button id="reset-all-settings-json">Reset Config</button>
+                    <button id="save-all-settings-json">Save Config</button>
                 </div>
             </div>
         </div>
 
-        <script src="crypto-js.min.js"></script>
+        <script src="/third_party/crypto-js.min.js"></script>
         <script src="util.js"></script>
         <script src="standard.js"></script>
+        <script src="page-notes.js"></script>
         <script src="options.js"></script>
 </body>
+
 </html>

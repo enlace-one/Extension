@@ -54,3 +54,5 @@ async function handleClipboardWrite(data) {
     window.close();
   }
 }
+
+

@@ -1,26 +1,84 @@
 console.log("service_worker.js")
-importScripts('crypto-js.min.js');
+importScripts('/third_party/crypto-js.min.js');
 importScripts('util.js');
 
-// Open options page on install or update
+let encryptPageNotes = false
+getSetting("encrypt-page-notes").then((value)=> {
+  encryptPageNotes = value
+});
+
+async function _save_page_note(id, note, title, url_pattern) {
+  if (encryptPageNotes) {
+      note = await encrypt(note)
+  } 
+  const noteData = {
+      note: note,
+      title: title,
+      url_pattern: url_pattern,
+      id: id
+  };
+  store(id, noteData)
+  console.log(`Note saved with ID: ${id}`);
+}
+
+
+ async function _storeDefaultPageNotes() {
+  console.log("Storing default page notes")
+
+  const results = await chrome.storage.sync.get();
+  for (let item of defaultPageNotes) {
+    // Reference does not exist
+    if (!(item.id in results)) {
+      console.log(`Saving ${item.id} as it's not existant`)
+        _save_page_note(item.id, item.text, item.title, item.url_pattern)
+    } else {
+      // Reference has not been edited
+      if (results[item.id] == item.text) {
+        console.log(`Saving ${item.id} as it's not edited`)
+        _save_page_note(item.id, item.text, item.title, item.url_pattern)
+      } else {
+        console.log(`Ignoring ${item.id} as it's edited`)
+      }
+    }
+  }
+}
+
+let hasRun = false;
+async function storeDefaultPageNotes() {
+  self.addEventListener('message', async (event) => {
+    if (event.data.action === 'appStateChanged' && event.data.isUnlocked && !hasRun) {
+      if (!await isLocked()) {
+        setTimeout(_storeDefaultPageNotes, 3000);
+        hasRun = true; // Set the flag to true after running
+      }
+    }
+  });
+}
+
+// Open options page on install or update and add page notes
 chrome.runtime.onInstalled.addListener(function(details) {
     if (details.reason === 'install' || details.reason === 'update') {
       chrome.tabs.create({ url: 'options.html' });
     }
+    storeDefaultPageNotes()
 });
 
-
-// Options the options page on keyboard shortcut
-chrome.commands.onCommand.addListener(function(command) {
-    if (command === "open-extension-tab") {
-      chrome.runtime.openOptionsPage();
-    }
-  });
-
-
 async function get_clipboard_command_value(command) {
+  
   if (await getSetting("encrypt-clipboard") === true) {
-    return await convertSmartValues(await eGet(command))
+    if (!await isLocked()) {
+      return await convertSmartValues(await eGet(command))
+    } else {
+      // service_worker.js (or .ts)
+      chrome.notifications.create({
+        type: "basic",
+        iconUrl: "ea_128.png", // must be in extension's manifest
+        title: "Copy Error",
+        message: "You can't use the copy shortcuts while the Page Notes is locked",
+      });
+      
+
+    }
   } else {
     return await convertSmartValues(await get(command))
   }
@@ -38,16 +96,29 @@ chrome.commands.onCommand.addListener(async (command) => {
             // // Didn't work because you have about .1 seconds to
             // // open the side panel on user input
 
-            // const tabId = tab.id
-            // chrome.sidePanel.getOptions({ tabId: tab.id }, (options) => {
-            //     if (options.enabled) {                    
-            //         chrome.sidePanel.setOptions({
-            //             tabId,
-            //             enabled: false
-            //           });
-            //     } 
-            // });
-            chrome.sidePanel.open({ tabId: tab.id });
+            chrome.sidePanel.getOptions({ tabId: tab.id }, (options) => {
+                if (options.enabled) {                    
+                    console.log("Sidepanel already open")
+                } 
+            });
+
+            // When the sidepanel is open, this is used to bring 
+            // it into focus and turn off preview
+            try {
+              chrome.tabs.sendMessage({
+                type: 'open-side-panel',
+                target: 'sidepanel',
+                data: true
+              });
+            } catch {
+              // No action needed, listener not set up yet.
+            }
+
+            try {
+              chrome.sidePanel.open({ tabId: tab.id });
+            } catch {
+              console.log("Failed to open the side panel.")
+            }
           });
     } else if (command.startsWith("copy-value")) {
         await addToClipboard(await get_clipboard_command_value(command))
@@ -72,11 +143,15 @@ chrome.commands.onCommand.addListener(async (command) => {
   
     // Now that we have an offscreen document, we can dispatch the
     // message.
-    chrome.runtime.sendMessage({
-      type: 'copy-data-to-clipboard',
-      target: 'offscreen-doc',
-      data: value
-    });
+    try {
+        chrome.runtime.sendMessage({
+        type: 'copy-data-to-clipboard',
+        target: 'offscreen-doc',
+        data: value
+      });
+    } catch {
+      console.log("Recieving end is not established yet")
+    }
   }
   
   // Solution 2 – Once extension service workers can use the Clipboard API,
@@ -89,6 +164,15 @@ chrome.commands.onCommand.addListener(async (command) => {
 // Handle SmartValues like {{ month }}, {{ day }}, {{ date }}, {{ time }}, {{ year }}, {{ yy }}, {{ yyyy }}, {{ MM }}, {{ dd }}, {{ hh }}, {{ mm }}, {{ ss }}, {{ weekday }}
 // Does not matter if there is a space or not. Ex: {{month}} or {{ month }}
 async function convertSmartValues(string) {
+
+    // Possible fix to edge error 7/4/2024
+    if (typeof string !== 'string' && string !== undefined) {
+      string = string.toString();
+    } else if (string == undefined) {
+      console.log("Input is not defined")
+      1/0
+    }
+
     var date = new Date()
     var year = date.getFullYear()
     var month = date.getMonth() + 1
@@ -331,18 +415,25 @@ async function convertSmartValues(string) {
 // Page Notes Context Menu //
 /////////////////////////////
 
-chrome.runtime.onConnect.addListener(function (port) {
-  if (port.name === 'mySidepanel') {
-    chrome.contextMenus.create({
-      id: "add-to-page-note",
-      title: "Add to page note",
-      contexts: ["selection"]
-    })
-    port.onDisconnect.addListener(async () => {
-      chrome.contextMenus.remove(
-        "add-to-page-note"
-      )
-    });
-  }
-});
 
+// chrome.runtime.onConnect.addListener(function (port) {
+//   if (port.name === 'mySidepanel') {
+//     try {
+//       chrome.contextMenus.create({
+//         id: "add-to-page-note",
+//         title: "Add to page note",
+//         contexts: ["selection"]
+//       });
+//     } catch (error) {
+//       console.error("Failed to create context menu:", error);
+//     }
+
+//     port.onDisconnect.addListener(async () => {
+//       try {
+//         await chrome.contextMenus.remove("add-to-page-note");
+//       } catch (error) {
+//         console.error("Failed to remove context menu:", error);
+//       }
+//     });
+//   }
+// });

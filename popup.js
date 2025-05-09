@@ -19,34 +19,192 @@ chrome.commands.getAll(function(commands) {
 
 onStartSpecific()
 
-// Store new keys and set value. Select "Search" input box.
-document.addEventListener("EnlaceUnlocked", async function() {
-    console.log("triggered unlock stuff ")
+let clipboardComponentsAdded = false
+
+
+async function clipEditPopUpForm(defaultName = '', defaultInputType = 'text', id, callback) {
+  // Remove any existing form before creating a new one
+  const existingForm = document.getElementById("clipEditForm");
+  if (existingForm) {
+    existingForm.remove();
+  }
+
+  // Create a form element
+  const form = document.createElement('form');
+  form.id = "clipEditForm"; // Assign ID for easier cleanup
+  form.style.position = 'fixed';
+  form.style.top = '50%';
+  form.style.left = '50%';
+  form.style.transform = 'translate(-50%, -50%)';
+  form.style.padding = '20px';
+  form.style.backgroundColor = '#fff';
+  form.style.border = '1px solid #ccc';
+  form.style.boxShadow = '0 0 10px rgba(0, 0, 0, 0.1)';
+
+  // Create input for name
+  const nameLabel = document.createElement('label');
+  nameLabel.textContent = 'Name: ';
+  const nameInput = document.createElement('input');
+  nameInput.type = 'text';
+  nameInput.value = defaultName;
+  nameLabel.appendChild(nameInput);
+  form.appendChild(nameLabel);
+
+  // Create select for input type
+  const typeLabel = document.createElement('label');
+  typeLabel.textContent = 'Input Type: ';
+  const typeSelect = document.createElement('select');
+  const options = ['text', 'password', 'textarea'];
+  options.forEach(option => {
+    const opt = document.createElement('option');
+    opt.value = option;
+    opt.textContent = option.charAt(0).toUpperCase() + option.slice(1);
+    if (option === defaultInputType) {
+      opt.selected = true;
+    }
+    typeSelect.appendChild(opt);
+  });
+  typeLabel.appendChild(typeSelect);
+  form.appendChild(typeLabel);
+
+  // Create submit button
+  const submitButton = document.createElement('button');
+  submitButton.type = 'submit';
+  submitButton.textContent = 'Submit';
+  form.appendChild(submitButton);
+
+  // Append form to body
+  document.body.appendChild(form);
+
+  // Handle form submission
+  form.addEventListener('submit', (event) => {
+    event.preventDefault();
+    const name = nameInput.value;
+    const inputType = typeSelect.value;
+    console.log(`Name: ${name}, Input Type: ${inputType}`);
+
+    try {
+      callback(name, inputType, id);
+    } catch (error) {
+      console.error("Callback Error:", error);
+    }
+
+    // Ensure form is removed after submission
+    form.remove();
+  });
+}
+
+function addClipboardComponenets() {
+  if (clipboardComponentsAdded) {
+    return
+  }
+  clipboardComponentsAdded = true
+  console.log("triggered unlock stuff ")
+    const copy_html = '<button id="copy-{ID}" style="width: 8vw;"><img style="width: 100%; height: auto;" src="images/copy-icon.svg" alt="Icon"></button>'
+    const paste_html = '<button id="paste-{ID}" style="width: 8vw;"><img style="width: 100%; height: auto;" src="images/paste-icon.svg" alt="Icon"></button>'
+    const edit_html = `<button id="edit-{ID}" style="width: 8vw;"><img style="width: 
+    100%; height: auto;" src="images/edit-icon.svg" alt="Icon"></button>`
+
     Array.from(document.getElementsByClassName("store-input-value")).forEach(async element => {
+        const clipId = element.getAttribute("key")
+        const clipName = await get(clipId + "-name", "")
+        const clipInputType = await get(clipId + "-input-type", "text")
+
+        const nameSmall = document.createElement("small")
+        nameSmall.innerText = clipName
+        nameSmall.style="width:100%"
+        element.parentElement.insertAdjacentElement('beforebegin', nameSmall)
+
+        if (clipInputType === "textarea") {
+          const textarea = document.createElement("textarea");
+          textarea.value = element.value; // Preserve existing value
+          textarea.key = element.key; // Preserve existing value
+          textarea.id = element.id; // Preserve ID if needed
+          textarea.className = element.className; // Preserve classes if applicable
+          textarea.rows = 3
+          textarea.style = element.style
+          element.replaceWith(textarea); // Replace input with textarea
+          element = textarea
+        } else {
+          element.type = clipInputType; // Correct way to change input type
+        }
+
         try {
             if (await getSetting("encrypt-clipboard")) {
-                element.value = await eGet(element.getAttribute("key"))
+                element.value = await eGet(clipId)
             } else {
-                element.value = await get(element.getAttribute("key"))
+                element.value = await get(clipId)
             }
         } catch {
-            console.log("No found value stored for " + element.getAttribute("key"))
+            console.log("No found value stored for " + clipId)
         }
-        element.addEventListener("change", async function() {
-            console.log("triggered input onchange")
-             
-            navigator.serviceWorker.controller.postMessage({
-                action: 'appStateChanged',
-                hasChanged: true
-            });
-            if (await getSetting("encrypt-clipboard")) {
-                eStore(element.getAttribute("key"), element.value)
-            } else {
-                store(element.getAttribute("key"), element.value)
-            }
+        async function saveClipBoard() {
+          console.log("triggered input onchange")
+           
+          navigator.serviceWorker.controller.postMessage({
+              action: 'appStateChanged',
+              hasChanged: true
+          });
+          if (await getSetting("encrypt-clipboard")) {
+              eStore(clipId, element.value)
+          } else {
+              store(clipId, element.value)
+          }
+          showNotification("Saved")
+      }
+        element.addEventListener("change", saveClipBoard);
+
+        // Add copy/paste button after the variable element
+        const copyButton = copy_html.replace("{ID}", clipId);
+        const pasteButton = paste_html.replace("{ID}", clipId);
+        const editButton = edit_html.replace("{ID}", clipId);
+        element.insertAdjacentHTML('afterend', copyButton + pasteButton + editButton);
+
+        // Add event listeners for the copy and paste buttons
+        document.getElementById("copy-" +clipId).addEventListener("click", function() {
+          let originalType = element.type;
+          if (originalType === "password") {
+              element.type = "text"; // Temporarily change to text
+          }
+      
+          element.select();
+          document.execCommand("copy");
+      
+          if (originalType === "password") {
+              element.type = "password"; // Revert back to password
+          }
+      
+          showNotification("Copied");
         });
+        document.getElementById("paste-" + clipId).addEventListener("click", async function() {
+            const text = await navigator.clipboard.readText();
+            element.value = text;
+            showNotification("Pasted");
+            saveClipBoard();
+        });
+        document.getElementById("edit-" + clipId).addEventListener("click", async function() {
+          async function updateSettings(name, inputType, clipId) {
+            store(clipId + "-name", name)
+            store(clipId + "-input-type", inputType)
+          }
+          await clipEditPopUpForm(clipName, clipInputType, clipId, updateSettings)
+      });
+
     });
+
+}
+
+// Store new keys and set value. Select "Search" input box.
+document.addEventListener("EnlaceUnlocked", async function() {
+    addClipboardComponenets()
 });
+
+// This is to combat the trouble with loading sometimes seen in edge
+isLocked().then((value) => {
+ if (! value) {
+    addClipboardComponenets()
+ }
+})
 
 
 
@@ -195,481 +353,7 @@ get("snippet-data").then((value) => {
         document.getElementById("search").value = ""
     }
   }
-
-////////////////////////
-// Password Generator //
-////////////////////////
-
-
-document.getElementById("generator-run").addEventListener("click", runGenerator)
-
-function runGenerator() {
-    // Get input values
-    const length = parseInt(document.getElementById("generator-length").value);
-    const includeLowercase = document.getElementById("generator-includeLowercase").checked;
-    const includeUppercase = document.getElementById("generator-includeUppercase").checked;
-    const includeNumbers = document.getElementById("generator-includeNumbers").checked;
-    const includeSpecialChars = document.getElementById("generator-includeSpecialChars").checked;
-    const specialChars = document.getElementById("generator-specialChars").value;
-    const minNumbers = parseInt(document.getElementById("generator-minNumbers").value);
-    const minLowercase = parseInt(document.getElementById("generator-minLowercase").value);
-    const minUppercase = parseInt(document.getElementById("generator-minUppercase").value);
-    const minSpecialChars = parseInt(document.getElementById("generator-minSpecialChars").value);
-    const avoidAmbiguousChars = document.getElementById("generator-avoidAmbiguousChars").checked;
-    let lowercaseChar = 'abcdefghijklmnopqrstuvwxyz'
-    let uppercaseChar = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
-    let numericChar = '0123456789'
-
-    if (avoidAmbiguousChars) {
-        uppercaseChar = uppercaseChar.replace("I", "")
-        lowercaseChar = lowercaseChar.replace("l", "")
-        numericChar = numericChar.replace("1", "")
-        uppercaseChar = uppercaseChar.replace("O", "")
-        numericChar = numericChar.replace("0", "")
-    }
-
-    // Define character sets
-    let chars = '';
-    if (includeLowercase) chars += lowercaseChar
-    if (includeUppercase) chars += uppercaseChar;
-    if (includeNumbers) chars += numericChar;
-    if (includeSpecialChars) chars += specialChars;
-
-    // Generate password
-    let password = '';
-    const getRandomChar = () => chars[Math.floor(Math.random() * chars.length)];
-    const getRandomIndex = () => Math.floor(Math.random() * password.length);
-
-    // Ensure minimum requirements
-    for (let i = 0; i < minNumbers; i++) {
-        password += numericChar[Math.floor(Math.random() * numericChar.length)]
-    }
-    for (let i = 0; i < minLowercase; i++) {
-        password += lowercaseChar[Math.floor(Math.random() * lowercaseChar.length)]
-    }
-    for (let i = 0; i < minUppercase; i++) {
-        password += uppercaseChar[Math.floor(Math.random() * uppercaseChar.length)];
-    }
-    for (let i = 0; i < minSpecialChars; i++) {
-        password += specialChars[Math.floor(Math.random() * specialChars.length)]
-    }
-
-    // Generate remaining characters to meet length requirement
-    while (password.length < length) {
-        password += getRandomChar();
-    }
-
-    // Shuffle password
-    password = password.split('').sort(() => Math.random() - 0.5).join('');
-
-    // Display password
-    document.getElementById("generator-output").value = password;
-}
-
-const defaultGeneratorSettings = {
-    length: 18,
-    includeLowercase: true,
-    includeUppercase: true,
-    includeNumbers: true,
-    includeSpecialChars: true,
-    specialChars: "!$?@#%*",
-    minNumbers: 1,
-    minLowercase: 1,
-    minUppercase: 1,
-    minSpecialChars: 1,
-    avoidAmbiguousChars: true
-};
-
-function setGeneratorValues() {
-    for (const key in defaultGeneratorSettings) {
-        getGeneratorSetting(key).then((value) => {
-            const element = document.getElementById(`generator-${key}`);
-            if (element && element.type === "checkbox") {
-                element.checked = value;
-            } else if (element) {
-                element.value = value;
-            }
-        });
-    }
-    setTimeout(() => runGenerator(), 1000)
-}
-setGeneratorValues();
-
-// Save Generator Settings
-document.getElementById("generator-save-preferences").addEventListener("click", async function() {
-    for (const key in defaultGeneratorSettings) {
-        const element = document.getElementById(`generator-${key}`);
-        if (element && element.type === "checkbox") {
-            await storeGeneratorSetting(key, element.checked);
-        } else if (element) {
-            await storeGeneratorSetting(key, element.value);
-        }
-    }
-    showNotification("Generator Settings Saved");
-});
-
-document.getElementById("generator-revert-preferences").addEventListener("click", async function () {
-    store("generator-settings", {});
-    setGeneratorValues();
-
-})
-
-// Function to get generator setting
-async function getGeneratorSetting(setting_name) {
-    const generatorSettings = await get("generator-settings") || {};
-    return generatorSettings.hasOwnProperty(setting_name) ? generatorSettings[setting_name] : defaultGeneratorSettings[setting_name];
-}
-
-// Function to store generator setting
-async function storeGeneratorSetting(setting_name, value) {
-    const generatorSettings = (await get("generator-settings")) || {};
-    generatorSettings[setting_name] = value;
-    await store("generator-settings", generatorSettings);
-}
-
-
-document.getElementById("generator-copy").addEventListener("click", function () {
-    document.getElementById("generator-output").select();
-    document.execCommand('copy');
-    showNotification("Copied")
-})
-
-//////////////////////////
-// Passphrase generator //
-//////////////////////////
-
-document.getElementById("pp-generator-run").addEventListener("click", runPPGenerator)
-function toTitleCase(str) {
-    return str.replace(/\b\w/g, function (char) {
-        return char.toUpperCase();
-    });
-}
-
-async function runPPGenerator() {
-    const seperator = document.getElementById("pp-generator-seperator").value;
-    const capitalization = document.getElementById("pp-generator-case").value;
-    let count = document.getElementById("pp-generator-count").value;
-    const useSmallWords = document.getElementById("pp-generator-smallWords").checked;
-    const useNumbers = document.getElementById("pp-generator-number").checked;
-    
-    let wordlist = 'word-list.txt'
-    if (useSmallWords) {
-        wordlist = 'short-word-list.txt'
-    }
-
-    if (useNumbers) {
-        count -= 1;
-    }
-
-    let words = await getRandomWords(count, wordlist)
-    words = words.map(word => {
-        if (capitalization === "upper") {
-            return word.toUpperCase();
-        } else if (capitalization === "lower") {
-            return word.toLowerCase();
-        } else {
-            return toTitleCase(word);
-        }
-    });
-    words = words.join(seperator)
-
-    if (useNumbers) {
-        words += seperator + Math.floor(Math.random() * 100).toString();
-    }
-    
-    document.getElementById("pp-generator-output").value = words;
-}
-
-const defaultPPGeneratorSettings = {
-    count: 3,
-    case: "title",
-    seperator: "-",
-    number: true,
-    smallWords: true,
-};
-
-function setPPGeneratorValues() {
-    for (const key in defaultPPGeneratorSettings) {
-        getPPGeneratorSetting(key).then((value) => {
-            const element = document.getElementById(`pp-generator-${key}`);
-            if (element && element.type === "checkbox") {
-                element.checked = value;
-            } else if (element) {
-                element.value = value;
-            }
-        });
-    }
-    setTimeout(() => runPPGenerator(), 1000)
-}
-setPPGeneratorValues();
-
-
-function getRandomWords(count, wordListFileName = 'word-list.txt') {
-    return fetch(wordListFileName)
-        .then(response => response.text())
-        .then(data => {
-            // Split the data into an array of words
-            const wordArray = data.split('\n');
-
-            let words = [];
-
-            for (let i = 0; i < count; i++) {
-                // Get a random word from the array
-                const randomIndex = Math.floor(Math.random() * wordArray.length);
-                const randomWord = wordArray[randomIndex];
-                words.push(randomWord.trim()); // trim any leading/trailing spaces
-            }
-            return words;
-        })
-        .catch(error => {
-            console.error('Error fetching word list:', error);
-            return []; // return an empty array in case of error
-        });
-}
-
-document.getElementById("pp-generator-copy").addEventListener("click", function () {
-    document.getElementById("pp-generator-output").select();
-    document.execCommand('copy');
-    showNotification("Copied")
-})
-
-
-// Function to get generator setting
-async function getPPGeneratorSetting(setting_name) {
-    const generatorSettings = await get("pp-generator-settings") || {};
-    return generatorSettings.hasOwnProperty(setting_name) ? generatorSettings[setting_name] : defaultPPGeneratorSettings[setting_name];
-}
-
-
-// Save Generator Settings
-document.getElementById("pp-generator-save-preferences").addEventListener("click", async function() {
-    for (const key in defaultPPGeneratorSettings) {
-        const element = document.getElementById(`pp-generator-${key}`);
-        if (element && element.type === "checkbox") {
-            await storePPGeneratorSetting(key, element.checked);
-        } else if (element) {
-            await storePPGeneratorSetting(key, element.value);
-        }
-    }
-    showNotification("Generator Settings Saved");
-});
-
-// Function to store generator setting
-async function storePPGeneratorSetting(setting_name, value) {
-    const generatorSettings = (await get("pp-generator-settings")) || {};
-    generatorSettings[setting_name] = value;
-    await store("pp-generator-settings", generatorSettings);
-}
-
-document.getElementById("pp-generator-revert-preferences").addEventListener("click", async function () {
-    store("pp-generator-settings", {});
-    setPPGeneratorValues();
-
-})
   
-/////////////
-// Cookies //
-/////////////
-
-// // Get all cookies
-// document.getElementById("get-cookies").addEventListener("click", function () {
-//     chrome.cookies.getAll({}, function (cookies) {
-//         console.log(cookies)
-//         document.getElementById("cookie-output").value = JSON.stringify(cookies, null, 2);
-//     });
-// })
-
-document.addEventListener("DOMContentLoaded", function() {
-    loadCookies();
-});
-
-document.getElementById("search-cookies-button").addEventListener("click", function () {
-    loadCookies(document.getElementById("search-cookies").value);
-});
-
-document.getElementById("search-cookies").addEventListener("keydown", function (event) {
-    if (event.key === "Enter") {
-        loadCookies(document.getElementById("search-cookies").value);
-    }
-});
-
-function loadCookies(text_to_search = "") {
-    const site_only = document.getElementById("filter-by-site-cookies").checked;
-    if (site_only) {
-        chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
-            const url = new URL(tabs[0].url);
-            const domain = url.hostname;
-            chrome.cookies.getAll({domain: domain}, function (cookies) {
-                displayCookies(cookies, text_to_search);
-            });
-        });
-    } else {
-        chrome.cookies.getAll({}, function (cookies) {
-            displayCookies(cookies, text_to_search);
-        });
-    }
-}
-
-
-function displayCookies(cookies, text_to_search) {
-    // Edit and Delete not working, need to style list items
-    const list = document.getElementById('cookie-list');
-    list.innerHTML = ''; // clear the list
-
-    for (let cookie of cookies) {
-        if (text_to_search && !JSON.stringify(cookie).toLowerCase().includes(text_to_search.toLowerCase())) {
-            continue;
-        }
-        // Create a list item for each cookie
-        const listItem = document.createElement('li');
-        listItem.classList.add('cookie-item');
-
-        // Create a button to toggle the visibility of the cookie details
-        const toggleButton = document.createElement('button');
-        toggleButton.textContent = `${cookie.name} - ${cookie.domain}`;
-        toggleButton.addEventListener('click', () => {
-            detailDiv.style.display = detailDiv.style.display === 'none' ? '' : 'none';
-        });
-        toggleButton.classList.add("subtle-button")
-        listItem.appendChild(toggleButton);
-
-        const detailDiv = document.createElement('div');
-        detailDiv.style.display = 'none';
-
-        // Create a textarea to hold the cookie details
-        const detailsTextarea = document.createElement('textarea');
-        detailsTextarea.rows = 10;
-        detailsTextarea.cols = 50;
-        // detailsTextarea.style.display = 'none'; // hide the textarea by default
-        detailsTextarea.textContent = JSON.stringify(cookie, null, 2);
-        detailsTextarea.readOnly = true;
-        detailDiv.appendChild(detailsTextarea);
-
-        // Create a delete button
-        const deleteButton = document.createElement('button');
-        
-        deleteButton.textContent = 'Delete';
-        deleteButton.addEventListener('click', () => {
-            chrome.cookies.remove({url: "http://" + cookie.domain + cookie.path, name: cookie.name}, function(deletedCookie) {
-                if (chrome.runtime.lastError) {
-                    console.error(chrome.runtime.lastError.message);
-                } else {
-                    console.log(deletedCookie);
-                    // Remove the list item from the list
-                    list.removeChild(listItem);
-                }
-            });
-        });
-        // deleteButton.style.display = 'none';
-        detailDiv.appendChild(deleteButton);
-
-        // Create an edit button
-        if (cookie.httpOnly) {
-            const httpOnlyWarning = document.createElement('small');
-            httpOnlyWarning.textContent = '  This cookie cannot be edited (httpOnly)';
-            detailDiv.appendChild(httpOnlyWarning);
-        } else if (cookie.domain.startsWith('.')) { 
-            const httpOnlyWarning = document.createElement('small');
-            httpOnlyWarning.textContent = "  This cookie cannot be edited (cookie's domain starts with a dot)";
-            detailDiv.appendChild(httpOnlyWarning);
-        } else {
-            const editButton = document.createElement('button');
-            editButton.textContent = 'Edit';
-            editButton.addEventListener('click', () => {
-                // Make the textarea editable and focus it
-                detailsTextarea.readOnly = false;
-                detailsTextarea.focus();
-            });
-            detailDiv.appendChild(editButton);
-        }
-        listItem.appendChild(detailDiv);
-
-        // Add an event listener for when the textarea loses focus
-        detailsTextarea.addEventListener('blur', () => {
-            // Make the textarea read-only again
-            detailsTextarea.readOnly = true;
-
-            // Parse the edited JSON and save the changes to the cookie
-            try {
-                console.log(detailsTextarea.value)
-                const editedCookie = JSON.parse(detailsTextarea.value);
-                console.log(editedCookie.value)
-                console.log(cookie.domain + cookie.path)
-                chrome.cookies.set({
-                    url: "https://" + cookie.domain + cookie.path,
-                    name: cookie.name,
-                    value: editedCookie.value,
-                    secure: cookie.secure,
-                    httpOnly: cookie.httpOnly,
-                    sameSite: cookie.sameSite,
-                    // Add other cookie properties here if needed
-                }, function(cookie) {
-                    if (chrome.runtime.lastError) {
-                        console.error(chrome.runtime.lastError.message);
-                        showNotification("Error: " + chrome.runtime.lastError.message)
-                    } else {
-                        console.log(cookie);
-                        showNotification("Cookie updated")
-                    }
-                });
-            } catch (error) {
-                console.error('Invalid JSON:', error);
-                showNotification("Error: Invalid JSON. " + error)
-            }
-        });
-
-        // Add the list item to the list
-        list.appendChild(listItem);
-    }
-}
-
-document.getElementById("cookies-delete-site").addEventListener("click", function () {
-    chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
-        const url = new URL(tabs[0].url);
-        const domain = url.hostname;
-        chrome.cookies.getAll({domain: domain}, function (cookies) {
-            cookies.forEach(cookie => {
-                chrome.cookies.remove({url: "https://" + cookie.domain + cookie.path, name: cookie.name}, function(deletedCookie) {
-                    if (chrome.runtime.lastError) {
-                        console.error(chrome.runtime.lastError.message);
-                    } else {
-                        console.log(deletedCookie);
-                    }
-                });
-            });
-        });
-    });
-    showNotification("Deleted all cookies for this site")
-    // Wait 1 second before reloading the cookies
-    setTimeout(() => loadCookies(document.getElementById("search-cookies").value), 1000);
-});
-
-
-document.getElementById("cookies-delete-all").addEventListener("click", function () {
-    chrome.cookies.getAll({}, function (cookies) { // Pass an empty object as the first argument
-        cookies.forEach(cookie => {
-            // Try to remove the cookie with a http:// URL
-            chrome.cookies.remove({url: "https://" + cookie.domain + cookie.path, name: cookie.name}, function(deletedCookie) {
-                if (chrome.runtime.lastError) {
-                    // If that fails, try to remove the cookie with a https:// URL
-                    chrome.cookies.remove({url: "http://" + cookie.domain + cookie.path, name: cookie.name}, function(deletedCookie) {
-                        if (chrome.runtime.lastError) {
-                            console.error(chrome.runtime.lastError.message);
-                        } else {
-                            console.log("Deleted " + deletedCookie);
-                        }
-                    });
-                } else {
-                    console.log("Deleted " + deletedCookie);
-                }
-            });
-        });
-    });
-    showNotification("Deleted all cookies")
-    // Wait 1 second before reloading the cookies
-    setTimeout(() => loadCookies(document.getElementById("search-cookies").value), 1000);
-});
-
 //////////////////////////////
 // Handle Bottom Button Bar //
 //////////////////////////////
