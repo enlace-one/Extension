@@ -524,7 +524,7 @@ async function open_page_note(id, inPreview = false) {
   console.log(page_note);
 
   // Set Values
-  if (defaultPageNoteIds.includes(page_note.id)) {
+  if (defaultPageNoteIds.includes(page_note.id) && page_note.note.startsWith("http")) {
     console.log("Page not is a reference note")
     // Add Try/Except
     try {
