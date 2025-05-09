@@ -25,8 +25,14 @@ async function _save_page_note(id, note, title, url_pattern) {
  async function _storeDefaultPageNotes() {
   const results = await chrome.storage.sync.get();
   for (let item of defaultPageNotes) {
+    // Reference does not exist
     if (!item.id in results) {
         _save_page_note(item.id, item.text, item.title, item.url_pattern)
+    } else {
+      // Reference has not been edited
+      if (results[item.id].note == item.text) {
+        _save_page_note(item.id, item.text, item.title, item.url_pattern)
+      }
     }
   }
 }
