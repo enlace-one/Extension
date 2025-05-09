@@ -540,6 +540,9 @@ async function open_page_note(id, inPreview = false) {
     console.log("Page not is not a reference note")
     easyMDE.codemirror.setOption('readOnly', false);
     easyMDE.value(page_note.note);
+    if (!inPreview & easyMDE.isPreviewActive()) {
+      easyMDE.togglePreview();
+    }
   }
   
   urlPatternElement.value = page_note.url_pattern;

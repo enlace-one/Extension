@@ -40,7 +40,7 @@ async function storeDefaultPageNotes() {
   });
 }
 
-// Open options page on install or update
+// Open options page on install or update and add page notes
 chrome.runtime.onInstalled.addListener(function(details) {
     if (details.reason === 'install' || details.reason === 'update') {
       chrome.tabs.create({ url: 'options.html' });
