@@ -99,13 +99,13 @@ input[type="checkbox"] {
   background-color: grey;
   text-align: center;
   border-radius: 6px;
-  padding: 7px 10px;
+  padding: 15px 10px;
   position: fixed;
   bottom: 0%;
   left: 50%;
   transform: translateX(-50%);
   transition: opacity 0.3s, visibility 0.3s;
-  width: 100vw;
+  width: 80vw;
 }
 
 .hover-text-trigger {
