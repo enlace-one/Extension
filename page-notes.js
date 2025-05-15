@@ -721,6 +721,7 @@ async function makePageNoteTable(page_notes, table) {
     delCell.addEventListener("click", function () {
       delete_page_note(note.id);
       row.remove();
+      showNotification("Deleted note");
     });
   });
 }

@@ -108,7 +108,12 @@ input[type="checkbox"] {
   width: 80vw;
 }
 
-.hover-text-trigger {
+/* .hover-text-trigger {
+  position: relative;
+  display: inline-block;
+} */
+
+[hover-text] {
   position: relative;
   display: inline-block;
 }

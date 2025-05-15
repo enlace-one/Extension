@@ -73,11 +73,22 @@ async function clipEditPopUpForm(defaultName = '', defaultInputType = 'text', id
   submitButton.textContent = 'Submit';
   form.appendChild(submitButton);
 
+  const cancelButton = document.createElement('button');
+  cancelButton.type = 'button';
+  cancelButton.textContent = 'Cancel';
+  form.appendChild(cancelButton);
+
+  cancelButton.onclick = () => form.remove();
+
   // Append form to body
   document.body.appendChild(form);
 
   // Handle form submission
   form.addEventListener('submit', (event) => {
+    if (event.defaultPrevented) {
+      console.log('Submit event was canceled.', event.data);
+      return;
+    }
     event.preventDefault();
     const name = nameInput.value;
     const inputType = typeSelect.value;
@@ -91,6 +102,8 @@ async function clipEditPopUpForm(defaultName = '', defaultInputType = 'text', id
 
     // Ensure form is removed after submission
     form.remove();
+    // Reload html to update
+    location.reload();
   });
 }
 

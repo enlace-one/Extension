@@ -96,31 +96,164 @@ document.getElementById("save-all-settings-json").addEventListener("click", func
         alert(`Error saving JSON ${e}`)
     }
 })
+// Handle Encryption Change  
+// const changeEncryption = async (subject, newAlgo = false, newPw = false, removeEncryption = false, addEncryption = false) => {
+//     console.log(`Changing encryption of ${subject}. newAlgo=${newAlgo}, add=${addEncryption}, remove=${removeEncryption}, newPw=${newPw}`);
+  
+//     const makeChange = async (value) => {
+//       if (removeEncryption) {
+//         value = await decrypt(value);
+//       } else if (addEncryption) {
+//         value = await encrypt(value);
+//       } else if (newAlgo || newPw) {
+//         value = await encrypt(await decrypt(value));
+//       }
+//       return value;
+//     };
+  
+//     // const encryptPageNotes = await getSetting("encrypt-page-notes");
+//     // const encryptClipbox = await getSetting("encrypt-clipbox");
+  
+//     const results = await chrome.storage.sync.get();
+  
+//     for (let key in results) {
+//       if (key.startsWith("mde_") && (subject === "page-notes" || subject === "both")) {
+//         let note = results[key];
+//         const newValue = await makeChange(note.note);
+//         console.log(`Changing ${note.note} to ${newValue}`)
+//         note.note = newValue
+//         store(key, note);
+//       } else if (key.startsWith("copy-value-") && (subject === "clipbox" || subject === "both")) {
+//         store(key, await makeChange(results[key]));
+//       }
+//     }
+//   };
 
-// Save
-document.getElementById("save_settings").addEventListener("click", async function() {
-    for (let key in default_settings) {
-        // Set the value of the element with key as its ID
-        const element = document.getElementById(key);
-        if (element && element.type === "checkbox") {
-            if (element.checked) {
-                await storeSetting(key, true)
-            } else {
-                await storeSetting(key, false)
-            }
-        } else if (element) {
-            await storeSetting(key, element.value)
+// Used when changing PW or Encryption Algorithm
+const rotateClipboxEncryption = async () => {      
+    const results = await chrome.storage.sync.get();
+    for (let key in results) {
+        if (key.startsWith("copy-value-")) {
+            store(key, await encrypt(await decrypt(results[key])));
         }
     }
-    try {
-        const pageNoteJsonValue = JSON.parse(pageNoteJson.value)
-        store("page-note-json", pageNoteJsonValue)
-        showNotification("Saved")
-    } catch (e) {
-        alert(`Error saving JSON ${e}`)
-    }
-});
+};
 
+// Used when changing PW or Encryption Algorithm
+const rotatePageNotesEncryption = async () => {      
+    const results = await chrome.storage.sync.get();
+    for (let key in results) {
+        if (key.startsWith("mde_")) {
+        let note = results[key];
+        note.note = await encrypt(await decrypt(note.note))
+        store(key, note);
+        }
+    }
+};
+
+const removeClipboxEncryption = async () => {      
+    const results = await chrome.storage.sync.get();
+    for (let key in results) {
+        if (key.startsWith("copy-value-")) {
+            store(key, await decrypt(results[key]));
+        }
+    }
+};
+
+const removePageNotesEncryption = async () => {      
+    const results = await chrome.storage.sync.get();
+    for (let key in results) {
+        if (key.startsWith("mde_")) {
+        let note = results[key];
+        note.note = await decrypt(note.note)
+        store(key, note);
+        }
+    }
+};
+
+const addClipboxEncryption = async () => {      
+    const results = await chrome.storage.sync.get();
+    for (let key in results) {
+        if (key.startsWith("copy-value-")) {
+            store(key, await encrypt(results[key]));
+        }
+    }
+};
+
+const addPageNotesEncryption = async () => {      
+    const results = await chrome.storage.sync.get();
+    for (let key in results) {
+        if (key.startsWith("mde_")) {
+        let note = results[key];
+        note.note = await encrypt(note.note)
+        store(key, note);
+        }
+    }
+};
+  
+  
+  // Save Settings Handler
+  document.getElementById("save_settings").addEventListener("click", async function () {
+    for (let key in default_settings) {
+      const element = document.getElementById(key);
+      if (!element) {
+        continue
+      }
+      const previousSetting = await getSetting(key);
+      let value
+
+      if (element.type === "checkbox") {
+        value = element.checked
+        } else {
+            value = element.value
+        }
+        if (value == previousSetting) {
+            continue
+        }
+
+    console.log("Changing", key, ". Value:", value, "previous value:", previousSetting)
+
+  
+      if (key === "encrypt-page-notes" && element && value !== previousSetting) {
+        if (value) {
+            console.log("Adding page note encryption")
+            addPageNotesEncryption()
+        } else {
+            console.log("Removing page note encryption")
+            removePageNotesEncryption()
+        }
+      }
+
+      if (key === "encrypt-clipboard" && element && value !== previousSetting) {
+        if (value) {
+            console.log("Adding clipbox encryption")
+            addClipboxEncryption()
+        } else {
+            console.log("Removing clipbox encryption")
+            removeClipboxEncryption()
+        }
+      }
+  
+    await storeSetting(key, value);
+       
+  
+      if (key === "encryption-algorithm" && element && value !== previousSetting) {
+        console.log("Changing Algorithm")
+        await rotateClipboxEncryption()
+        await rotatePageNotesEncryption()
+        await storeSetting("decryption-algorithm", value); // Keep old for backward compatibility
+      }
+    }
+  
+    try {
+      const pageNoteJsonValue = JSON.parse(pageNoteJson.value);
+      store("page-note-json", pageNoteJsonValue);
+      showNotification("Saved");
+    } catch (e) {
+      alert(`Error saving JSON: ${e}`);
+    }
+  });
+  
 document.getElementById("reset-settings").addEventListener("click", function (){
     store("enlace-settings", {})
 })
@@ -333,10 +466,10 @@ async function updateUi() {
 
 
 if (isUserScriptsAvailable()) {
+    document.querySelectorAll(".hidden-if-not-developer-mode").forEach((element)=> element.classList.remove("hidden"))
     document.querySelector('.scriptName[data-tab="script-tab"]').classList.remove("hidden")
     document.querySelector('.regexName[data-tab="regex-tab"]').classList.remove("hidden")
     document.querySelector('.htmlName[data-tab="html-tab"]').classList.remove("hidden")
-    document.querySelector(".page-note-settings").classList.remove("hidden")
     updateUi()
 }
     

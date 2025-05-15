@@ -162,7 +162,7 @@ async function decrypt(cipherText) {
       .then((value) => value.en_locked);
     crypt.secret = secret;
     //var decipher = await crypt.decrypt(cipherText);
-    switch (await getSetting("encryption-algorithm")) {
+    switch (await getSetting("decryption-algorithm")) {
       case "3DES":
         var decipher = await crypt.decryptTripleDES(cipherText);
         break;
@@ -202,6 +202,7 @@ default_settings = {
   "max-value-char-page-notes": 7500,
   "max-title-char-page-notes": 350,
   "encryption-algorithm": "AES",
+  "decryption-algorithm": "AES", // Used when changing from one algo to another
   "last-open-ref-file": "css_selectors.md",
   "zoomSetting": 1,
   "requests-excluded-content-types": ['image/', 'application/javascript', 'application/x-javascript', 'text/javascript'],
@@ -325,7 +326,34 @@ async function generateRandomAlphaNumeric(length) {
   return result;
 }
 
+// Works well except it screws up domcontentloaded stuff. I don't feel like 
+// doing a custom event to prevent copying this 3 times
+// async function includeHtml(pageName) {
+//   try {
+//     const response = await fetch(pageName);
+//     if (!response.ok) throw new Error(`Failed to load ${pageName}`);
+//     const html = await response.text();
+
+//     // Find the script tag that called this function
+//     const currentScript = document.currentScript;
+
+//     // Replace the script tag with the loaded HTML
+//     if (currentScript && currentScript.parentNode) {
+//       const temp = document.createElement("div");
+//       temp.innerHTML = html;
+//       while (temp.firstChild) {
+//         currentScript.parentNode.insertBefore(temp.firstChild, currentScript);
+//       }
+//       currentScript.remove();
+//     }
+//   } catch (err) {
+//     console.error(err);
+//   }
+// }
+
+
 function showNotification(message, seconds = 1) {
+  console.log("Showing notification:", message)
   const notification = document.createElement("div");
   notification.classList.add("tooltiptext");
   notification.style = "visibility: visible; opacity: 1; display: block;";

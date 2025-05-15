@@ -125,20 +125,21 @@
     <div class="container">
         <h1 style="width: 200px; font-family: Matura MT Script Capitals, cursive" class="extensionName"></h1>
         <div id="locked-div">
-            <label for="password">Enter Password:</label>
-            <div style="display: inline-block">
-                <input id="password" type="password" class="" key="" />
-                <p hover-text="First time? Check the box and make up a password">
-                    <img style="width: 15px; height: auto;" src="images/info-icon.svg" alt="Icon">
-                </p>
+            <label for="password" style="padding-top: 2rem">Enter Password:</label>
+            <div >
+              <input id="password" type="password" class="" key="" />
+              <!-- <p hover-text="First time? Check the box and make up a password">
+                <img style="width: 15px; height: auto;" src="images/info-icon.svg" alt="Icon">
+              </p> -->
             </div>
-            <div style="display: inline-block">
-                <input id="set-reset-pw" type="checkbox" value="Set/Reset" />
-                <label
-                    hover-text="You will not be able to access any stored values after reseting the password">Set/Reset
-                    Password</label>
+            <div style="display: inline-block; padding-top: 2rem; padding-bottom: 2rem">
+              <input id="set-reset-pw" type="checkbox" value="Set/Reset" />
+              <label
+                hover-text="You will not be able to read any encrypted values after reseting the password"
+                >Override Existing Password (data loss)</label
+              >
             </div>
-        </div>
+          </div>
         <div id="unlocked-div" class="hidden">
             <div class="tabs">
                 <button class="tab-button active aboutName" data-tab="about-tab">
@@ -432,7 +433,7 @@
                 </div>
                 <div>
                     <h2>Page Note Config</h2>
-                    <div class="page-note-settings hidden">
+                    <div class="page-note-settings hidden hidden-if-not-developer-mode">
                         <textarea id="page-note-json" rows="5">
                         </textarea>
                         <small>Toolbar options: ["bold","italic","strikethrough","heading","code","quote","ordered-list","unordered-list","clean-block","horizontal-rule","undo","redo","link","image","preview","side-by-side","fullscreen","guide","table",]</small>
@@ -459,8 +460,9 @@
                 </div> -->
                 <div class="danger-zone" style="border-color:yellow; border-style: dotted;">
                     <h2>Caution</h2>
-                    <small>Changing these could cause performance or memory issues</small>
-                    <div class="danger-option">
+                    <small >Changing these could cause performance or memory issues</small>
+                    <br/>
+                    <div style="padding-top:10px" class="danger-option">
                         <label for="max-char-clipboard">Max Characters for <i class="clipboardName"></i></label>
                         <input id="max-char-clipboard" type="number">
                     </div>
@@ -495,9 +497,9 @@
                 </div>
                 
                 <br>
-                <div class="danger-zone" style="border-color: orange; border-style: dotted;">
-                    <h2>Beware</h2>
-                    <small>Be advised that changing these may prevent you from accessing the previously stored
+                <div class="danger-zone" style="border-color: yellow; border-style: dotted;">
+                    <h2>Caution</h2>
+                    <small>Repeated or interrupted changes to this section may prevent you from accessing the previously stored
                         values.</small>
                     <h3>Encryption</h3>
                     <div class="option">
@@ -535,13 +537,15 @@
                     <input type="button" id="reset-clipboard" value="Reset Clipboard" />
                     <!-- <input type="button" id="reset-snippets" value="Reset Snippets" /> -->
                     <input type="button" id="reset-page-notes" value="Reset Page Notes" />
-                    <h2>Edit All Settings As JSON</h2>
+                    <div class="hidden-if-not-developer-mode"><h2>Edit All Settings As JSON</h2>
                     <small>Don't touch this unless you know what you are doing</small>
                     <textarea id="all-settings-json" rows="30">
                     </textarea>
+                    
                     <br>
                     <button id="reset-all-settings-json">Reset Config</button>
                     <button id="save-all-settings-json">Save Config</button>
+                </div>
                 </div>
             </div>
         </div>

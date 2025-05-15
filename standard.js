@@ -37,6 +37,9 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
 ///////////////////
 // Set Variables //
 ///////////////////
+
+let createPw = false
+
 const variables = {
     extensionName: "Page Notes",
     extensionShortName: "PN",
@@ -66,8 +69,16 @@ const variables = {
 // Lock/Unlock //
 /////////////////
 
-const validation_salt = "Validation129"
-const storage_salt = "Enlsal294"
+async function checkIfNoAccount() {
+    if (await get("hashValidation") == undefined) {
+        console.log("No password")
+        // Change prompt
+        createPw = true
+        document.querySelector('label[for="password"]').textContent = "Create a password:"
+    } else {
+        console.log("Password exists")
+    }
+}
 
 async function getValidationSalt() {
     var salt = await get("enlace-vs")
@@ -105,7 +116,6 @@ async function unlock(key) {
         runOnUnlock()
     } else {
         showNotification("Incorrect password")
-        console.log("Incorrect password")
     }
 }
 
@@ -119,10 +129,6 @@ async function onStart() {
         inputBox.focus();
     }
 }
-
-
-
-
 
 async function runOnUnlock() {
     console.log("Unlocked")
@@ -295,13 +301,17 @@ window.addEventListener("DOMContentLoaded", function() {
         });
     });
 
+    // If no account
+    checkIfNoAccount()
+
     // Enter password on "Enter"
     document.getElementById("password").addEventListener('keydown', async function(event) {
         if (event.key === 'Enter') {
-            if (document.getElementById('set-reset-pw').checked) {
+            if (document.getElementById('set-reset-pw').checked | createPw) {
                 await setPassword(document.getElementById("password").value)
                 await unlock(document.getElementById("password").value)
                 document.getElementById('set-reset-pw').checked = false
+                createPw = false
             } else {
                 await unlock(document.getElementById("password").value)
             }
