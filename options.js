@@ -513,14 +513,15 @@ document.getElementById("script-editor").addEventListener("keydown", async funct
 
 });
 
-document.addEventListener("DOMContentLoaded", function() {
+document.addEventListener("DOMContentModified", function() {
     // Open Page Note from URL
     const urlParams = new URLSearchParams(window.location.search);
     const paramName = "pageNote"; 
     if (urlParams.has(paramName)) {
+        console.log("Found page note in URL, opening..")
         var paramValue = urlParams.get(paramName);
         console.log("Parameter value:", paramValue);
-        document.getElementById("page-notes-super-tab").click();
+        document.getElementById("page-notes-super-tab").click()
         open_page_note(paramValue);
     }
 
