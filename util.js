@@ -158,8 +158,8 @@ async function encrypt(value) {
 async function decrypt(cipherText) {
   if (!(await isLocked())) {
     var secret = await chrome.storage.session
-      .get(["en_locked"])
-      .then((value) => value.en_locked);
+      .get(["en_decrypt"])
+      .then((value) => value.en_decrypt);
     crypt.secret = secret;
     //var decipher = await crypt.decrypt(cipherText);
     switch (await getSetting("decryption-algorithm")) {

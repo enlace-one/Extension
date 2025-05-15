@@ -128,69 +128,47 @@ document.getElementById("save-all-settings-json").addEventListener("click", func
 //       }
 //     }
 //   };
-
-// Used when changing PW or Encryption Algorithm
-const rotateClipboxEncryption = async () => {      
+// Unified function to handle encryption operations for clipbox and page notes
+const manageEncryption = async ({ operation, target }) => {
     const results = await chrome.storage.sync.get();
-    for (let key in results) {
-        if (key.startsWith("copy-value-")) {
-            store(key, await encrypt(await decrypt(results[key])));
+    
+    for (const key of Object.keys(results)) {
+      const isClipbox = key.startsWith("copy-value-");
+      const isPageNote = key.startsWith("mde_");
+      
+      if (
+        target === 'both' || 
+        (target === 'clipbox' && isClipbox) || 
+        (target === 'pagenotes' && isPageNote)
+      ) {
+        let value = isPageNote ? results[key].note : results[key];
+        
+        if (operation === 'rotate') {
+          value = await encrypt(await decrypt(value));
+        } else if (operation === 'add') {
+          value = await encrypt(value);
+        } else if (operation === 'remove') {
+          value = await decrypt(value);
         }
-    }
-};
-
-// Used when changing PW or Encryption Algorithm
-const rotatePageNotesEncryption = async () => {      
-    const results = await chrome.storage.sync.get();
-    for (let key in results) {
-        if (key.startsWith("mde_")) {
-        let note = results[key];
-        note.note = await encrypt(await decrypt(note.note))
-        store(key, note);
+        
+        // Store updated value
+        if (isPageNote) {
+          await store(key, { ...results[key], note: value });
+        } else {
+          await store(key, value);
         }
+      }
     }
-};
-
-const removeClipboxEncryption = async () => {      
-    const results = await chrome.storage.sync.get();
-    for (let key in results) {
-        if (key.startsWith("copy-value-")) {
-            store(key, await decrypt(results[key]));
-        }
-    }
-};
-
-const removePageNotesEncryption = async () => {      
-    const results = await chrome.storage.sync.get();
-    for (let key in results) {
-        if (key.startsWith("mde_")) {
-        let note = results[key];
-        note.note = await decrypt(note.note)
-        store(key, note);
-        }
-    }
-};
-
-const addClipboxEncryption = async () => {      
-    const results = await chrome.storage.sync.get();
-    for (let key in results) {
-        if (key.startsWith("copy-value-")) {
-            store(key, await encrypt(results[key]));
-        }
-    }
-};
-
-const addPageNotesEncryption = async () => {      
-    const results = await chrome.storage.sync.get();
-    for (let key in results) {
-        if (key.startsWith("mde_")) {
-        let note = results[key];
-        note.note = await encrypt(note.note)
-        store(key, note);
-        }
-    }
-};
+  };
   
+  // Wrapper functions for specific use cases
+  const rotateClipboxEncryption = async () => await manageEncryption({ operation: 'rotate', target: 'clipbox' });
+  const rotatePageNotesEncryption = async () => await manageEncryption({ operation: 'rotate', target: 'pagenotes' });
+  const removeClipboxEncryption = async () => await manageEncryption({ operation: 'remove', target: 'clipbox' });
+  const removePageNotesEncryption = async () => await manageEncryption({ operation: 'remove', target: 'pagenotes' });
+  const addClipboxEncryption = async () => await manageEncryption({ operation: 'add', target: 'clipbox' });
+  const addPageNotesEncryption = async () => await manageEncryption({ operation: 'add', target: 'pagenotes' });
+  const rotateAllEncryption = async () => await manageEncryption({ operation: 'rotate', target: 'both' });
   
   // Save Settings Handler
   document.getElementById("save_settings").addEventListener("click", async function () {
@@ -253,6 +231,31 @@ const addPageNotesEncryption = async () => {
       alert(`Error saving JSON: ${e}`);
     }
   });
+
+// Change Password
+document.getElementById("change-password-button").addEventListener("click", async function () {
+    pw1 = document.getElementById("change-password-input")
+    pw2 = document.getElementById("change-password-input-2")
+    if (pw1.value != pw2.value) {
+        showNotification("Passwords don't match")
+        return
+    }
+    // Change hashValidation so new password unlocks app 
+    await setPassword(pw1.value)
+    // Set Encrypt Key
+    const hashKey = await hashString(pw1 + await getStorageSalt())
+    await chrome.storage.session.set({"en_locked": hashKey});
+    // Rotate all things
+    if (await getSetting("encrypt-page-notes")) {
+        await rotatePageNotesEncryption()
+    } 
+    if (await getSetting("encrypt-clipboard")) {
+        await rotateClipboxEncryption()
+    }
+    // Set Decrypt Key
+    await chrome.storage.session.set({"en_decrypt": hashKey});
+    showNotification("Password Changed")
+})
   
 document.getElementById("reset-settings").addEventListener("click", function (){
     store("enlace-settings", {})

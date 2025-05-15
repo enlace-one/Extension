@@ -102,6 +102,7 @@ async function getStorageSalt() {
 
 function lock() {
     chrome.storage.session.set({"en_locked": true});
+    chrome.storage.session.set({"en_decrypt": true});
     showhide("locked-div");
     showhide("unlocked-div");
 }
@@ -113,6 +114,7 @@ async function unlock(key) {
         // Store for unlocking
         const hashKey = await hashString(key + await getStorageSalt())
         chrome.storage.session.set({"en_locked": hashKey});
+        chrome.storage.session.set({"en_decrypt": hashKey});
         runOnUnlock()
     } else {
         showNotification("Incorrect password")
