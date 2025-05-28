@@ -36,7 +36,10 @@ const defaultPageNoteIds = defaultPageNotes.map((pn)=>pn.id)
 function isUserScriptsAvailable() {
   try {
     // Property access which throws if developer mode is not enabled.
-    chrome.userScripts;
+    
+    if (chrome.userScripts == undefined) {
+      throw Error("User Scripts is not enabled")
+    } 
     return true;
   } catch {
     // Not available, so hide UI and show error.

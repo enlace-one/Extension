@@ -349,8 +349,8 @@
                     This is the tab you are in right now. It is where you go for information, setting changes, and some
                     developer tools
                     (regex, html, js scripts)
-                    that will only show up if you have the developer mode turned on for your browser.
-                    Go to Extensions -> Developer Mode to enable it.
+                    that will only show up if you have user scripts turned on for this extension.
+                    Go to Extensions -> This extension -> User Scripts to enable it.
                 </p>
 
                 <h3>Popup View</h3> (<i class="_execute_action"></i>)
@@ -560,7 +560,7 @@
                     <input type="button" id="reset-clipboard" value="Reset Clipboard" />
                     <!-- <input type="button" id="reset-snippets" value="Reset Snippets" /> -->
                     <input type="button" id="reset-page-notes" value="Reset Page Notes" />
-                    <div class="hidden-if-not-developer-mode">
+                    <div class="hidden hidden-if-not-developer-mode">
                         <h2>Edit All Settings As JSON</h2>
                         <small>Don't touch this unless you know what you are doing</small>
                         <textarea id="all-settings-json" rows="30">
