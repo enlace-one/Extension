@@ -156,6 +156,9 @@
                 <button id="page-notes-super-tab" class="tab-button pageNotesName" data-tab="page-notes-supertab">
                     Page Notes
                 </button>
+                <button class="tab-button caseChangerName hidden hidden-if-not-developer-mode" data-tab="case-changer-tab">
+                    Case Changer
+                </button>
                 <button class="tab-button scriptName hidden" data-tab="script-tab">
                     Script
                 </button>
@@ -166,6 +169,33 @@
                 <small>Save this script once (and after each update), and it should run on any page you visit.</small>
                 <textarea id="script-editor" style="width:92vw; height: 80vh;"></textarea>
                 <small>Press CTRL+Enter to Save</small>
+            </div>
+            <div class="tab-content" id="case-changer-tab">
+                <h2 class="caseChangerName"></h2>
+                <div style="display: flex; gap: 20px; flex-wrap: wrap; align-items: flex-start;">
+                    <!-- Left side: both textareas stacked -->
+                    <div style="flex: 3; min-width: 300px;">
+                        <label><strong>Input Text:</strong></label>
+                        <textarea id="case-changer-input" style="width: 100%; height: 40vh; min-height: 180px; padding: 12px; box-sizing: border-box; font-family: monospace; font-size: 16px; border: 2px solid #ddd; border-radius: 8px; resize: vertical;"></textarea>
+                        <label><strong>Output Text:</strong></label>
+                        <textarea id="case-changer-output" style="width: 100%; height: 40vh; min-height: 180px; padding: 12px; box-sizing: border-box; font-family: monospace; font-size: 16px; border: 2px solid #ddd; border-radius: 8px; resize: vertical;"></textarea>
+                    </div>
+                    <div style="flex: 1; min-width: 150px; display: flex; flex-direction: column; justify-content: center; gap: 15px;">
+                        <select id="case-changer-select">
+                            <option value="lower">to lowercase</option>
+                            <option value="upper">TO UPPERCASE</option>
+                            <option value="title">To Title Case</option>
+                            <option value="sentence">To sentence case</option>
+                            <option value="snake">ToSnakeCase</option>
+                            <option value="camel">toCamelCase</option>
+                        </select>
+                        <small>
+                            Type in the input box or change the 
+                            <br/> above selection to generate output.
+                        </small>
+                        <button id="case-changer-copy-output">Copy Output</button>
+                    </div>
+                </div>
             </div>
             <div class="tab-content" id="html-tab">
 

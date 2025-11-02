@@ -60,6 +60,7 @@ const variables = {
     webRequestsName: "Requests",
     referencesName: "References",
     scriptName: "Script",
+    caseChangerName: "Case Changer",
     regexSearchName: "re-Search",
     tocName: "TOC", 
     webAppSecName: "WebAppSec"
