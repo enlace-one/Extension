@@ -510,6 +510,23 @@ function replaceSelectElements() {
     });
 }
 
+
+function makeAllTextSelectable(){
+    
+    const style = document.createElement('style');
+    style.innerHTML = `
+        * {
+        user-select: text !important;
+        -webkit-user-select: text !important;
+        -moz-user-select: text !important;
+        -ms-user-select: text !important;
+        }
+    `;
+
+    console.log('Text selection enabled.');
+    document.head.appendChild(style);
+}
+
 // Function to remove HTML validations like 'required', 'minlength', etc.
 function removeHtmlValidations() {
     const inputs = document.querySelectorAll('input, textarea, select');
@@ -1210,6 +1227,15 @@ window.addEventListener("DOMContentLoaded", function() {
         runFunctionOnPage(removeHtmlValidations);
     });
 
+    document.getElementById("web-app-sec-selectable-text").addEventListener("click", async function () {
+        await runFunctionOnPage(makeAllTextSelectable);
+    });
+
+    document.getElementById("web-app-sec-selectable-text-ckbx").addEventListener("change", function () {
+        webAppSecSelectableTextContinuous = this.checked;
+        runFunctionOnPage(makeAllTextSelectable);
+    });
+
     document.getElementById("web-app-sec-js-val").addEventListener("click", async function () {
         await runFunctionOnPage(removeJsValidations);
     });
@@ -1457,6 +1483,9 @@ document.addEventListener('tabsChanged', async (event) => {
     if (tab.active) {
         if (webAppSecHtmlValContinuous) {
             await runFunctionOnPage(removeHtmlValidations);
+        }
+        if (webAppSecSelectableTextContinuous) {
+            await runFunctionOnPage(makeAllTextSelectable);
         }
         if (webAppSecJsValContinuous) {
             await runFunctionOnPage(removeJsValidations);
