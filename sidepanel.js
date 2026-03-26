@@ -374,6 +374,7 @@ async function openTocElement(element) {
 ///////////////
 
 var webAppSecHtmlValContinuous = false;
+var webAppSecSelectableTextContinuous = false;
 var webAppSecJsValContinuous = false;
 var webAppSecSampleDataContinuous = false;
 var webAppSecSelectOffContinuous = false;

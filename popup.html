@@ -39,6 +39,17 @@
         background-color: #d32f2f;
         /* Darker red on hover */
       }
+
+      .revolver-text-input {
+        min-width: 140px; /* adjust as needed */
+        /* padding: 4px 8px; */
+      }
+
+      /* Make the select a bit wider */
+      .revolver-number {
+        min-width: 10px; /* adjust as needed */
+        /* padding: 4px 8px; */
+      }
     </style>
   </head>
 
@@ -74,6 +85,9 @@
           </button>
           <button class="tab-button active clipboardName" data-tab="e-clip">
             e-Clip
+          </button>
+          <button class="tab-button revolverName" data-tab="revolver-tab">
+            Revolver/Refresher
           </button>
           <input type="button" value="Lock" id="lock-button" />
         </div>
@@ -164,6 +178,67 @@
           >
           <img style="width: 15px; height: auto;" src="images/info-icon.svg" alt="Icon">
           </p>
+        </div>
+        <div class="tab-content" id="revolver-tab">
+         <h2 class="revolverName">Revolver</h2>
+
+         
+         <label id="revolver-is-active"
+                >Actively Revolve:</label
+              >   
+         <div class="input-group">
+            <select
+              id="revolver-is-active"
+              class="revolver-setting revolver-text-input"
+              key="revolver-is-active"
+              style="margin-bottom: 0px;"
+            >
+            <option value="True">True</option>
+            <option value="False" selected>False</option>
+            </select>
+          </div>
+          <br />
+          <label id="refresher-is-active"
+                >Actively Refresh:</label
+              >   
+         <div class="input-group">
+            <select
+              id="refresher-is-active"
+              class="revolver-setting revolver-text-input"
+              key="refresher-is-active"
+              style="margin-bottom: 0px;"
+            >
+            <option value="True">True</option>
+            <option value="False" selected>False</option>
+            </select>
+          </div>
+          <br />
+          <label id="revolver-time-period"
+                >Time to Revolve/Refresh:</label
+              >   
+         <div class="input-group">
+            <input
+              type="number"
+              id="revolver-time-period-minutes"
+              class="revolver-number revolver-setting"
+              key="revolver-time-period-minutes"
+              style="margin-bottom: 0px;"
+              value="0"
+            />
+            <span style="font-size:medium; padding-right:15px; padding-left:3px">M</span>
+             <input
+              type="number"
+              id="revolver-time-period-seconds"
+              class="revolver-number revolver-setting"
+              key="revolver-time-period-seconds"
+              style="margin-bottom: 0px;"
+              value="30"
+            />
+            <span style="font-size:medium; padding-right:15px; padding-left:3px">S</span>
+          </div>
+          <br />
+
+          
         </div>
         <div class="tab-content" id="snippets-tab">
           <h2 class="snippetsName">Snippets</h2>

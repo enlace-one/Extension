@@ -63,7 +63,8 @@ const variables = {
     caseChangerName: "Case Changer",
     regexSearchName: "re-Search",
     tocName: "TOC", 
-    webAppSecName: "WebAppSec"
+    webAppSecName: "WebAppSec",
+    revolverName: "Revolver/Refresher"
   }
 
 /////////////////

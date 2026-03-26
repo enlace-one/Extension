@@ -107,6 +107,32 @@ async function clipEditPopUpForm(defaultName = '', defaultInputType = 'text', id
   });
 }
 
+
+function setRefresherSettings() {
+  Array.from(document.getElementsByClassName("revolver-setting")).forEach(async element => {
+    const elementId = element.id
+    try {
+        element.value = await get(elementId, element.value)
+      } catch {
+        console.log("No found value stored for " + elementId)
+      }
+
+    async function saveRefresherValue() {
+      console.log("triggered input onchange")
+           
+          navigator.serviceWorker.controller.postMessage({
+              action: 'appStateChanged',
+              hasChanged: true
+          });
+          store(elementId, element.value)
+
+          showNotification("Saved")
+    }
+
+    element.addEventListener("change", saveRefresherValue);
+  })
+}
+
 function addClipboardComponenets() {
   if (clipboardComponentsAdded) {
     return
@@ -210,6 +236,7 @@ function addClipboardComponenets() {
 // Store new keys and set value. Select "Search" input box.
 document.addEventListener("EnlaceUnlocked", async function() {
     addClipboardComponenets()
+    setRefresherSettings()
 });
 
 // This is to combat the trouble with loading sometimes seen in edge
