@@ -156,7 +156,8 @@
                 <button id="page-notes-super-tab" class="tab-button pageNotesName" data-tab="page-notes-supertab">
                     Page Notes
                 </button>
-                <button class="tab-button caseChangerName hidden hidden-if-not-developer-mode" data-tab="case-changer-tab">
+                <button class="tab-button caseChangerName hidden hidden-if-not-developer-mode"
+                    data-tab="case-changer-tab">
                     Case Changer
                 </button>
                 <button class="tab-button scriptName hidden" data-tab="script-tab">
@@ -176,11 +177,14 @@
                     <!-- Left side: both textareas stacked -->
                     <div style="flex: 3; min-width: 300px;">
                         <label><strong>Input Text:</strong></label>
-                        <textarea id="case-changer-input" style="width: 100%; height: 40vh; min-height: 180px; padding: 12px; box-sizing: border-box; font-family: monospace; font-size: 16px; border: 2px solid #ddd; border-radius: 8px; resize: vertical;"></textarea>
+                        <textarea id="case-changer-input"
+                            style="width: 100%; height: 40vh; min-height: 180px; padding: 12px; box-sizing: border-box; font-family: monospace; font-size: 16px; border: 2px solid #ddd; border-radius: 8px; resize: vertical;"></textarea>
                         <label><strong>Output Text:</strong></label>
-                        <textarea id="case-changer-output" style="width: 100%; height: 40vh; min-height: 180px; padding: 12px; box-sizing: border-box; font-family: monospace; font-size: 16px; border: 2px solid #ddd; border-radius: 8px; resize: vertical;"></textarea>
+                        <textarea id="case-changer-output"
+                            style="width: 100%; height: 40vh; min-height: 180px; padding: 12px; box-sizing: border-box; font-family: monospace; font-size: 16px; border: 2px solid #ddd; border-radius: 8px; resize: vertical;"></textarea>
                     </div>
-                    <div style="flex: 1; min-width: 150px; display: flex; flex-direction: column; justify-content: center; gap: 15px;">
+                    <div
+                        style="flex: 1; min-width: 150px; display: flex; flex-direction: column; justify-content: center; gap: 15px;">
                         <select id="case-changer-select">
                             <option value="lower">to lowercase</option>
                             <option value="upper">TO UPPERCASE</option>
@@ -190,8 +194,8 @@
                             <option value="camel">toCamelCase</option>
                         </select>
                         <small>
-                            Type in the input box or change the 
-                            <br/> above selection to generate output.
+                            Type in the input box or change the
+                            <br /> above selection to generate output.
                         </small>
                         <button id="case-changer-copy-output">Copy Output</button>
                     </div>
@@ -476,9 +480,9 @@
                         <input id="change-password-input" type="password"></input>
                     </div>
                     <div class="danger-option">
-                         <label for="change-password-input-2">Re-enter your new password:</label>
+                        <label for="change-password-input-2">Re-enter your new password:</label>
                         <input id="change-password-input-2" type="password"></input>
-                    </div>  
+                    </div>
                     <button id="change-password-button">Change Password</button>
 
                 </div>
@@ -510,9 +514,105 @@
                   <button id="sign-in-button">Sign into Google Drive</button>
                   <button id="sign-out-button" class="hidden">Sign out of Google Drive</button>
                 </div> -->
+                <br />
+                <div class="danger-zone" style="border-color:grey; border-style: dotted;">
+                    <h2 class="revolverName">Tab Manager</h2>
+                    <div style="padding-top:10px" class="danger-option">
+                        <label for="tab-manager-seconds-to-wait">Seconds to Wait Before Revolving/Refreshing</label>
+                        <input id="tab-manager-seconds-to-wait" type="number" value="30">
+                    </div>
+                    <div style="padding-top:10px" class="danger-option">
+                        <label for="revolver-mode">Revolver Filter Mode:</label>
+                        <select id="revolver-mode">
+                            <option value="inclusion">Only revolve those in the include list</option>
+                            <option value="exclusion" selected>Revolve all but those in the exclude list</option>
+                        </select>
+                    </div>
+                    <div style="padding-top:10px" class="danger-option">
+                        <label for="revolver-exclusion-list">Revolver Exclusion List:</label>
+                        <textarea id="revolver-exclusion-list">
+
+        </textarea>
+                        <small>Newline seperated, startswith is default but supports /{regex}/ as well</small>
+                    </div>
+                    <div style="padding-top:10px" class="danger-option">
+                        <label for="revolver-inclusion-list">Revolver Inclusion List:</label>
+                        <textarea id="revolver-inclusion-list">
+
+        </textarea>
+                        <small>Newline seperated, startswith is default but supports /{regex}/ as well</small>
+                    </div>
+                    <div style="padding-top:10px" class="danger-option">
+                        <label for="revolver-pause-after-activity">Revolver Pause After Activity:</label>
+                        <select id="revolver-pause-after-activity">
+                            <option value="pause" selected>Pause revolving for 30 seconds after activity</option>
+                            <option value="no-pause">Don't pause after activity</option>
+                        </select>
+                    </div>
+                    <div style="padding-top:10px" class="danger-option">
+                        <label for="refresher-mode">Refresher Filter Mode:</label>
+                        <select id="refresher-mode">
+                            <option value="inclusion">Only refresh those in the include list</option>
+                            <option value="exclusion" selected>Refresh all but those in the exclude list</option>
+                        </select>
+                    </div>
+                    <div style="padding-top:10px" class="danger-option">
+                        <label for="refresher-exclusion-list">Refresher Exclusion List:</label>
+                        <textarea id="refresher-exclusion-list">
+
+        </textarea>
+                        <small>Newline seperated, startswith is default but supports /{regex}/ as well</small>
+                    </div>
+                    <div style="padding-top:10px" class="danger-option">
+                        <label for="refresher-inclusion-list">Refresher Inclusion List:</label>
+                        <textarea id="refresher-inclusion-list">
+
+        </textarea>
+                        <small>Newline seperated, startswith is default but supports /{regex}/ as well</small>
+                    </div>
+                    <div style="padding-top:10px" class="danger-option">
+                        <label for="refresher-pause-after-activity">Refresher Pause After Activity:</label>
+                        <select id="refresher-pause-after-activity">
+                            <option value="pause" selected>Pause refreshing for 30 seconds after activity</option>
+                            <option value="no-pause">Don't pause after activity</option>
+                        </select>
+                    </div>
+                    <div style="padding-top:10px" class="danger-option">
+                        <label for="closer-mode">Closer Filter Mode:</label>
+                        <select id="closer-mode">
+                            <option value="inclusion" selected>Only close those in the include list</option>
+                            <option value="exclusion">Close all but those in the exclude list</option>
+                        </select>
+                    </div>
+                    <div style="padding-top:10px" class="danger-option">
+                        <label for="closer-exclusion-list">Closer Exclusion List:</label>
+                        <textarea id="closer-exclusion-list">
+
+        </textarea>
+                        <small>Newline seperated, startswith is default but supports /{regex}/ as well</small>
+                    </div>
+                    <div style="padding-top:10px" class="danger-option">
+                        <label for="closer-inclusion-list">Closer Inclusion List:</label>
+                        <textarea id="closer-inclusion-list">
+chrome://whats-new/
+/https:\/\/www\.microsoft\.com\/es-es\/edge\/update\/.*/
+        </textarea>
+                        <small>Newline seperated, startswith is default but supports /{regex}/ as well</small>
+                    </div>
+                    <div style="padding-top:10px" class="danger-option">
+                        <label for="closer-pause-after-activity">Closer Pause After Activity:</label>
+                        <select id="closer-pause-after-activity">
+                            <option value="pause" selected>Pause closing for 30 seconds after activity</option>
+                            <option value="no-pause">Don't pause after activity</option>
+                        </select>
+                    </div>
+                </div>
+                                <br>
+                <input class="m-3 save_settings" type="submit" value="Submit All Changes" />
+                <br>
                 <div class="danger-zone" style="border-color:yellow; border-style: dotted;">
                     <h2>Caution</h2>
-                    <small>Changing these could cause performance or memory issues</small>
+                    <small>Changing these could cause performance or memory issues.</small>
                     <br />
                     <div style="padding-top:10px" class="danger-option">
                         <label for="max-char-clipboard">Max Characters for <i class="clipboardName"></i></label>
@@ -549,6 +649,8 @@
                 </div>
 
                 <br>
+                    <input class="m-3 save_settings" type="submit" value="Submit All Changes" />
+                <br>
                 <div class="danger-zone" style="border-color: yellow; border-style: dotted;">
                     <h2>Caution</h2>
                     <small>Repeated or interrupted changes to this section may prevent you from accessing the previously
@@ -580,7 +682,7 @@
                     </div>
                 </div>
                 <br>
-                <input class="m-3" type="submit" value="Submit" id="save_settings" />
+                <input class="m-3 save_settings" type="submit" value="Submit All Changes" />
                 <br>
                 <div class="danger-zone" style="border-color: red; border-style: dotted;">
                     <h2>Danger Zone</h2>

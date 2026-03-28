@@ -184,79 +184,87 @@ const rotateAllEncryption = async () =>
 
 // Save Settings Handler
 document
-  .getElementById("save_settings")
-  .addEventListener("click", async function () {
-    for (let key in default_settings) {
-      const element = document.getElementById(key);
-      if (!element) {
-        continue;
-      }
-      const previousSetting = await getSetting(key);
-      let value;
+  .querySelectorAll(".save_settings")
+  .forEach(function (button) {
+    button.addEventListener("click", async function () {
+      for (let key in default_settings) {
+        const element = document.getElementById(key);
+        if (!element) {
+          continue;
+        }
+        const previousSetting = await getSetting(key);
+        let value;
 
-      if (element.type === "checkbox") {
-        value = element.checked;
-      } else {
-        value = element.value;
-      }
-      if (value == previousSetting) {
-        continue;
-      }
-
-      console.log(
-        "Changing",
-        key,
-        ". Value:",
-        value,
-        "previous value:",
-        previousSetting
-      );
-
-      if (
-        key === "encrypt-page-notes" &&
-        element &&
-        value !== previousSetting
-      ) {
-        if (value) {
-          console.log("Adding page note encryption");
-          addPageNotesEncryption();
+        if (element.type === "checkbox") {
+          value = element.checked;
         } else {
-          console.log("Removing page note encryption");
-          removePageNotesEncryption();
+          value = element.value;
+        }
+        if (value == previousSetting) {
+          continue;
+        }
+
+        console.log(
+          "Changing",
+          key,
+          ". Value:",
+          value,
+          "previous value:",
+          previousSetting
+        );
+
+        if (
+          key === "encrypt-page-notes" &&
+          element &&
+          value !== previousSetting
+        ) {
+          if (value) {
+            console.log("Adding page note encryption");
+            addPageNotesEncryption();
+          } else {
+            console.log("Removing page note encryption");
+            removePageNotesEncryption();
+          }
+        }
+
+        if (key === "encrypt-clipboard" && element && value !== previousSetting) {
+          if (value) {
+            console.log("Adding clipbox encryption");
+            addClipboxEncryption();
+          } else {
+            console.log("Removing clipbox encryption");
+            removeClipboxEncryption();
+          }
+        }
+
+        await storeSetting(key, value);
+
+        if (
+          key === "encryption-algorithm" &&
+          element &&
+          value !== previousSetting
+        ) {
+          console.log("Changing Algorithm");
+          await rotateClipboxEncryption();
+          await rotatePageNotesEncryption();
+          await storeSetting("decryption-algorithm", value);
+          await storeSetting("decryption-algorithm", value);
         }
       }
 
-      if (key === "encrypt-clipboard" && element && value !== previousSetting) {
-        if (value) {
-          console.log("Adding clipbox encryption");
-          addClipboxEncryption();
-        } else {
-          console.log("Removing clipbox encryption");
-          removeClipboxEncryption();
-        }
+      try {
+        const pageNoteJsonValue = JSON.parse(pageNoteJson.value);
+        store("page-note-json", pageNoteJsonValue);
+        showNotification("Saved");
+      } catch (e) {
+        alert(`Error saving JSON: ${e}`);
       }
 
-      await storeSetting(key, value);
-
-      if (
-        key === "encryption-algorithm" &&
-        element &&
-        value !== previousSetting
-      ) {
-        console.log("Changing Algorithm");
-        await rotateClipboxEncryption();
-        await rotatePageNotesEncryption();
-        await storeSetting("decryption-algorithm", value); // Keep old for backward compatibility
-      }
-    }
-
-    try {
-      const pageNoteJsonValue = JSON.parse(pageNoteJson.value);
-      store("page-note-json", pageNoteJsonValue);
-      showNotification("Saved");
-    } catch (e) {
-      alert(`Error saving JSON: ${e}`);
-    }
+      navigator.serviceWorker.controller.postMessage({
+        action: "appStateChanged",
+        hasChanged: true
+      });
+    });
   });
 
 // Change Password
@@ -600,28 +608,31 @@ if (isUserScriptsAvailable()) {
 document
   .getElementById("script-editor")
   .addEventListener("keydown", async function (event) {
-    // If CTRL + Enter
     if (event.ctrlKey && event.key === "Enter") {
       const script = document.getElementById("script-editor").value;
+
+      // Save script
       chrome.storage.sync.set({ userScript: script }, function () {
         showNotification("Script saved");
       });
+
+      // Check ONLY for your script by ID
       const existingScripts = await chrome.userScripts.getScripts({
         ids: [USER_SCRIPT_ID],
       });
 
-      if (existingScripts.length > 0) {
-        // Update existing script.
+      const existing = existingScripts.find(s => s.id === USER_SCRIPT_ID);
+
+      if (existing) {
+        // ✅ Update ONLY what you need (don't redefine everything)
         await chrome.userScripts.update([
           {
             id: USER_SCRIPT_ID,
-            matches: ["<all_urls>"],
-            world: "MAIN",
             js: [{ code: script }],
           },
         ]);
       } else {
-        // Register new script.
+        // ✅ Register without affecting other scripts
         await chrome.userScripts.register([
           {
             id: USER_SCRIPT_ID,

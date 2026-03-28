@@ -642,25 +642,6 @@ async function search_page_notes() {
 // AUTO MATCH URL //
 ////////////////////
 
-async function get_matching_page_notes(url) {
-  const matchingNotes = [];
-
-  const results = await chrome.storage.sync.get();
-  for (key in results) {
-    let result = results[key];
-    if (key.startsWith("mde_")) {
-      if (result.url_pattern != "") {
-        if (new RegExp(result.url_pattern).test(url)) {
-          result["id"] = key;
-          matchingNotes.push(result);
-        }
-      }
-    }
-  }
-
-  return matchingNotes;
-}
-
 // Search for matching page note to current url
 // If found:
 // put matching page notes in search tab

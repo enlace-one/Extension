@@ -107,30 +107,61 @@ async function clipEditPopUpForm(defaultName = '', defaultInputType = 'text', id
   });
 }
 
+async function setRefresherSettings() {
+  const elements = document.getElementsByClassName("revolver-setting");
 
-function setRefresherSettings() {
-  Array.from(document.getElementsByClassName("revolver-setting")).forEach(async element => {
-    const elementId = element.id
+  for (const element of elements) {
+    const elementId = element.id;
+
     try {
-        element.value = await get(elementId, element.value)
-      } catch {
-        console.log("No found value stored for " + elementId)
-      }
+      const elementSetting = await get(elementId, "off");
 
-    async function saveRefresherValue() {
-      console.log("triggered input onchange")
-           
-          navigator.serviceWorker.controller.postMessage({
-              action: 'appStateChanged',
-              hasChanged: true
-          });
-          store(elementId, element.value)
+      // ✅ Set initial state (NO toggling here)
+      const isOn = elementSetting === "on";
+      element.classList.toggle("on", isOn);
+      element.classList.toggle("off", !isOn);
+      element.title = isOn ? "Revolver ON" : "Revolver OFF";
 
-          showNotification("Saved")
+    } catch {
+      console.log("No found value stored for " + elementId);
     }
 
-    element.addEventListener("change", saveRefresherValue);
-  })
+    async function saveRefresherValue() {
+      console.log("triggered input onchange");
+
+      // ✅ Toggle state ONLY on click
+      const isOn = element.classList.toggle("on");
+      element.classList.toggle("off", !isOn);
+
+      const valueToStore = isOn ? "on" : "off";
+      element.title = isOn ? "Revolver ON" : "Revolver OFF";
+
+      navigator.serviceWorker.controller.postMessage({
+        action: "appStateChanged",
+        hasChanged: true
+      });
+
+      await store(elementId, valueToStore);
+      showNotification("Saved");
+    }
+
+    element.addEventListener("click", saveRefresherValue);
+  }
+}
+
+function startCountdownDisplay() {
+  const countdownEl = document.getElementById("tab-manager-countdown");
+  if (!countdownEl) return;
+
+  setInterval(function () {
+    chrome.runtime.sendMessage({ action: "getCountdownState" }, function (response) {
+      if (!response) return;
+      const seconds = Math.ceil(response.remaining / 1000);
+      countdownEl.textContent = response.paused
+        ? `Paused (activity detected)`
+        : `Next action in ${seconds}s`;
+    });
+  }, 1000);
 }
 
 function addClipboardComponenets() {
@@ -233,10 +264,23 @@ function addClipboardComponenets() {
 
 }
 
+
+
 // Store new keys and set value. Select "Search" input box.
 document.addEventListener("EnlaceUnlocked", async function() {
     addClipboardComponenets()
     setRefresherSettings()
+    startCountdownDisplay();
+
+    document.getElementById("open-as-window").addEventListener("click", function () {
+      chrome.windows.create({
+        url: chrome.runtime.getURL("popup.html"),
+        type: "popup",
+        width: 400,
+        height: 600
+      });
+    });
+
 });
 
 // This is to combat the trouble with loading sometimes seen in edge

@@ -217,223 +217,292 @@ async function convertSmartValues(string) {
 
 }
 
-//////////////////
-// Context Menu //
-//////////////////
+/////////////////
+// TAB MANAGER //
+/////////////////
 
-// chrome.runtime.onInstalled.addListener(() =>
-//     chrome.contextMenus.create({
-//         id: "copy-to-bin",
-//         title: "Copy value to first free bin or last bin",
-//         contexts: ["selection"]
-//     })
-// );
+const TAB_MANAGER_SCRIPT_ID = "tab-manager-script";
 
-// // Add a listener for the context menu item
-// chrome.contextMenus.onClicked.addListener(async (info, tab) => {
-//     if (info.menuItemId === "copy-to-bin") {
-//       chrome.commands.getAll(async function(commands) {
-//         commands.forEach(async function(command) {
-//             if (command.name.startsWith("copy-value")) {
-//               const value = await get_clipboard_command_value(command.name)
-//               if (value == null || value === "") {
-//                 if (await getSetting("encrypt-clipboard")) {
-//                   eStore(command.name, info.selectionText)
-//                 } else {
-//                   store(command.name, info.selectionText)
-//                 }
-//                 return true
-//               }
-//             }
-//           });
-//           if (await getSetting("encrypt-clipboard")) {
-//             eStore("copy-value-5", info.selectionText)
-//           } else {
-//             store("copy-value-5", info.selectionText)
-//           }
-//         });
-//     }
-// });
+async function runTabManager() {
+  const [
+    revolverOn,
+    refresherOn,
+    closerOn,
+    secondsToWait,
+    revolverMode,
+    revolverExclusionList,
+    revolverInclusionList,
+    refresherMode,
+    refresherExclusionList,
+    refresherInclusionList,
+    closerMode,
+    closerExclusionList,
+    closerInclusionList,
+    revolverPause,
+    refresherPause,
+    closerPause,
+  ] = await Promise.all([
+    get("revolver-power", "off"),
+    get("refresher-power", "off"),
+    get("closer-power", "off"),
+    getSetting("tab-manager-seconds-to-wait"),
+    getSetting("revolver-mode"),
+    getSetting("revolver-exclusion-list"),
+    getSetting("revolver-inclusion-list"),
+    getSetting("refresher-mode"),
+    getSetting("refresher-exclusion-list"),
+    getSetting("refresher-inclusion-list"),
+    getSetting("closer-mode"),
+    getSetting("closer-exclusion-list"),
+    getSetting("closer-inclusion-list"),
+    getSetting("revolver-pause-after-activity"),
+    getSetting("refresher-pause-after-activity"),
+    getSetting("closer-pause-after-activity"),
+  ]);
 
-// // Add a listener for the context menu item to paste the value "test"
-// chrome.contextMenus.onClicked.addListener(async (info, tab) => {
-//   if (info.menuItemId.startsWith("paste-from-")) {
-//       // Paste the word "test" in the current editable field
-//       command = info.menuItemId.split("paste-from-")[1];
-//       chrome.scripting.executeScript({
-//           target: { tabId: tab.id },
-//           function: function() {
-//               document.activeElement.value = document.activeElement.value + get_clipboard_command_value(command);
-//           }
-//       });
-//   }
-// });
+  const isRevolverOn = revolverOn === "on";
+  const isRefresherOn = refresherOn === "on";
+  const isCloserOn = closerOn === "on";
+  const waitMs = (parseInt(secondsToWait) || 30) * 1000;
 
+  const timeSinceActivity = Date.now() - lastActivityTimestamp;
+  const activityRecent = timeSinceActivity < waitMs;
 
-// self.addEventListener('message', async (event) => {
-//   if (event.data.action === 'appStateChanged') {
-//       if (event.data.isUnlocked) {
-//           try {
-//               chrome.commands.getAll(async function(commands) {
-//                   for (let command of commands) {
-//                       if (!await isLocked()) {
-//                           console.log("App unlocked, creating context menu")
-//                           if (command.name.startsWith("copy-value")) {
-//                               const value = await get_clipboard_command_value(command.name)
-//                               console.log(value)
-//                               chrome.contextMenus.create({
-//                                   id: "paste-from-" + command.name,
-//                                   title: "paste " + value.substring(0, 10) + ".. (" + command.shortcut + ")",
-//                                   contexts: ["editable"]
-//                               });
-//                           }
-//                       } else {
-//                           console.log("App locked, not creating context menu")
-//                       }
-//                   }
-//               });
-//           } catch (error) {
-//               chrome.contextMenus.update("paste-from-" + command.name, {
-//                   title: "paste " + value.substring(0, 10) + " (" + command.shortcut + ")",
-//               }, function() {
-//                   if (chrome.runtime.lastError) {
-//                       console.error(chrome.runtime.lastError.message);
-//                   } else {
-//                       console.log("Context menu item updated successfully");
-//                   }
-//               });
-//           }
-//       }
-//   }
-// // });
-// self.addEventListener('message', async (event) => {
-//   if (event.data.action === 'appStateChanged') {
-//       if (event.data.isUnlocked) {
-//           try {
-//               chrome.commands.getAll(async function(commands) {
-//                   for (let command of commands) {
-//                       try {
-//                         const value = await get_clipboard_command_value(command.name)
-//                         chrome.contextMenus.update("paste-from-" + command.name, {
-//                             title: "paste " + value.substring(0, 10) + " (" + command.shortcut + ")",
-//                         });
-//                       } catch {
-//                               const value = await get_clipboard_command_value(command.name)
-//                               chrome.contextMenus.create({
-//                                   id: "paste-from-" + command.name,
-//                                   title: "paste " + value.substring(0, 10) + ".. (" + command.shortcut + ")",
-//                                   contexts: ["editable"]
-//                               });
-//                       }
-//                   }
-//               });
-//           } catch (error) {
-//               console.error(error);
-//           }
-//       }
-//   }
-// });
+  const parseList = (raw) =>
+    (raw || "")
+      .split("\n")
+      .map((s) => s.trim())
+      .filter(Boolean);
 
-// self.addEventListener('message', (event) => {
-//   if (event.data.action === 'appStateChanged') {
-//       if (event.data.hasChanged) {
-//         chrome.commands.getAll(async function(commands) {
-//           commands.forEach(async function(command) {
-//             if (! await isLocked ()) {
-//               console.log("App unlocked, creating context menu")
-//               if (command.name.startsWith("copy-value")) {
-//                 const value = await get_clipboard_command_value(command.name)
-//                 console.log(value)
-//                 chrome.contextMenus.update("paste-from-" + command.name, {
-//                   title: "paste " + value.substring(0, 10) + " (" + command.shortcut + ")",
-//               }, function() {
-//                   if (chrome.runtime.lastError) {
-//                       console.error(chrome.runtime.lastError.message);
-//                   } else {
-//                       console.log("Context menu item updated successfully");
-//                   }
-//               });
-//               }
-//             } else {
-//               console.log("App locked, not creating context menu")
-//             }
-//           });
-//         });
-//       }
-//     }
-//   });
+  function matchesPattern(url, pattern) {
+    if (pattern.startsWith("/") && pattern.endsWith("/")) {
+      const regex = new RegExp(pattern.slice(1, -1));
+      return regex.test(url);
+    }
+    return url.startsWith(pattern);
+  }
 
+  function isUrlAllowed(url, mode, exclusionList, inclusionList) {
+    if (mode === "inclusion") {
+      return inclusionList.some((p) => matchesPattern(url, p));
+    } else {
+      return !exclusionList.some((p) => matchesPattern(url, p));
+    }
+  }
 
+  const extensionUrl = chrome.runtime.getURL("");
 
+  // Try active tab in current window first
+  let [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
 
-// chrome.commands.getAll(async function(commands) {
-//   if (!await isLocked()) {
-//     commands.forEach(async function(command) {
-//         if (command.name.startsWith("copy-value")) {
-//           const value = await get_clipboard_command_value(command.name)
-//           console.log(value)
-//           chrome.contextMenus.create({
-//             id: "paste-from-" + command.name,
-//             title: "paste" + value.substring(0, 10) + " (" + command.shortcut + ")",
-//             contexts: ["editable"]
-//           });
-//         }
-//     });
-//   }
-// });
+  // If active tab is the extension popup, find the active tab in another window
+  if (!tab || tab.url.startsWith(extensionUrl)) {
+    const allWindows = await chrome.windows.getAll({ populate: true });
+    for (const window of allWindows) {
+      const activeTab = window.tabs.find(t => t.active && !t.url.startsWith(extensionUrl));
+      if (activeTab) {
+        tab = activeTab;
+        break;
+      }
+    }
+  }
 
-/////////////
-// Scripts //
-/////////////
+  if (!tab) return;
 
-// function getActiveTab(callback) {
-//   // Query for the active tab in the current window
-//   chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
-//     // tabs is an array, but there should only be one active tab in the current window, so take the first element
-//     var tab = tabs[0];
-//     // Now you have access to the tab's properties, including its ID
-//     var tabId = tab.id;
-//     callback(tabId);
-//   });
-// }
+  const url = tab.url;
 
-// // On tab Change
-// chrome.tabs.onUpdated.addListener(function(activeInfo) {
-//   getActiveTab(async function(tabId) {
-//     chrome.scripting.executeScript({
-//       target: { tabId: tabId },
-//       function: new Function(await get("script"))
-//     }).then(() => {
-//       console.log("Script injected successfully");
-//     }).catch((error) => {
-//       console.log("Error injecting script: ", error);
-//     });
-//   });
-// });
+  // Revolver
+  if (
+    isRevolverOn &&
+    isUrlAllowed(url, revolverMode, parseList(revolverExclusionList), parseList(revolverInclusionList))
+  ) {
+    if (revolverPause === "pause" && activityRecent) {
+      console.log("Revolver paused due to activity");
+    } else {
+      const tabs = await chrome.tabs.query({ windowId: tab.windowId });
+      const currentIndex = tabs.findIndex((t) => t.id === tab.id);
+      const nextTab = tabs[(currentIndex + 1) % tabs.length];
+      await chrome.tabs.update(nextTab.id, { active: true });
+    }
+  }
 
-/////////////////////////////
-// Page Notes Context Menu //
-/////////////////////////////
+  // Refresher
+  if (
+    isRefresherOn &&
+    isUrlAllowed(url, refresherMode, parseList(refresherExclusionList), parseList(refresherInclusionList))
+  ) {
+    if (refresherPause === "pause" && activityRecent) {
+      console.log("Refresher paused due to activity");
+    } else {
+      await chrome.tabs.reload(tab.id);
+    }
+  }
 
+  // Closer
+  if (
+    isCloserOn &&
+    isUrlAllowed(url, closerMode, parseList(closerExclusionList), parseList(closerInclusionList))
+  ) {
+    if (closerPause === "pause" && activityRecent) {
+      console.log("Closer paused due to activity");
+    } else {
+      await chrome.tabs.remove(tab.id);
+    }
+  }
+}
 
-// chrome.runtime.onConnect.addListener(function (port) {
-//   if (port.name === 'mySidepanel') {
-//     try {
-//       chrome.contextMenus.create({
-//         id: "add-to-page-note",
-//         title: "Add to page note",
-//         contexts: ["selection"]
-//       });
-//     } catch (error) {
-//       console.error("Failed to create context menu:", error);
-//     }
+let lastActivityTimestamp = Date.now();
+let tabManagerTimeoutStarted = null;
+let tabManagerTimeout = null;
 
-//     port.onDisconnect.addListener(async () => {
-//       try {
-//         await chrome.contextMenus.remove("add-to-page-note");
-//       } catch (error) {
-//         console.error("Failed to remove context menu:", error);
-//       }
-//     });
-//   }
-// });
+chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
+  if (message.action === "activityDetected") {
+    lastActivityTimestamp = message.timestamp;
+  }
+
+  if (message.action === "appStateChanged" && message.hasChanged) {
+    (async () => {
+      await runTabManager();
+      await scheduleTabManager();
+      await updateBadge();
+    })();
+  }
+
+  if (message.action === "getCountdownState") {
+    (async () => {
+      const secondsToWait = await getSetting("tab-manager-seconds-to-wait");
+      const waitMs = (parseInt(secondsToWait) || 30) * 1000;
+      const elapsed = tabManagerTimeoutStarted ? Date.now() - tabManagerTimeoutStarted : 0;
+      const remaining = Math.max(0, waitMs - elapsed);
+      const timeSinceActivity = Date.now() - lastActivityTimestamp;
+      const paused = timeSinceActivity < waitMs;
+
+      sendResponse({ remaining, paused, waitMs });
+    })();
+    return true;
+  }
+});
+
+async function scheduleTabManager() {
+  if (tabManagerTimeout) clearTimeout(tabManagerTimeout);
+
+  const secondsToWait = await getSetting("tab-manager-seconds-to-wait");
+  const waitMs = (parseInt(secondsToWait) || 30) * 1000;
+
+  tabManagerTimeoutStarted = Date.now();
+
+  tabManagerTimeout = setTimeout(async function () {
+    await runTabManager();
+    scheduleTabManager();
+  }, waitMs);
+}
+
+scheduleTabManager();
+updateBadge();
+
+////////////////
+// Badge Icon //
+////////////////
+async function updateIcon(isRefresherActive, isRefresherPaused, hasMatchingNote) {
+  const canvas = new OffscreenCanvas(128, 128);
+  const ctx = canvas.getContext("2d");
+
+  // Draw base icon
+  const response = await fetch(chrome.runtime.getURL("ea_128.png"));
+  const blob = await response.blob();
+  const imageBitmap = await createImageBitmap(blob);
+  ctx.drawImage(imageBitmap, 0, 0, 128, 128);
+
+  // Bottom right — refresh indicator
+  if (isRefresherActive || isRefresherPaused) {
+    ctx.font = "bold 70px Arial";
+    ctx.textAlign = "right";
+    ctx.textBaseline = "bottom";
+    ctx.fillStyle = isRefresherActive ? "#4CAF50" : "#FF9800";
+    ctx.shadowColor = "rgba(0,0,0,0.8)";
+    ctx.shadowBlur = 4;
+    ctx.fillText("↻", 128, 128);
+    ctx.shadowBlur = 0;
+  }
+
+  // Bottom left — page note indicator
+  if (hasMatchingNote) {
+    ctx.font = "bold 70px Arial";
+    ctx.textAlign = "left";
+    ctx.textBaseline = "bottom";
+    ctx.fillStyle = "#FFD700";
+    ctx.shadowColor = "rgba(0,0,0,0.8)";
+    ctx.shadowBlur = 4;
+    ctx.fillText("✎", 0, 128);
+    ctx.shadowBlur = 0;
+  }
+
+  const imageData = ctx.getImageData(0, 0, 128, 128);
+  chrome.action.setIcon({ imageData });
+}
+
+async function updateBadge() {
+  const [revolverOn, refresherOn, closerOn] = await Promise.all([
+    get("revolver-power", "off"),
+    get("refresher-power", "off"),
+    get("closer-power", "off"),
+  ]);
+
+  const isRevolverOn = revolverOn === "on";
+  const isRefresherOn = refresherOn === "on";
+  const isCloserOn = closerOn === "on";
+
+  // Check for matching page note on current tab
+  const extensionUrl = chrome.runtime.getURL("");
+  let hasMatchingNote = false;
+
+  try {
+    let [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+    if (tab && !tab.url.startsWith(extensionUrl)) {
+      const matches = await get_matching_page_notes(tab.url);
+      hasMatchingNote = matches.length > 0;
+    } else {
+      const allWindows = await chrome.windows.getAll({ populate: true });
+      for (const window of allWindows) {
+        const activeTab = window.tabs.find(t => t.active && !t.url.startsWith(extensionUrl));
+        if (activeTab) {
+          const matches = await get_matching_page_notes(activeTab.url);
+          hasMatchingNote = matches.length > 0;
+          break;
+        }
+      }
+    }
+  } catch (e) {
+    console.log("Error checking page notes:", e);
+  }
+
+  // Update hover title
+  const parts = [];
+  if (isRevolverOn) parts.push("Revolver");
+  if (isRefresherOn) parts.push("Refresher");
+  if (isCloserOn) parts.push("Auto-Closer");
+  if (hasMatchingNote) parts.push("Matching Note");
+  chrome.action.setTitle({
+    title: parts.length ? `Page Notes — ${parts.join(", ")}` : "Page Notes"
+  });
+
+  // Check pause state
+  const secondsToWait = await getSetting("tab-manager-seconds-to-wait");
+  const waitMs = (parseInt(secondsToWait) || 30) * 1000;
+  const timeSinceActivity = Date.now() - lastActivityTimestamp;
+  const activityRecent = timeSinceActivity < waitMs;
+  const isRefresherPaused = isRefresherOn && activityRecent;
+  const isRefresherActiveUnpaused = isRefresherOn && !activityRecent;
+
+  await updateIcon(isRefresherActiveUnpaused, isRefresherPaused, hasMatchingNote);
+}
+
+chrome.tabs.onActivated.addListener(function () {
+  updateBadge();
+});
+
+chrome.tabs.onUpdated.addListener(function (tabId, changeInfo) {
+  if (changeInfo.status === "complete") {
+    updateBadge();
+  }
+});

@@ -40,16 +40,70 @@
         /* Darker red on hover */
       }
 
-      .revolver-text-input {
-        min-width: 140px; /* adjust as needed */
-        /* padding: 4px 8px; */
+      .power-btn {
+        font-size: 22px;
+        width: 52px;
+        height: 52px;
+        border-radius: 50%;
+        border: none;
+        cursor: pointer;
+
+        background: radial-gradient(circle at 30% 30%, #333, #111);
+        color: #777;
+
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        transition: all 0.25s ease;
+        box-shadow:
+          inset 0 2px 6px rgba(0, 0, 0, 0.8),
+          0 2px 4px rgba(0, 0, 0, 0.6);
       }
 
-      /* Make the select a bit wider */
-      .revolver-number {
-        min-width: 10px; /* adjust as needed */
-        /* padding: 4px 8px; */
+      /* Hover effect */
+      .power-btn:hover {
+        transform: scale(1.05);
       }
+
+      /* ON state */
+      .power-btn.on {
+        color: #4caf50;
+        text-shadow: 0 0 6px #4caf50;
+
+        box-shadow:
+          0 0 10px rgba(76, 175, 80, 0.7),
+          0 0 20px rgba(76, 175, 80, 0.4),
+          inset 0 2px 6px rgba(0, 0, 0, 0.8);
+      }
+
+      /* OFF state */
+      .power-btn.off {
+        color: #777;
+      }
+
+      /* Click feedback */
+      .power-btn:active {
+        transform: scale(0.95);
+      }
+
+      .tab-manager-input-group {
+        display: flex;
+        align-items: center;
+        justify-content: space-between; /* pushes button to the right */
+        margin-bottom: 10px;
+      }
+
+      .tab-manager-input-group label {
+        margin: 0;
+        font-size: 14px;
+      }
+
+      /* Optional: keep consistent width if you have multiple rows */
+      .tab-manager-input-group {
+        max-width: 250px;
+      }
+
     </style>
   </head>
 
@@ -182,60 +236,42 @@
         <div class="tab-content" id="revolver-tab">
          <h2 class="revolverName">Revolver</h2>
 
-         
-         <label id="revolver-is-active"
-                >Actively Revolve:</label
-              >   
-         <div class="input-group">
-            <select
-              id="revolver-is-active"
-              class="revolver-setting revolver-text-input"
-              key="revolver-is-active"
-              style="margin-bottom: 0px;"
-            >
-            <option value="True">True</option>
-            <option value="False" selected>False</option>
-            </select>
-          </div>
+         <br />
+          
+         <div class="tab-manager-input-group">
+          <label id="revolver-is-active"
+                >Actively Revolve</label
+              >  
+          <button id="revolver-power" class="power-btn off revolver-setting" title="Toggle Revolver">
+            ⏻
+          </button>
+          </div>  
           <br />
+          <hr/>
+          <br />
+          <div class="tab-manager-input-group">
           <label id="refresher-is-active"
-                >Actively Refresh:</label
-              >   
-         <div class="input-group">
-            <select
-              id="refresher-is-active"
-              class="revolver-setting revolver-text-input"
-              key="refresher-is-active"
-              style="margin-bottom: 0px;"
-            >
-            <option value="True">True</option>
-            <option value="False" selected>False</option>
-            </select>
+                >Actively Refresh</label
+              >  
+          <button id="refresher-power" class="power-btn off revolver-setting" title="Toggle Refresher">
+            ⏻
+          </button>
           </div>
           <br />
-          <label id="revolver-time-period"
-                >Time to Revolve/Refresh:</label
-              >   
-         <div class="input-group">
-            <input
-              type="number"
-              id="revolver-time-period-minutes"
-              class="revolver-number revolver-setting"
-              key="revolver-time-period-minutes"
-              style="margin-bottom: 0px;"
-              value="0"
-            />
-            <span style="font-size:medium; padding-right:15px; padding-left:3px">M</span>
-             <input
-              type="number"
-              id="revolver-time-period-seconds"
-              class="revolver-number revolver-setting"
-              key="revolver-time-period-seconds"
-              style="margin-bottom: 0px;"
-              value="30"
-            />
-            <span style="font-size:medium; padding-right:15px; padding-left:3px">S</span>
+          <hr/>
+          <br />
+          <div class="tab-manager-input-group">
+          <label id="closer-is-active"
+                >Auto-Close Tabs</label
+              >  
+          <button id="closer-power" class="power-btn off revolver-setting" title="Toggle Auto-Closer">
+            ⏻
+          </button>
           </div>
+          <br />
+          <small id="tab-manager-countdown"></small>
+          <br />
+          <small>Edit settings in the options tab</small>
           <br />
 
           
@@ -267,12 +303,14 @@
         </div>
         <div id="bottom-button-bar">
           <!-- <input type="button" id="openSidePanel" value="Open Side Pannel"/> -->
+          <button id="open-as-window">Breakout</button>
           <input
             class="m-3"
             type="button"
             id="openOptionsPage"
-            value="Open Extension Tab"
+            value="Open Options Tab"
           />
+          
         </div>
       </div>
     </div>

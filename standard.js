@@ -64,7 +64,7 @@ const variables = {
     regexSearchName: "re-Search",
     tocName: "TOC", 
     webAppSecName: "WebAppSec",
-    revolverName: "Revolver/Refresher"
+    revolverName: "Tab Manager"
   }
 
 /////////////////

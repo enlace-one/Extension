@@ -248,7 +248,20 @@ default_settings = {
     "& ping -c 10 127.0.0.1 &",
     "|| whoami > /var/www/static/whoami.txt ||"
   ],
-  "web-app-sec-header-modifications": {"pragma": "x-get-cache-key"}
+  "web-app-sec-header-modifications": {"pragma": "x-get-cache-key"},
+  "tab-manager-seconds-to-wait": 30,
+  "revolver-mode": "exclusion",
+  "revolver-exclusion-list": "",
+  "revolver-inclusion-list": "",
+  "revolver-pause-after-activity": "pause",
+  "refresher-mode": "exclusion",
+  "refresher-exclusion-list": "",
+  "refresher-inclusion-list": "",
+  "refresher-pause-after-activity": "pause",
+  "closer-mode": "inclusion",
+  "closer-exclusion-list": "",
+  "closer-inclusion-list": "chrome://whats-new/\n/https:\\/\\/www\\.microsoft\\.com\\/es-es\\/edge\\/update\\/.*/",
+  "closer-pause-after-activity": "pause"
 
 };
 
@@ -554,4 +567,27 @@ async function runFunctionOnPage(func, args = []) {
           }
       });
   });
+}
+
+////////////////
+// Page Notes //
+////////////////
+
+async function get_matching_page_notes(url) {
+  const matchingNotes = [];
+
+  const results = await chrome.storage.sync.get();
+  for (key in results) {
+    let result = results[key];
+    if (key.startsWith("mde_")) {
+      if (result.url_pattern != "") {
+        if (new RegExp(result.url_pattern).test(url)) {
+          result["id"] = key;
+          matchingNotes.push(result);
+        }
+      }
+    }
+  }
+
+  return matchingNotes;
 }
