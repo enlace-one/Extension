@@ -62,3 +62,20 @@ This is not tracked as much anymore. It is mostly moved to my ToDo app.
 - Clipboard combiner - harder than it seems to read from clipboard
 - Extra copy paste clipboard - harder than it seems to read from clipboard
 - Custom keyboard shortcuts? Inject javascript? 
+
+# Updating the Extension 
+1. Update the version number and commit with that v#
+2. Create a zip of Relevant files named as the version
+3. Log into Chrome Developer Portal
+4. Upload the extension and update docs as needed
+
+# Changing Icon
+1. Use https://alexleybourne.github.io/chrome-extension-icon-generator/ to change the size
+
+# Adding New Images
+1. Take the screenshot
+2. Remove any identifying information
+3. Resize with image resizer (powertoys) (right click) and don't ignore orientation. This will just make the height right usually.
+4. Edit in Paint and adjust width as needed. 
+5. Add text or anything else
+6. Upload.
